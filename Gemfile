@@ -28,6 +28,9 @@ gem 'bootsnap', '>= 1.1.0', require: false
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 # gem 'rack-cors'
 
+# Gives 200 OK from /ping
+gem 'openstax_healthcheck'
+
 gem 'dotenv-rails'
 
 group :test do
