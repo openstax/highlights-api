@@ -80,6 +80,8 @@ test:
 #
 production:
   <<: *default
-  database: highlights-api_production
-  username: highlights-api
-  password: <%= ENV['HIGHLIGHTS-API_DATABASE_PASSWORD'] %>
+  host: <%= Rails.application.secrets.database[:url] %>
+  port: <%= Rails.application.secrets.database[:port] %>
+  database: <%= Rails.application.secrets.database[:name] %>
+  username: <%= Rails.application.secrets.database[:username] %>
+  password: <%= Rails.application.secrets.database[:password] %>
