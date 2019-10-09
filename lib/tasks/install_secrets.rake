@@ -45,6 +45,23 @@ task :install_secrets, [] do
     end
   end
 
+  database_secrets = secrets.delete('database')
+
+  File.open(File.expand_path("config/database.yml"), "w") do |file|
+    file.write(yaml({
+      'production' => {
+        'database' => database_secrets['name'],
+        'host' => database_secrets['url'],
+        'port' => database_secrets['port'],
+        'username' => database_secrets['username'],
+        'password' => database_secrets['password'],
+        'adapter' => "postgresql",
+        'encoding' => "unicode",
+        "pool" => '<%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>'
+      }
+    }))
+  end
+
   File.open(File.expand_path("config/secrets.yml"), "w") do |file|
     # write the secrets hash as yaml, getting rid of the "---\n" at the front
     file.write({'production' => secrets}.to_yaml[4..-1])
