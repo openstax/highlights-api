@@ -48,7 +48,7 @@ task :install_secrets, [] do
   database_secrets = secrets.delete('database')
 
   File.open(File.expand_path("config/database.yml"), "w") do |file|
-    file.write(yaml({
+    file.write({
       'production' => {
         'database' => database_secrets['name'],
         'host' => database_secrets['url'],
@@ -59,7 +59,7 @@ task :install_secrets, [] do
         'encoding' => "unicode",
         "pool" => '<%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>'
       }
-    }))
+    }.to_yaml[4..-1])
   end
 
   File.open(File.expand_path("config/secrets.yml"), "w") do |file|
