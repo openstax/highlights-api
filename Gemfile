@@ -14,7 +14,7 @@ gem 'puma', '~> 3.11'
 gem 'versionist'
 
 # More concise, one-liner logs (better for production)
-gem "lograge"
+gem 'lograge'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 # gem 'jbuilder', '~> 2.5'
