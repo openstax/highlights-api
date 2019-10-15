@@ -36,6 +36,9 @@ rescue ActiveRecord::PendingMigrationError => e
   puts e.to_s.strip
   exit 1
 end
+
+Dir[Rails.root.join('spec', 'support', '**', '*.rb')].each { |f| require f unless f.ends_with?("_spec.rb") }
+
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
@@ -62,6 +65,11 @@ RSpec.configure do |config|
 
   # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!
+
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+  config.include ApiV0Helpers, api: :v0
+  ApiV0Helpers.more_rspec_config(config)
+
+  config.include ResponseHelpers, type: :request
 end

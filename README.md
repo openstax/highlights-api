@@ -6,7 +6,7 @@ The API interface to highlights within OpenStax
 
 ## Dependencies
 
-This app creates, updates, and deletes highlights from Postgres/Aurora-Serverless
+This app creates, updates, and deletes highlights from Postgres
 
 ## Configuration
 

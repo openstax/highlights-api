@@ -4,6 +4,8 @@ language: ruby
 rvm: 2.5.0
 cache: bundler
 bundler_args: --retry=6
+services:
+  - postgresql
 branches:
   only:
     - master
@@ -11,3 +13,5 @@ branches:
     - /^release-.*$/
 script:
   - bundle exec rake spec
+before_script:
+  - psql -c 'create database highlights_test;' -U postgres
