@@ -38,6 +38,9 @@ gem 'bootsnap', '>= 1.1.0', require: false
 # Gives 200 OK from /ping
 gem 'openstax_healthcheck'
 
+# For installing secrets on deploy
+gem "aws-sdk-ssm"
+
 gem 'dotenv-rails'
 
 group :test do
