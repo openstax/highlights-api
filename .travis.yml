@@ -1,7 +1,7 @@
 sudo: false
 dist: trusty
 language: ruby
-rvm: 2.5.0
+rvm: 2.6.5
 cache: bundler
 bundler_args: --retry=6
 services:
@@ -15,3 +15,5 @@ script:
   - bundle exec rake spec
 before_script:
   - psql -c 'create database highlights_test;' -U postgres
+before_install:
+  - gem install bundler
