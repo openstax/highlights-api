@@ -1,20 +1,19 @@
 class Api::V0::InfoController < Api::V0::BaseController
 
-  # swagger_path '/info' do
-  #   operation :get do
-  #     key :summary, 'Get info on indexes'
-  #     key :description, 'Get info on indexes'
-  #     key :operationId, 'info'
-  #     response 200 do
-  #       key :description, 'Success.  Returns the index info.'
-  #       schema do
-  #         key :'$ref', :InfoResults
-  #       end
-  #     end
-  #     extend Api::V0::Swagger::ErrorResponses::UnprocessableEntityError
-  #     extend Api::V0::Swagger::ErrorResponses::ServerError
-  #   end
-  # end
+  swagger_path '/info' do
+    operation :get do
+      key :summary, 'Get info on highlights'
+      key :description, 'Get info on highlights'
+      key :operationId, 'info'
+      response 200 do
+        key :description, 'Success.  Returns basic highlights metrics.'
+        schema do
+        end
+      end
+      # extend Api::V0::Swagger::ErrorResponses::UnprocessableEntityError
+      # extend Api::V0::Swagger::ErrorResponses::ServerError
+    end
+  end
 
   def info
     # starting = Time.now
