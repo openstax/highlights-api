@@ -10,9 +10,27 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 0) do
+ActiveRecord::Schema.define(version: 2019_10_17_173513) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "highlights", force: :cascade do |t|
+    t.uuid "user_uuid", null: false
+    t.integer "source_type", default: 0, null: false
+    t.uuid "source_uuid", null: false
+    t.jsonb "source_metadata"
+    t.text "source_parent_ids", default: [], array: true
+    t.text "anchor", null: false
+    t.text "highlighted_content", null: false
+    t.text "annotation"
+    t.string "color", null: false
+    t.text "source_pagingation_order"
+    t.integer "order_in_source"
+    t.jsonb "location_strategies", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_uuid"], name: "index_highlights_on_user_uuid"
+  end
 
 end
