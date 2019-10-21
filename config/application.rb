@@ -5,7 +5,9 @@ require "rails"
 # This is the railtie middleware stack.
 # !! Have removed some of these to improve API performance. !!
 require "active_model/railtie"
-# require "active_job/railtie"
+# can comment out active_job/railtie after next 5.2.x release, see
+# https://github.com/rails/rails/pull/35896#issuecomment-535569136
+require "active_job/railtie"
 require "active_record/railtie"
 # require "active_storage/engine"
 require "action_controller/railtie"
