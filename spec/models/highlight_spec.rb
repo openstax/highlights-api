@@ -25,22 +25,34 @@ RSpec.describe Highlight, type: :model do
 
     describe '#color' do
       it 'must be hex' do
-        record = described_class.new(color: 'invalid color')
-        expect(record.valid?).to be_falsey
-        expect(record.errors[:color]).to include('is invalid')
+        expect(highlight.valid?).to be_truthy
 
-        record = described_class.new(color: '#C0C0C0')
-        expect(record.valid?).to be_truthy
-        expect(record.errors[:color]).to_not include('is invalid')
+        highlight.color = 'invalid color'
+        expect(highlight.valid?).to be_falsey
+        expect(highlight.errors[:color]).to include('is invalid')
+
+        highlight.color = '#c0c0c0'
+        expect(highlight.valid?).to be_truthy
       end
     end
 
-    describe '#user_uuid' do
-      let(:invalid_user_uuid) { 'foobar' }
-      let(:foobar_highlight) { build(:highlight, user_uuid: invalid_user_uuid) }
+    describe 'before validation hooks' do
+      it 'color will be downcased' do
+        record = described_class.new(color: '#C0C0C0')
+        record.validate
+        expect(record.color).to eq '#c0c0c0'
+      end
 
-      it 'must be a uuid' do
-        expect(foobar_highlight.user_uuid).to be_nil
+      it 'source_parent_ids will be downcased' do
+        record = described_class.new(source_type: 0, source_parent_ids: ['ABC'])
+        record.validate
+        expect(record.source_parent_ids).to eq ['abc']
+      end
+
+      it 'source_id will be downcased' do
+        record = described_class.new(source_type: 0, source_id: 'ABC')
+        record.validate
+        expect(record.source_id).to eq 'abc'
       end
     end
   end

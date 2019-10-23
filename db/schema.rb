@@ -13,23 +13,27 @@
 ActiveRecord::Schema.define(version: 2019_10_17_173513) do
 
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
+  enable_extension "uuid-ossp"
 
-  create_table "highlights", force: :cascade do |t|
+  create_table "highlights", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_uuid", null: false
     t.integer "source_type", default: 0, null: false
-    t.uuid "source_uuid", null: false
+    t.string "source_id", null: false
     t.jsonb "source_metadata"
     t.text "source_parent_ids", default: [], array: true
     t.text "anchor", null: false
     t.text "highlighted_content", null: false
     t.text "annotation"
     t.string "color", null: false
-    t.text "source_pagingation_order"
+    t.text "source_order"
     t.integer "order_in_source"
     t.jsonb "location_strategies", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["source_parent_ids"], name: "index_highlights_on_source_parent_ids", using: :gin
+    t.index ["source_type"], name: "index_highlights_on_source_type"
     t.index ["user_uuid"], name: "index_highlights_on_user_uuid"
   end
 

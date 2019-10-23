@@ -3,7 +3,7 @@ Rails.application.routes.draw do
     api_version(
       module: 'V0',
       path: { value: 'v0' },
-      defaults: { format: :json },
+      defaults: { format: :json }
     ) do
 
       get :swagger, to: 'swagger/docs#json'

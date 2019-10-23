@@ -14,9 +14,9 @@ FactoryBot.define do
             "end": 10
          }
      ]
-      JSON
+     JSON
     end
-    source_uuid { SecureRandom.uuid }
+    source_id { SecureRandom.uuid }
     source_metadata { '{page_version: 14}' }
 
     trait :red do
