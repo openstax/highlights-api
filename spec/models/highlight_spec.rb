@@ -36,7 +36,15 @@ RSpec.describe Highlight, type: :model do
       end
     end
 
-    describe 'before validation hooks' do
+    context 'generic normalizations' do
+      it 'color will be downcased' do
+        record = described_class.new(color: '#C0C0C0')
+        record.validate
+        expect(record.color).to eq '#c0c0c0'
+      end
+    end
+
+    context 'openstax_page source_type' do
       it 'color will be downcased' do
         record = described_class.new(color: '#C0C0C0')
         record.validate
@@ -44,13 +52,13 @@ RSpec.describe Highlight, type: :model do
       end
 
       it 'source_parent_ids will be downcased' do
-        record = described_class.new(source_type: 0, source_parent_ids: ['ABC'])
+        record = described_class.openstax_page.new(source_parent_ids: ['ABC'])
         record.validate
         expect(record.source_parent_ids).to eq ['abc']
       end
 
       it 'source_id will be downcased' do
-        record = described_class.new(source_type: 0, source_id: 'ABC')
+        record = described_class.openstax_page.new(source_id: 'ABC')
         record.validate
         expect(record.source_id).to eq 'abc'
       end

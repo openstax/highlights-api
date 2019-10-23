@@ -22,6 +22,10 @@ class CreateHighlights < ActiveRecord::Migration[5.2]
       t.timestamps null: false
     end
 
+    # TODO: for future queries consider adding compound queries when explain
+    # analysis shows a need.  compound index speed up complex queries
+    # significantly, but take up a lot of room (on large tables), so they need
+    # to be used judiciously.
     add_index :highlights, :source_parent_ids, using: 'gin'
   end
 end

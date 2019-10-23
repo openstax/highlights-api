@@ -8,6 +8,7 @@ class Highlight < ApplicationRecord
   validates_format_of :color, with: /\A#?(?:[a-f0-9]{3}){1,2}\z/
   validates_presence_of :user_uuid,
                         :source_type,
+                        :source_id,
                         :anchor,
                         :highlighted_content,
                         :location_strategies
