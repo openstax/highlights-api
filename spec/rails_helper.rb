@@ -72,4 +72,6 @@ RSpec.configure do |config|
   ApiV0Helpers.more_rspec_config(config)
 
   config.include ResponseHelpers, type: :request
+
+  config.include FactoryBot::Syntax::Methods
 end

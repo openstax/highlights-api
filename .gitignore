@@ -24,7 +24,9 @@
 
 /config/secrets.yml
 
+coverage/*
+
 .env
 
-coverage/*
+.DS_Store
 
