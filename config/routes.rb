@@ -6,6 +6,8 @@ Rails.application.routes.draw do
       defaults: { format: :json }
     ) do
 
+      resources :highlights
+
       get :swagger, to: 'swagger/docs#json'
 
       get :info, to: 'info#info'
