@@ -45,6 +45,8 @@ gem 'dotenv-rails'
 
 gem "openstax_swagger", github: 'openstax/swagger-rails', ref: '0ad77d306d2'
 
+gem 'active_model_serializers'
+
 # Allow requests with a 'highlights' prefix to support use via CloudFront
 gem "openstax_path_prefixer", github: 'openstax/path_prefixer', ref: '0ed5cdba6be65dbf1d07fd7580e2311a2f42cdfd'
 
