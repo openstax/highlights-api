@@ -5,7 +5,9 @@
 #
 # See https://docs.google.com/document/d/1eUzJ6YDwK25K8gHllXljr5ELKE06tWjAh6hXIAYcqsw/edit#heading=h.v01zz2q3y1e7 for more information.
 class Highlight < ApplicationRecord
-  validates_format_of :color, with: /\A#?(?:[a-f0-9]{3}){1,2}\z/
+  VALID_COLOR = '\A#?(?:[a-f0-9]{3}){1,2}\z'
+
+  validates_format_of :color, with: ::Regexp.new(VALID_COLOR)
   validates_presence_of :user_uuid,
                         :source_type,
                         :source_id,
