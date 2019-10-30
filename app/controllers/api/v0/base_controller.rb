@@ -4,4 +4,8 @@ class Api::V0::BaseController < ApplicationController
 
   include Response
   include ExceptionHandler
+
+  def binding_error(status_code:, messages:)
+    Api::V0::Bindings::Error.new(status_code: status_code, messages: messages)
+  end
 end

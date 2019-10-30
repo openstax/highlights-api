@@ -1,8 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe Api::V0::HighlightsController, type: :request do
-  # let!(:highlights) { create_list(:highlight, 10) }
-
   describe 'POST /highlights' do
     let(:valid_attributes) { { title: 'Learn Elm', created_by: '1' } }
 

@@ -149,6 +149,10 @@ module Api::V0::Bindings
         invalid_properties.push('invalid value for "color", color cannot be nil.')
       end
 
+      if @color !~ Regexp.new(/#?(?:[a-f0-9]{3}){1,2}/)
+        invalid_properties.push('invalid value for "color", must conform to the pattern /#?(?:[a-f0-9]{3}){1,2}/.')
+      end
+
       if @location_strategies.nil?
         invalid_properties.push('invalid value for "location_strategies", location_strategies cannot be nil.')
       end
@@ -170,6 +174,7 @@ module Api::V0::Bindings
       return false if @anchor.nil?
       return false if @highlighted_content.nil?
       return false if @color.nil?
+      return false if @color !~ Regexp.new(/#?(?:[a-f0-9]{3}){1,2}/)
       return false if @location_strategies.nil?
       return false if @user_uuid.nil?
       true
@@ -183,6 +188,20 @@ module Api::V0::Bindings
         fail ArgumentError, 'invalid value for "source_type", must be one of #{validator.allowable_values}.'
       end
       @source_type = source_type
+    end
+
+    # Custom attribute writer method with validation
+    # @param [Object] color Value to be assigned
+    def color=(color)
+      if color.nil?
+        fail ArgumentError, 'color cannot be nil'
+      end
+
+      if color !~ Regexp.new(/#?(?:[a-f0-9]{3}){1,2}/)
+        fail ArgumentError, 'invalid value for "color", must conform to the pattern /#?(?:[a-f0-9]{3}){1,2}/.'
+      end
+
+      @color = color
     end
 
     # Checks equality by comparing each attribute.

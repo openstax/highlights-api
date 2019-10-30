@@ -25,6 +25,7 @@ module Api::V0::Swagger::Models::Highlight
     end
     property :color do
       key :type, :string
+      key :pattern, '#?(?:[a-f0-9]{3}){1,2}'
     end
     property :location_strategies do
       key :type, :array
