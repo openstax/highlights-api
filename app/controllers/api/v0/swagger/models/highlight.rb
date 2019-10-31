@@ -1,13 +1,45 @@
 module Api::V0::Swagger::Models::Highlight
   include Swagger::Blocks
-  include SwaggerBlocksExtensions
+  include OpenStax::Swagger::SwaggerBlocksExtensions
+
+  swagger_schema :TextPositionSelector do
+    key :required, [:type, :start, :end]
+    property :start do
+      key :type, :string
+    end
+    property :end do
+      key :type, :string
+    end
+    property :type do
+      key :type, :string
+    end
+  end
+
+  swagger_schema :XpathRangeSelector do
+    key :required, [:endContainer, :endOffset, :startContainer, :startOffset, :type]
+    property :endContainer do
+      key :type, :string
+    end
+    property :endOffset do
+      key :type, :integer
+    end
+    property :startContainer do
+      key :type, :string
+    end
+    property :startOffset do
+      key :type, :integer
+    end
+    property :type do
+      key :type, :string
+    end
+  end
 
   swagger_schema :Highlight do
-    key :required, [:id, :user_uuid]
+    key :required, [:id]
   end
 
   swagger_schema :NewHighlight do
-    key :required, [:user_uuid, :source_type, :source_id, :anchor, :highlighted_content, :color, :location_strategies]
+    key :required, [:source_type, :source_id, :anchor, :highlighted_content, :color, :location_strategies]
 
     property :source_type do
       key :type, :string
@@ -15,7 +47,6 @@ module Api::V0::Swagger::Models::Highlight
     end
     property :source_id do
       key :type, :string
-      key :format, 'uuid'
     end
     property :anchor do
       key :type, :string
@@ -25,12 +56,13 @@ module Api::V0::Swagger::Models::Highlight
     end
     property :color do
       key :type, :string
-      key :pattern, '#?(?:[a-f0-9]{3}){1,2}'
+      # remove the anchors because swagger-codegen always escapes them
+      key :pattern, ::Highlight::VALID_COLOR.inspect[1..-2]
     end
     property :location_strategies do
       key :type, :array
       items do
-        key :type, :string
+        key :type, :object
       end
     end
   end
@@ -39,13 +71,6 @@ module Api::V0::Swagger::Models::Highlight
     property :id do
       key :type, :string
       key :format, 'uuid'
-      key :readOnly, true
-      key :description, 'Internally set UUID'
-    end
-    property :user_uuid do
-      key :type, :string
-      key :format, 'uuid'
-      key :description, 'The ID of the user accessing the highlight'
     end
   end
 end

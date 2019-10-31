@@ -13,20 +13,36 @@ Swagger Codegen version: 2.4.9
 require 'date'
 
 module Api::V0::Bindings
-  class Highlight
-    attr_accessor :id
+  class XpathRangeSelector
+    attr_accessor :end_container
+
+    attr_accessor :end_offset
+
+    attr_accessor :start_container
+
+    attr_accessor :start_offset
+
+    attr_accessor :type
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
-        :'id' => :'id'
+        :'end_container' => :'endContainer',
+        :'end_offset' => :'endOffset',
+        :'start_container' => :'startContainer',
+        :'start_offset' => :'startOffset',
+        :'type' => :'type'
       }
     end
 
     # Attribute type mapping.
     def self.swagger_types
       {
-        :'id' => :'String'
+        :'end_container' => :'String',
+        :'end_offset' => :'Integer',
+        :'start_container' => :'String',
+        :'start_offset' => :'Integer',
+        :'type' => :'String'
       }
     end
 
@@ -38,8 +54,24 @@ module Api::V0::Bindings
       # convert string to symbol for hash key
       attributes = attributes.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
 
-      if attributes.has_key?(:'id')
-        self.id = attributes[:'id']
+      if attributes.has_key?(:'endContainer')
+        self.end_container = attributes[:'endContainer']
+      end
+
+      if attributes.has_key?(:'endOffset')
+        self.end_offset = attributes[:'endOffset']
+      end
+
+      if attributes.has_key?(:'startContainer')
+        self.start_container = attributes[:'startContainer']
+      end
+
+      if attributes.has_key?(:'startOffset')
+        self.start_offset = attributes[:'startOffset']
+      end
+
+      if attributes.has_key?(:'type')
+        self.type = attributes[:'type']
       end
     end
 
@@ -47,8 +79,24 @@ module Api::V0::Bindings
     # @return Array for valid properties with the reasons
     def list_invalid_properties
       invalid_properties = Array.new
-      if @id.nil?
-        invalid_properties.push('invalid value for "id", id cannot be nil.')
+      if @end_container.nil?
+        invalid_properties.push('invalid value for "end_container", end_container cannot be nil.')
+      end
+
+      if @end_offset.nil?
+        invalid_properties.push('invalid value for "end_offset", end_offset cannot be nil.')
+      end
+
+      if @start_container.nil?
+        invalid_properties.push('invalid value for "start_container", start_container cannot be nil.')
+      end
+
+      if @start_offset.nil?
+        invalid_properties.push('invalid value for "start_offset", start_offset cannot be nil.')
+      end
+
+      if @type.nil?
+        invalid_properties.push('invalid value for "type", type cannot be nil.')
       end
 
       invalid_properties
@@ -57,7 +105,11 @@ module Api::V0::Bindings
     # Check to see if the all the properties in the model are valid
     # @return true if the model is valid
     def valid?
-      return false if @id.nil?
+      return false if @end_container.nil?
+      return false if @end_offset.nil?
+      return false if @start_container.nil?
+      return false if @start_offset.nil?
+      return false if @type.nil?
       true
     end
 
@@ -66,7 +118,11 @@ module Api::V0::Bindings
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
-          id == o.id
+          end_container == o.end_container &&
+          end_offset == o.end_offset &&
+          start_container == o.start_container &&
+          start_offset == o.start_offset &&
+          type == o.type
     end
 
     # @see the `==` method
@@ -78,7 +134,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [id].hash
+      [end_container, end_offset, start_container, start_offset, type].hash
     end
 
     # Builds the object from hash
