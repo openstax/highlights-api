@@ -26,11 +26,7 @@ module Api::V0::Bindings
 
     attr_accessor :location_strategies
 
-    # Internally set UUID
     attr_accessor :id
-
-    # The ID of the user accessing the highlight
-    attr_accessor :user_uuid
 
     class EnumAttributeValidator
       attr_reader :datatype
@@ -63,8 +59,7 @@ module Api::V0::Bindings
         :'highlighted_content' => :'highlighted_content',
         :'color' => :'color',
         :'location_strategies' => :'location_strategies',
-        :'id' => :'id',
-        :'user_uuid' => :'user_uuid'
+        :'id' => :'id'
       }
     end
 
@@ -76,9 +71,8 @@ module Api::V0::Bindings
         :'anchor' => :'String',
         :'highlighted_content' => :'String',
         :'color' => :'String',
-        :'location_strategies' => :'Array<String>',
-        :'id' => :'String',
-        :'user_uuid' => :'String'
+        :'location_strategies' => :'Array<Object>',
+        :'id' => :'String'
       }
     end
 
@@ -119,10 +113,6 @@ module Api::V0::Bindings
       if attributes.has_key?(:'id')
         self.id = attributes[:'id']
       end
-
-      if attributes.has_key?(:'user_uuid')
-        self.user_uuid = attributes[:'user_uuid']
-      end
     end
 
     # Show invalid properties with the reasons. Usually used together with valid?
@@ -149,16 +139,12 @@ module Api::V0::Bindings
         invalid_properties.push('invalid value for "color", color cannot be nil.')
       end
 
-      if @color !~ Regexp.new(/#?(?:[a-f0-9]{3}){1,2}/)
-        invalid_properties.push('invalid value for "color", must conform to the pattern /#?(?:[a-f0-9]{3}){1,2}/.')
+      if @color !~ Regexp.new(/#?[a-f0-9]{6}/)
+        invalid_properties.push('invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.')
       end
 
       if @location_strategies.nil?
         invalid_properties.push('invalid value for "location_strategies", location_strategies cannot be nil.')
-      end
-
-      if @user_uuid.nil?
-        invalid_properties.push('invalid value for "user_uuid", user_uuid cannot be nil.')
       end
 
       invalid_properties
@@ -174,9 +160,8 @@ module Api::V0::Bindings
       return false if @anchor.nil?
       return false if @highlighted_content.nil?
       return false if @color.nil?
-      return false if @color !~ Regexp.new(/#?(?:[a-f0-9]{3}){1,2}/)
+      return false if @color !~ Regexp.new(/#?[a-f0-9]{6}/)
       return false if @location_strategies.nil?
-      return false if @user_uuid.nil?
       true
     end
 
@@ -197,8 +182,8 @@ module Api::V0::Bindings
         fail ArgumentError, 'color cannot be nil'
       end
 
-      if color !~ Regexp.new(/#?(?:[a-f0-9]{3}){1,2}/)
-        fail ArgumentError, 'invalid value for "color", must conform to the pattern /#?(?:[a-f0-9]{3}){1,2}/.'
+      if color !~ Regexp.new(/#?[a-f0-9]{6}/)
+        fail ArgumentError, 'invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.'
       end
 
       @color = color
@@ -215,8 +200,7 @@ module Api::V0::Bindings
           highlighted_content == o.highlighted_content &&
           color == o.color &&
           location_strategies == o.location_strategies &&
-          id == o.id &&
-          user_uuid == o.user_uuid
+          id == o.id
     end
 
     # @see the `==` method
@@ -228,7 +212,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [source_type, source_id, anchor, highlighted_content, color, location_strategies, id, user_uuid].hash
+      [source_type, source_id, anchor, highlighted_content, color, location_strategies, id].hash
     end
 
     # Builds the object from hash

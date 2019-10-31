@@ -1,6 +1,6 @@
 module Api::V0::Swagger::Models::Error
   include Swagger::Blocks
-  include Api::V0::SwaggerBlocksExtensions
+  include OpenStax::Swagger::SwaggerBlocksExtensions
 
   swagger_schema :Error do
     property :status_code do

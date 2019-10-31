@@ -4,7 +4,7 @@ class Api::V0::HighlightsController < Api::V0::BaseController
   swagger_path '/highlights' do
     operation :post do
       key :summary, 'Add a highlight'
-      key :description, 'Add a OpenStax highlight or note.'
+      key :description, 'Add a highlight with an optional note'
       key :operationId, 'addHighlight'
       key :produces, [
         'application/json'
@@ -24,14 +24,14 @@ class Api::V0::HighlightsController < Api::V0::BaseController
           key :'$ref', :NewHighlight
         end
       end
-      response 200 do
-        key :description, 'Success.  Returns the created highlights.'
+      response 201 do
+        key :description, 'Created.  Returns the created highlight.'
         schema do
           key :'$ref', :Highlight
         end
       end
       extend Api::V0::SwaggerResponses::AuthenticationErrorId
-      extend Api::V0::SwaggerResponses::ForbiddenErrorId
+      extend Api::V0::SwaggerResponses::UnprocessableEntityError
       extend Api::V0::SwaggerResponses::ServerError
     end
   end
@@ -40,17 +40,11 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     binding, error = bind(params.require(:highlight), Api::V0::Bindings::NewHighlight)
     render(json: error, status: error.status_code) and return if error
 
-    @highlight = Highlight.create!(highlight_params)
-    render json: @highlight, status: :created
+    Highlight.create!(binding.to_hash)
+    render json: binding.to_json, status: :created
   end
 
   private
-
-  def highlight_params
-    params.require(:highlight).permit(:user_uuid, :source_type, :source_id, :source_metadata,
-                                      :source_parent_ids, :anchor, :highlighted_content, :annotation,
-                                      :color, :source_order, :order_in_source, :location_strategies => [])
-  end
 
   def set_highlight
     @highlight = Highlight.find(params[:id])
