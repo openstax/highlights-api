@@ -16,17 +16,63 @@ module Api::V0::Bindings
   class Highlight
     attr_accessor :id
 
+    attr_accessor :source_type
+
+    attr_accessor :source_id
+
+    attr_accessor :anchor
+
+    attr_accessor :highlighted_content
+
+    attr_accessor :color
+
+    attr_accessor :location_strategies
+
+    class EnumAttributeValidator
+      attr_reader :datatype
+      attr_reader :allowable_values
+
+      def initialize(datatype, allowable_values)
+        @allowable_values = allowable_values.map do |value|
+          case datatype.to_s
+          when /Integer/i
+            value.to_i
+          when /Float/i
+            value.to_f
+          else
+            value
+          end
+        end
+      end
+
+      def valid?(value)
+        !value || allowable_values.include?(value)
+      end
+    end
+
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
-        :'id' => :'id'
+        :'id' => :'id',
+        :'source_type' => :'source_type',
+        :'source_id' => :'source_id',
+        :'anchor' => :'anchor',
+        :'highlighted_content' => :'highlighted_content',
+        :'color' => :'color',
+        :'location_strategies' => :'location_strategies'
       }
     end
 
     # Attribute type mapping.
     def self.swagger_types
       {
-        :'id' => :'String'
+        :'id' => :'String',
+        :'source_type' => :'String',
+        :'source_id' => :'String',
+        :'anchor' => :'String',
+        :'highlighted_content' => :'String',
+        :'color' => :'String',
+        :'location_strategies' => :'Array<Object>'
       }
     end
 
@@ -41,6 +87,32 @@ module Api::V0::Bindings
       if attributes.has_key?(:'id')
         self.id = attributes[:'id']
       end
+
+      if attributes.has_key?(:'source_type')
+        self.source_type = attributes[:'source_type']
+      end
+
+      if attributes.has_key?(:'source_id')
+        self.source_id = attributes[:'source_id']
+      end
+
+      if attributes.has_key?(:'anchor')
+        self.anchor = attributes[:'anchor']
+      end
+
+      if attributes.has_key?(:'highlighted_content')
+        self.highlighted_content = attributes[:'highlighted_content']
+      end
+
+      if attributes.has_key?(:'color')
+        self.color = attributes[:'color']
+      end
+
+      if attributes.has_key?(:'location_strategies')
+        if (value = attributes[:'location_strategies']).is_a?(Array)
+          self.location_strategies = value
+        end
+      end
     end
 
     # Show invalid properties with the reasons. Usually used together with valid?
@@ -51,6 +123,10 @@ module Api::V0::Bindings
         invalid_properties.push('invalid value for "id", id cannot be nil.')
       end
 
+      if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
+        invalid_properties.push('invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.')
+      end
+
       invalid_properties
     end
 
@@ -58,7 +134,30 @@ module Api::V0::Bindings
     # @return true if the model is valid
     def valid?
       return false if @id.nil?
+      source_type_validator = EnumAttributeValidator.new('String', ['openstax_page'])
+      return false unless source_type_validator.valid?(@source_type)
+      return false if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
       true
+    end
+
+    # Custom attribute writer method checking allowed values (enum).
+    # @param [Object] source_type Object to be assigned
+    def source_type=(source_type)
+      validator = EnumAttributeValidator.new('String', ['openstax_page'])
+      unless validator.valid?(source_type)
+        fail ArgumentError, 'invalid value for "source_type", must be one of #{validator.allowable_values}.'
+      end
+      @source_type = source_type
+    end
+
+    # Custom attribute writer method with validation
+    # @param [Object] color Value to be assigned
+    def color=(color)
+      if !color.nil? && color !~ Regexp.new(/#?[a-f0-9]{6}/)
+        fail ArgumentError, 'invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.'
+      end
+
+      @color = color
     end
 
     # Checks equality by comparing each attribute.
@@ -66,7 +165,13 @@ module Api::V0::Bindings
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
-          id == o.id
+          id == o.id &&
+          source_type == o.source_type &&
+          source_id == o.source_id &&
+          anchor == o.anchor &&
+          highlighted_content == o.highlighted_content &&
+          color == o.color &&
+          location_strategies == o.location_strategies
     end
 
     # @see the `==` method
@@ -78,7 +183,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [id].hash
+      [id, source_type, source_id, anchor, highlighted_content, color, location_strategies].hash
     end
 
     # Builds the object from hash

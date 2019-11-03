@@ -39,3 +39,9 @@ Api::V0::Bindings::NewHighlight.class_exec do
   end
 end
 
+
+Api::V0::Bindings::Highlight.instance_eval do
+  def from_model(model)
+    new(model.attributes).to_hash
+  end
+end

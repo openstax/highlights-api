@@ -14,6 +14,8 @@ require 'date'
 
 module Api::V0::Bindings
   class NewHighlight
+    attr_accessor :id
+
     attr_accessor :source_type
 
     attr_accessor :source_id
@@ -25,8 +27,6 @@ module Api::V0::Bindings
     attr_accessor :color
 
     attr_accessor :location_strategies
-
-    attr_accessor :id
 
     class EnumAttributeValidator
       attr_reader :datatype
@@ -53,26 +53,26 @@ module Api::V0::Bindings
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
+        :'id' => :'id',
         :'source_type' => :'source_type',
         :'source_id' => :'source_id',
         :'anchor' => :'anchor',
         :'highlighted_content' => :'highlighted_content',
         :'color' => :'color',
-        :'location_strategies' => :'location_strategies',
-        :'id' => :'id'
+        :'location_strategies' => :'location_strategies'
       }
     end
 
     # Attribute type mapping.
     def self.swagger_types
       {
+        :'id' => :'String',
         :'source_type' => :'String',
         :'source_id' => :'String',
         :'anchor' => :'String',
         :'highlighted_content' => :'String',
         :'color' => :'String',
-        :'location_strategies' => :'Array<Object>',
-        :'id' => :'String'
+        :'location_strategies' => :'Array<Object>'
       }
     end
 
@@ -83,6 +83,10 @@ module Api::V0::Bindings
 
       # convert string to symbol for hash key
       attributes = attributes.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
+
+      if attributes.has_key?(:'id')
+        self.id = attributes[:'id']
+      end
 
       if attributes.has_key?(:'source_type')
         self.source_type = attributes[:'source_type']
@@ -108,10 +112,6 @@ module Api::V0::Bindings
         if (value = attributes[:'location_strategies']).is_a?(Array)
           self.location_strategies = value
         end
-      end
-
-      if attributes.has_key?(:'id')
-        self.id = attributes[:'id']
       end
     end
 
@@ -194,13 +194,13 @@ module Api::V0::Bindings
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
+          id == o.id &&
           source_type == o.source_type &&
           source_id == o.source_id &&
           anchor == o.anchor &&
           highlighted_content == o.highlighted_content &&
           color == o.color &&
-          location_strategies == o.location_strategies &&
-          id == o.id
+          location_strategies == o.location_strategies
     end
 
     # @see the `==` method
@@ -212,7 +212,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [source_type, source_id, anchor, highlighted_content, color, location_strategies, id].hash
+      [id, source_type, source_id, anchor, highlighted_content, color, location_strategies].hash
     end
 
     # Builds the object from hash
