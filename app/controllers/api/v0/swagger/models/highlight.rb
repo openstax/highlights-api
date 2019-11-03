@@ -40,7 +40,13 @@ module Api::V0::Swagger::Models::Highlight
 
   swagger_schema :NewHighlight do
     key :required, [:source_type, :source_id, :anchor, :highlighted_content, :color, :location_strategies]
+  end
 
+  add_properties(:NewHighlight, :Highlight) do
+    property :id do
+      key :type, :string
+      key :format, 'uuid'
+    end
     property :source_type do
       key :type, :string
       key :enum, ['openstax_page']
@@ -64,13 +70,6 @@ module Api::V0::Swagger::Models::Highlight
       items do
         key :type, :object
       end
-    end
-  end
-
-  add_properties(:NewHighlight, :Highlight) do
-    property :id do
-      key :type, :string
-      key :format, 'uuid'
     end
   end
 end

@@ -40,8 +40,12 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     binding, error = bind(params.require(:highlight), Api::V0::Bindings::NewHighlight)
     render(json: error, status: error.status_code) and return if error
 
-    Highlight.create!(binding.to_hash)
-    render json: binding.to_json, status: :created
+    # temporary test user_uuid.  will be removed when auth is set up
+    temp_user_uuid = '55783d49-7562-4576-a626-3b877557a21f'
+    created_highlight = Highlight.create!(binding.to_hash.merge(user_uuid: temp_user_uuid))
+
+    response_binding = Api::V0::Bindings::Highlight.from_model(created_highlight)
+    render json: response_binding, status: :created
   end
 
   private
