@@ -44,8 +44,8 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     temp_user_uuid = '55783d49-7562-4576-a626-3b877557a21f'
     created_highlight = Highlight.create!(binding.to_hash.merge(user_uuid: temp_user_uuid))
 
-    response_binding = Api::V0::Bindings::Highlight.from_model(created_highlight)
-    render json: response_binding, status: :created
+    response_binding = Api::V0::Bindings::Highlight.create_from_model(created_highlight)
+    render json: response_binding.to_hash, status: :created
   end
 
   private
