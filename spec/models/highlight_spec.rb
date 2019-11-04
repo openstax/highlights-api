@@ -4,10 +4,16 @@ RSpec.describe Highlight, type: :model do
   let(:highlight) { build(:highlight) }
 
   describe 'creates to db ok' do
+    let(:valid_uuid) { /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/ }
+
     before { create(:highlight) }
 
     it 'has a count of 1 in the db' do
       expect(Highlight.count).to eq 1
+    end
+
+    it 'created an id w/ a valid uuid' do
+      expect(Highlight.first.id).to match(valid_uuid)
     end
   end
 
