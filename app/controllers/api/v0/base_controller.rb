@@ -3,15 +3,15 @@ class Api::V0::BaseController < ApplicationController
   include OpenStax::Swagger::Bind
 
   rescue_from_unless_local StandardError do |ex|
-    render json: { message: ex.message }, status: :internal_server_error
+    render json: binding_error(status_code: 500, messages: [ex.message]), status: 500
   end
 
   rescue_from ActiveRecord::RecordNotFound do |ex|
-    render json: { message: ex.message }, status: :not_found
+    render json: binding_error(status_code: 404, messages: [ex.message]), status: 404
   end
 
   rescue_from ActiveRecord::RecordInvalid, ActionController::ParameterMissing do |ex|
-    render json: { message: ex.message }, status: :unprocessable_entity
+    render json: binding_error(status_code: 422, messages: [ex.message]), status: 422
   end
 
   protected
