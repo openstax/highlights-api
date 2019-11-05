@@ -3,7 +3,7 @@
 Api::V0::Bindings::NewHighlight.class_exec do
   def valid_location_strategies?
     location_strategies.present? &&
-      location_strategies.none? { |item| item.nil? } &&
+      location_strategies.none?(&:nil?) &&
       location_strategies.all?(&:valid?)
   end
 
@@ -29,13 +29,14 @@ Api::V0::Bindings::NewHighlight.class_exec do
 
     if location_strategies.blank?
       invalid_properties.push('invalid value for "location_strategies", location_strategies cannot be empty.')
+      return invalid_properties
     end
 
-    if location_strategies.any? { |item| item.nil? }
+    if location_strategies.any?(&:nil?)
       invalid_properties.push('invalid strategy detected')
     end
 
-    location_strategies&.each do |strategy|
+    location_strategies.each do |strategy|
       next if strategy.nil?
       strategy.list_invalid_properties.each do |strategy_invalid_property|
         invalid_properties.push("invalid value for location strategy #{strategy.type}: #{strategy_invalid_property}")
