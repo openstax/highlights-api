@@ -53,3 +53,9 @@ Api::V0::Bindings::Highlight.class_exec do
     new(model.attributes)
   end
 end
+
+Api::V0::Bindings::NewHighlight.class_exec do
+  def create_model!(user_uuid:)
+    Highlight.create!(to_hash.merge(user_uuid: user_uuid))
+  end
+end
