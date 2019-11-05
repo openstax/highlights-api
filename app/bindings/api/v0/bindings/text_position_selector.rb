@@ -14,10 +14,13 @@ require 'date'
 
 module Api::V0::Bindings
   class TextPositionSelector
+    # The start to the text position selector.
     attr_accessor :start
 
+    # The end to the text position selector.
     attr_accessor :_end
 
+    # The type for the text position selector.
     attr_accessor :type
 
     # Attribute mapping from ruby-style variable name to JSON key.
@@ -167,7 +170,7 @@ module Api::V0::Bindings
         end
       else # model
         temp_model = Api::V0::Bindings.const_get(type).new
-        temp_model.build_from_hash(value)
+        temp_model.tap{|tm| tm.build_from_hash(value)}
       end
     end
 

@@ -147,7 +147,7 @@ module Api::V0::Bindings
         end
       else # model
         temp_model = Api::V0::Bindings.const_get(type).new
-        temp_model.build_from_hash(value)
+        temp_model.tap{|tm| tm.build_from_hash(value)}
       end
     end
 

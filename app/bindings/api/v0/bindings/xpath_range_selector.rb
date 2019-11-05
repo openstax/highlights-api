@@ -14,14 +14,19 @@ require 'date'
 
 module Api::V0::Bindings
   class XpathRangeSelector
+    # The end container for the xpath range selector.
     attr_accessor :end_container
 
+    # The end offset for the xpath range selector.
     attr_accessor :end_offset
 
+    # The start container for the xpath range selector.
     attr_accessor :start_container
 
+    # The start offset for the xpath range selector.
     attr_accessor :start_offset
 
+    # The type for the xpath range selector.
     attr_accessor :type
 
     # Attribute mapping from ruby-style variable name to JSON key.
@@ -195,7 +200,7 @@ module Api::V0::Bindings
         end
       else # model
         temp_model = Api::V0::Bindings.const_get(type).new
-        temp_model.build_from_hash(value)
+        temp_model.tap{|tm| tm.build_from_hash(value)}
       end
     end
 

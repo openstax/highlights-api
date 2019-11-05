@@ -14,18 +14,25 @@ require 'date'
 
 module Api::V0::Bindings
   class NewHighlight
+    # The highlight ID.
     attr_accessor :id
 
+    # The source_type of the highlight, typically a openstax_page
     attr_accessor :source_type
 
+    # The source_id of the highlight.
     attr_accessor :source_id
 
+    # The anchor of the highlight.
     attr_accessor :anchor
 
+    # The highlighted content.
     attr_accessor :highlighted_content
 
+    # The highlight color.
     attr_accessor :color
 
+    # Location strategies for the highlight. Items should have a schema matching the strategy schemas that have been defined
     attr_accessor :location_strategies
 
     class EnumAttributeValidator
@@ -273,7 +280,7 @@ module Api::V0::Bindings
         end
       else # model
         temp_model = Api::V0::Bindings.const_get(type).new
-        temp_model.build_from_hash(value)
+        temp_model.tap{|tm| tm.build_from_hash(value)}
       end
     end
 
