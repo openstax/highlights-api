@@ -7,7 +7,7 @@ class Api::V0::Swagger::DocsController < ApplicationController
   BASE_PATH = '/highlights/api/v0'
 
   swagger_root do
-    key :openapi, '3.0.0'
+    key :swagger, '2.0'
     info do
       key :version, '0.1.0'
       key :title, 'OpenStax Highlightgs API'
@@ -38,6 +38,9 @@ class Api::V0::Swagger::DocsController < ApplicationController
   end
 
   SWAGGERED_CLASSES = [
+    Api::V0::HighlightsController,
+    Api::V0::Swagger::Models::Highlight,
+    Api::V0::Swagger::Models::Error,
     Api::V0::InfoController,
     self,
   ].freeze

@@ -7,14 +7,13 @@ FactoryBot.define do
     annotation { 'this is important' }
     highlighted_content { 'Einstein was smart' }
     location_strategies do
-      <<-JSON
       [
-         {  "type": "TextPositionSelector",
-            "start": 12,
-            "end": 10
+        {
+          type: "TextPositionSelector",
+          start: 12,
+          end: 10
          }
-     ]
-     JSON
+     ].to_json
     end
     source_id { SecureRandom.uuid }
     source_metadata { '{page_version: 14}' }
