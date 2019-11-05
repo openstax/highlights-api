@@ -30,6 +30,22 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       end
     end
 
+    context 'when the request contains a valid id' do
+      let(:target_id) { 'bfb9a31a-6a18-448d-8ecc-2474962d94da' }
+
+      before do
+        new_attributes = valid_attributes.clone
+        new_attributes[:highlight][:id] = target_id
+        post '/api/v0/highlights', params: new_attributes
+      end
+
+      it 'adds a highlight with passed in id' do
+        expect(response).to have_http_status(201)
+        expect(Highlight.count).to eq 1
+        expect(Highlight.first.id).to eq target_id
+      end
+    end
+
     context 'when the request params are invalid' do
       context 'bogus params' do
         before { post '/api/v0/highlights', params: { something: 'Foobar' } }
