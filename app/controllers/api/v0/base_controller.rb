@@ -1,4 +1,13 @@
 class Api::V0::BaseController < ApplicationController
   include Swagger::Blocks
   include OpenStax::Swagger::Bind
+
+  rescue_from_unless_local StandardError do |exception|
+    render json: {status_code: 500, messages: [exception.message]}, status: 500
+  end
+
+  rescue_from_unless_local ActionController::ParameterMissing do |exception|
+    render json: {status_code: 422, messages: [exception.message]}, status: 422
+  end
+
 end
