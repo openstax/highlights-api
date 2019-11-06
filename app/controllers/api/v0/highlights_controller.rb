@@ -38,6 +38,15 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     end
   end
 
+  # /api/v0/highlights?source_type=”openstax_page”& source_parent_id=[“123”]&color=#ff0000&page=1&per_page=20&order=X
+  #   (or query by `source_id=blah` for all highlights on one book page, e.g.)
+  def index
+    #temp for now, until using bindings
+    filter = HighlightFilter.new(user_id: current_user_uuid, params: params.permit!)
+
+    render json: filter.call, status: :ok
+  end
+
   def create
     inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::NewHighlight)
     render(json: error, status: error.status_code) and return if error

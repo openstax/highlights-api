@@ -3,6 +3,34 @@ require 'rails_helper'
 RSpec.describe Api::V0::HighlightsController, type: :request do
   let(:user_uuid) { '55783d49-7562-4576-a626-3b877557a21f' }
 
+  describe 'GET /highlights' do
+    before do
+      stub_current_user_uuid(user_uuid)
+
+      @highlight1 = create(:highlight, user_uuid: user_uuid)
+      @highlight2 = create(:highlight)
+    end
+
+    let(:query_params) do
+      { source_type: 'openstax_page',
+        source_parent_ids: @highlight1.source_parent_ids,
+        color: '#000000',
+        page:1,
+        per_page: 10,
+        order:'desc'
+      }
+    end
+
+    it 'gets the highlights' do
+      get '/api/v0/highlights', params: query_params
+      expect(response).to have_http_status(:ok)
+
+      json = json_response
+      expect(json.count).to eq 1
+      expect(json.first[:user_uuid]).to eq user_uuid
+    end
+  end
+
   before { allow(Rails.application.config).to receive(:consider_all_requests_local) { false } }
 
   describe 'POST /highlights' do

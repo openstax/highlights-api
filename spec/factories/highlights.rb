@@ -16,6 +16,7 @@ FactoryBot.define do
      ].to_json
     end
     source_id { SecureRandom.uuid }
+    source_parent_ids { [123, 456] }
     source_metadata { '{page_version: 14}' }
 
     trait :red do
