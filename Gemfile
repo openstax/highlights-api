@@ -48,6 +48,8 @@ gem "openstax_swagger", github: 'openstax/swagger-rails', ref: '280045dbb8ebdeda
 # Allow requests with a 'highlights' prefix to support use via CloudFront
 gem "openstax_path_prefixer", github: 'openstax/path_prefixer', ref: '0ed5cdba6be65dbf1d07fd7580e2311a2f42cdfd'
 
+gem "openstax_accounts", '~> 8.1.1'
+
 group :test do
   # Code Climate integration
   # gem "codeclimate-test-reporter", require: false

@@ -1,4 +1,6 @@
 class Api::V0::HighlightsController < Api::V0::BaseController
+  before_action :render_unauthorized_if_no_current_user
+
   # before_action :set_highlight, only: [:show, :update, :destroy]
 
   swagger_path '/highlights' do
@@ -37,14 +39,12 @@ class Api::V0::HighlightsController < Api::V0::BaseController
   end
 
   def create
-    binding, error = bind(params.require(:highlight), Api::V0::Bindings::NewHighlight)
+    inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::NewHighlight)
     render(json: error, status: error.status_code) and return if error
 
-    # temporary test user_uuid.  will be removed when auth is set up
-    temp_user_uuid = '55783d49-7562-4576-a626-3b877557a21f'
-    created_highlight = Highlight.create!(binding.to_hash.merge(user_uuid: temp_user_uuid))
+    model = inbound_binding.create_model!(user_uuid: current_user_uuid)
 
-    response_binding = Api::V0::Bindings::Highlight.create_from_model(created_highlight)
+    response_binding = Api::V0::Bindings::Highlight.create_from_model(model)
     render json: response_binding, status: :created
   end
 

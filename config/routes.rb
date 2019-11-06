@@ -15,6 +15,7 @@ Rails.application.routes.draw do
       scope :diagnostics, controller: :diagnostics do
         get :exception
         get 'status_code/:status_code', action: :status_code
+        get :me
       end
     end
   end
