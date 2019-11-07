@@ -1,3 +1,5 @@
+require 'openstax/auth/strategy_1'
+
 class ApplicationController < ActionController::API
 
   protected
@@ -14,7 +16,7 @@ class ApplicationController < ActionController::API
                             "the #{Rails.env} environment.")
         end
 
-        OpenStax::Accounts::Sso.user_uuid(request)
+        OpenStax::Auth::Strategy1.user_uuid(request)
       end
     end
   end
