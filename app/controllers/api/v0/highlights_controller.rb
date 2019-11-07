@@ -38,13 +38,52 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     end
   end
 
-  # /api/v0/highlights?source_type=”openstax_page”& source_parent_id=[“123”]&color=#ff0000&page=1&per_page=20&order=X
-  #   (or query by `source_id=blah` for all highlights on one book page, e.g.)
+  swagger_path '/highlights' do
+    operation :get do
+      key :summary, 'Get the highlight(s)'
+      key :description, 'Get the highlight(s)'
+      key :operationId, 'getHighlights'
+      key :produces, [
+        'application/json'
+      ]
+      key :tags, [
+        'Highlights'
+      ]
+      # security do
+      #   key :api_id, []
+      # end
+      parameter do
+        key :name, :get_highlights
+        key :in, :query
+        key :description, 'The get highlight query parameters'
+        key :required, true
+        schema do
+          key :'$ref', :GetHighlights
+        end
+      end
+      response 201 do
+        key :description, 'Returns the desired highlight(s).'
+        schema do
+          key :'$ref', :Highlights
+        end
+      end
+      extend Api::V0::SwaggerResponses::AuthenticationErrorId
+      extend Api::V0::SwaggerResponses::UnprocessableEntityError
+      extend Api::V0::SwaggerResponses::ServerError
+    end
+  end
+  # Get highlights
+  # Example call:
+  #      /api/v0/highlights?source_type=”openstax_page”&source_parent_id=[“123”]&
+  #         color=#ff0000&page=1&per_page=20&order=desc
   def index
-    #temp for now, until using bindings
-    filter = HighlightFilter.new(user_id: current_user_uuid, params: params.permit!)
+    inbound_binding, error = bind(request.query_parameters, Api::V0::Bindings::GetHighlights)
+    render(json: error, status: error.status_code) and return if error
 
-    render json: filter.call, status: :ok
+    highlights = inbound_binding.query(user_uuid: current_user_uuid)
+
+    response_binding = Api::V0::Bindings::Highlights.create_from_model(highlights)
+    render json: response_binding, status: :ok
   end
 
   def create

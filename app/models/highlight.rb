@@ -22,6 +22,7 @@ class Highlight < ApplicationRecord
   scope :by_source_type, ->(source_type) { where(source_type: source_type) }
   scope :by_color, ->(color) { where(color: color) }
   scope :by_user, ->(user_id) { where(user_uuid: user_id) }
+  scope :by_order, ->(order_direction) { order(created_at: order_direction.to_sym) }
   scope :by_source_parent_ids, ->(source_parent_ids) do
     where('source_parent_ids && ?', postgres_style_array(source_parent_ids))
   end

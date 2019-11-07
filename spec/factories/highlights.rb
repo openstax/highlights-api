@@ -9,11 +9,11 @@ FactoryBot.define do
     location_strategies do
       [
         {
-          type: "TextPositionSelector",
+          type: 'TextPositionSelector',
           start: 12,
           end: 10
-         }
-     ].to_json
+        }
+      ].to_json
     end
     source_id { SecureRandom.uuid }
     source_parent_ids { [123, 456] }

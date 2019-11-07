@@ -12,12 +12,13 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     end
 
     let(:query_params) do
-      { source_type: 'openstax_page',
+      {
+        source_type: 'openstax_page',
         source_parent_ids: @highlight1.source_parent_ids,
         color: '#000000',
-        page:1,
+        page: 1,
         per_page: 10,
-        order:'desc'
+        order: 'desc'
       }
     end
 
@@ -25,9 +26,10 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       get '/api/v0/highlights', params: query_params
       expect(response).to have_http_status(:ok)
 
-      json = json_response
-      expect(json.count).to eq 1
-      expect(json.first[:user_uuid]).to eq user_uuid
+      highlights_json = json_response[:highlights]
+
+      expect(highlights_json.count).to eq 1
+      expect(highlights_json.first[:user_uuid]).to eq user_uuid
     end
   end
 

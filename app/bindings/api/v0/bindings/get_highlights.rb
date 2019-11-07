@@ -13,7 +13,16 @@ Swagger Codegen version: 2.4.9
 require 'date'
 
 module Api::V0::Bindings
-  class NewHighlight
+  class GetHighlights
+    # The page number
+    attr_accessor :page
+
+    # The number of highlights to return per page
+    attr_accessor :per_page
+
+    # The returned sorted order
+    attr_accessor :order
+
     # The source_type of the highlight, typically a openstax_page
     attr_accessor :source_type
 
@@ -22,21 +31,6 @@ module Api::V0::Bindings
 
     # The highlight color.
     attr_accessor :color
-
-    # The highlight ID.
-    attr_accessor :id
-
-    # The source_id of the highlight.
-    attr_accessor :source_id
-
-    # The anchor of the highlight.
-    attr_accessor :anchor
-
-    # The highlighted content.
-    attr_accessor :highlighted_content
-
-    # Location strategies for the highlight. Items should have a schema matching the strategy schemas that have been defined
-    attr_accessor :location_strategies
 
     class EnumAttributeValidator
       attr_reader :datatype
@@ -63,28 +57,24 @@ module Api::V0::Bindings
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
+        :'page' => :'page',
+        :'per_page' => :'per_page',
+        :'order' => :'order',
         :'source_type' => :'source_type',
         :'source_parent_ids' => :'source_parent_ids',
-        :'color' => :'color',
-        :'id' => :'id',
-        :'source_id' => :'source_id',
-        :'anchor' => :'anchor',
-        :'highlighted_content' => :'highlighted_content',
-        :'location_strategies' => :'location_strategies'
+        :'color' => :'color'
       }
     end
 
     # Attribute type mapping.
     def self.swagger_types
       {
+        :'page' => :'Integer',
+        :'per_page' => :'Integer',
+        :'order' => :'String',
         :'source_type' => :'String',
         :'source_parent_ids' => :'Array<String>',
-        :'color' => :'String',
-        :'id' => :'String',
-        :'source_id' => :'String',
-        :'anchor' => :'String',
-        :'highlighted_content' => :'String',
-        :'location_strategies' => :'Array<Object>'
+        :'color' => :'String'
       }
     end
 
@@ -95,6 +85,18 @@ module Api::V0::Bindings
 
       # convert string to symbol for hash key
       attributes = attributes.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
+
+      if attributes.has_key?(:'page')
+        self.page = attributes[:'page']
+      end
+
+      if attributes.has_key?(:'per_page')
+        self.per_page = attributes[:'per_page']
+      end
+
+      if attributes.has_key?(:'order')
+        self.order = attributes[:'order']
+      end
 
       if attributes.has_key?(:'source_type')
         self.source_type = attributes[:'source_type']
@@ -109,28 +111,6 @@ module Api::V0::Bindings
       if attributes.has_key?(:'color')
         self.color = attributes[:'color']
       end
-
-      if attributes.has_key?(:'id')
-        self.id = attributes[:'id']
-      end
-
-      if attributes.has_key?(:'source_id')
-        self.source_id = attributes[:'source_id']
-      end
-
-      if attributes.has_key?(:'anchor')
-        self.anchor = attributes[:'anchor']
-      end
-
-      if attributes.has_key?(:'highlighted_content')
-        self.highlighted_content = attributes[:'highlighted_content']
-      end
-
-      if attributes.has_key?(:'location_strategies')
-        if (value = attributes[:'location_strategies']).is_a?(Array)
-          self.location_strategies = value
-        end
-      end
     end
 
     # Show invalid properties with the reasons. Usually used together with valid?
@@ -141,28 +121,8 @@ module Api::V0::Bindings
         invalid_properties.push('invalid value for "source_type", source_type cannot be nil.')
       end
 
-      if @color.nil?
-        invalid_properties.push('invalid value for "color", color cannot be nil.')
-      end
-
-      if @color !~ Regexp.new(/#?[a-f0-9]{6}/)
+      if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
         invalid_properties.push('invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.')
-      end
-
-      if @source_id.nil?
-        invalid_properties.push('invalid value for "source_id", source_id cannot be nil.')
-      end
-
-      if @anchor.nil?
-        invalid_properties.push('invalid value for "anchor", anchor cannot be nil.')
-      end
-
-      if @highlighted_content.nil?
-        invalid_properties.push('invalid value for "highlighted_content", highlighted_content cannot be nil.')
-      end
-
-      if @location_strategies.nil?
-        invalid_properties.push('invalid value for "location_strategies", location_strategies cannot be nil.')
       end
 
       invalid_properties
@@ -171,16 +131,23 @@ module Api::V0::Bindings
     # Check to see if the all the properties in the model are valid
     # @return true if the model is valid
     def valid?
+      order_validator = EnumAttributeValidator.new('String', ['asc', 'desc'])
+      return false unless order_validator.valid?(@order)
       return false if @source_type.nil?
       source_type_validator = EnumAttributeValidator.new('String', ['openstax_page'])
       return false unless source_type_validator.valid?(@source_type)
-      return false if @color.nil?
-      return false if @color !~ Regexp.new(/#?[a-f0-9]{6}/)
-      return false if @source_id.nil?
-      return false if @anchor.nil?
-      return false if @highlighted_content.nil?
-      return false if @location_strategies.nil?
+      return false if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
       true
+    end
+
+    # Custom attribute writer method checking allowed values (enum).
+    # @param [Object] order Object to be assigned
+    def order=(order)
+      validator = EnumAttributeValidator.new('String', ['asc', 'desc'])
+      unless validator.valid?(order)
+        fail ArgumentError, 'invalid value for "order", must be one of #{validator.allowable_values}.'
+      end
+      @order = order
     end
 
     # Custom attribute writer method checking allowed values (enum).
@@ -196,11 +163,7 @@ module Api::V0::Bindings
     # Custom attribute writer method with validation
     # @param [Object] color Value to be assigned
     def color=(color)
-      if color.nil?
-        fail ArgumentError, 'color cannot be nil'
-      end
-
-      if color !~ Regexp.new(/#?[a-f0-9]{6}/)
+      if !color.nil? && color !~ Regexp.new(/#?[a-f0-9]{6}/)
         fail ArgumentError, 'invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.'
       end
 
@@ -212,14 +175,12 @@ module Api::V0::Bindings
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
+          page == o.page &&
+          per_page == o.per_page &&
+          order == o.order &&
           source_type == o.source_type &&
           source_parent_ids == o.source_parent_ids &&
-          color == o.color &&
-          id == o.id &&
-          source_id == o.source_id &&
-          anchor == o.anchor &&
-          highlighted_content == o.highlighted_content &&
-          location_strategies == o.location_strategies
+          color == o.color
     end
 
     # @see the `==` method
@@ -231,7 +192,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [source_type, source_parent_ids, color, id, source_id, anchor, highlighted_content, location_strategies].hash
+      [page, per_page, order, source_type, source_parent_ids, color].hash
     end
 
     # Builds the object from hash

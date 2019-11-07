@@ -42,12 +42,61 @@ module Api::V0::Swagger::Models::Highlight
     end
   end
 
+  swagger_schema :GetHighlights do
+    key :required, [:source_type]
+    property :page do
+      key :type, :integer
+      key :description, 'The page number'
+    end
+    property :per_page do
+      key :type, :integer
+      key :description, 'The number of highlights to return per page'
+    end
+    property :order do
+      key :type, :string
+      key :enum, %w[asc desc]
+      key :description, 'The returned sorted order'
+    end
+  end
+
   swagger_schema :Highlight do
     key :required, [:id]
   end
 
+  swagger_schema :Highlights do
+    property :highlights do
+      key :type, :array
+      key :description, 'One or more highlights'
+      items do
+        key :'$ref', :Highlight
+      end
+    end
+  end
+
   swagger_schema :NewHighlight do
     key :required, [:source_type, :source_id, :anchor, :highlighted_content, :color, :location_strategies]
+  end
+
+  add_properties(:GetHighlights, :NewHighlight, :Highlight) do
+    property :source_type do
+      key :type, :string
+      key :enum, ['openstax_page']
+      key :description, 'The source_type of the highlight, typically a openstax_page'
+    end
+    property :source_parent_ids do
+      key :type, :array
+      key :description, 'The parent IDs of the highlight. For book highlights, ' \
+                        'the parent_id could be a book, unit, or chapter ID'
+      items do
+        key :type, :string
+      end
+    end
+    property :color do
+      key :type, :string
+      # remove the anchors because swagger-codegen always escapes them
+      key :pattern, ::Highlight::VALID_COLOR.inspect[1..-2]
+      key :description, 'The highlight color.'
+    end
   end
 
   add_properties(:NewHighlight, :Highlight) do
@@ -55,11 +104,6 @@ module Api::V0::Swagger::Models::Highlight
       key :type, :string
       key :format, 'uuid'
       key :description, 'The highlight ID.'
-    end
-    property :source_type do
-      key :type, :string
-      key :enum, ['openstax_page']
-      key :description, 'The source_type of the highlight, typically a openstax_page'
     end
     property :source_id do
       key :type, :string
@@ -72,12 +116,6 @@ module Api::V0::Swagger::Models::Highlight
     property :highlighted_content do
       key :type, :string
       key :description, 'The highlighted content.'
-    end
-    property :color do
-      key :type, :string
-      # remove the anchors because swagger-codegen always escapes them
-      key :pattern, ::Highlight::VALID_COLOR.inspect[1..-2]
-      key :description, 'The highlight color.'
     end
     property :location_strategies do
       key :type, :array
