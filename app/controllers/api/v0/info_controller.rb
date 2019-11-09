@@ -20,7 +20,8 @@ class Api::V0::InfoController < Api::V0::BaseController
     # time_took = Time.at(Time.now - starting).utc.strftime('%H:%M:%S')
 
     json = {
-      version: '0.0.0'
+      version: '0.0.0',
+      accounts_env_name: ENV['ACCOUNTS_ENV_NAME']
     }
 
     render json: json, status: :ok
