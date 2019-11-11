@@ -28,7 +28,7 @@ task :install_secrets, [] do
   env_name = get_env_var!('ENV_NAME')
   namespace = get_env_var!('SECRETS_NAMESPACE')
 
-  secrets = {}
+  secrets = HashWithIndifferentAccess.new
 
   # When we get parameters from the store, we want to ignore the env_name
   # and the parameter namespace.  Calculate how many levels there are here
@@ -45,22 +45,22 @@ task :install_secrets, [] do
     end
   end
 
-  database_secrets = secrets.delete('database')
-  to_yaml("config/database.yml", {
-    'production' => {
-      'database' => database_secrets['name'],
-      'host' => database_secrets['url'],
-      'port' => database_secrets['port'],
-      'username' => database_secrets['username'],
-      'password' => database_secrets['password'],
-      'adapter' => "postgresql",
-      'encoding' => "unicode",
-      "pool" => '<%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>'
+  database_secrets = secrets.delete(:database)
+  write_yaml_file("config/database.yml", {
+    production: {
+      database: database_secrets[:name],
+      host: database_secrets[:url],
+      port: database_secrets[:port],
+      username: database_secrets[:username],
+      password: database_secrets[:password],
+      adapter: "postgresql",
+      encoding: "unicode",
+      pool: '<%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>'
     }
   })
 
   scout_secrets = secrets.delete('scout')
-  to_yaml("config/scout_apm.yml", {
+  write_yaml_file("config/scout_apm.yml", {
     production: {
       key: scout_secrets[:license_key],
       name: "highlights (#{env_name})",
@@ -69,15 +69,15 @@ task :install_secrets, [] do
     }
   })
 
-  to_yaml("config/secrets.yml", {
-    'production' => secrets
+  write_yaml_file("config/secrets.yml", {
+    production: secrets
   })
 end
 
-def to_yaml(filename, hash)
+def write_yaml_file(filename, hash)
   File.open(File.expand_path(filename), "w") do |file|
     # write the hash as yaml, getting rid of the "---\n" at the front
-    file.write(hash.to_yaml[4..-1])
+    file.write(hash.deep_stringify_keys.to_yaml[4..-1])
   end
 end
 
