@@ -6,12 +6,16 @@ class Api::V0::BaseController < ApplicationController
     render json: binding_error(status_code: 500, messages: [ex.message]), status: 500
   end
 
-  rescue_from ActiveRecord::RecordNotFound do |ex|
-    render json: binding_error(status_code: 404, messages: [ex.message]), status: 404
+  rescue_from_unless_local ActiveRecord::RecordNotFound do |ex|
+    head :not_found
   end
 
-  rescue_from ActiveRecord::RecordInvalid, ActionController::ParameterMissing do |ex|
+  rescue_from_unless_local ActiveRecord::RecordInvalid, ActionController::ParameterMissing do |ex|
     render json: binding_error(status_code: 422, messages: [ex.message]), status: 422
+  end
+
+  rescue_from_unless_local SecurityTransgression do |ex|
+    head :forbidden
   end
 
   protected
