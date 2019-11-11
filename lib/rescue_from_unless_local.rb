@@ -40,7 +40,7 @@ module RescueFromUnlessLocal
         if Rails.application.config.consider_all_requests_local
           raise exception
         elsif send_to_sentry
-          Raven.capture_exception(ex)
+          Raven.capture_exception(exception)
         end
 
         instance_exec exception, &new_block
