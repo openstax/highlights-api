@@ -62,9 +62,26 @@ task :install_secrets, [] do
     }.to_yaml[4..-1])
   end
 
+  scout_secrets = secrets.delete('scout')
+
+  to_yaml("config/scout_apm.yml", {
+    production: {
+      key: scout_secrets[:license_key],
+      name: "highlights (#{env_name})",
+      monitor: true,
+      ignore: %w(/ping)
+    }
+  })
+
   File.open(File.expand_path("config/secrets.yml"), "w") do |file|
     # write the secrets hash as yaml, getting rid of the "---\n" at the front
     file.write({'production' => secrets}.to_yaml[4..-1])
+  end
+end
+
+def to_yaml(filename, hash)
+  File.open(File.expand_path(filename), "w") do |file|
+    file.write(hash.to_yaml[4..-1])
   end
 end
 
