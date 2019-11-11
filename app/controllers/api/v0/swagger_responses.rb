@@ -1,8 +1,16 @@
 module Api::V0::SwaggerResponses
-  module AuthenticationErrorId
+  module AuthenticationError
     def self.extended(base)
       base.response 401 do
-        key :description, 'Not authenticated.  Happens when user ID is not authenticated'
+        key :description, 'Not authenticated.  The user is not authenticated.'
+      end
+    end
+  end
+
+  module ForbiddenError
+    def self.extended(base)
+      base.response 403 do
+        key :description, 'Forbidden.  The user is not allowed to perform the requested action.'
       end
     end
   end
