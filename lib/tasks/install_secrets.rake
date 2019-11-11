@@ -55,7 +55,7 @@ task :install_secrets, [] do
       password: database_secrets[:password],
       adapter: "postgresql",
       encoding: "unicode",
-      pool: '<%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>'
+      pool: '<%= ENV.fetch("RAILS_MAX_THREADS") { 10 } %>'
     }
   })
 
