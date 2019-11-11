@@ -64,7 +64,8 @@ task :install_secrets, [] do
     production: {
       key: scout_secrets[:license_key],
       name: "highlights (#{env_name})",
-      monitor: true,
+      # crude way to disable scout by environment
+      monitor: !/noscout/.match?(env_name),
       ignore: %w(/ping)
     }
   })
