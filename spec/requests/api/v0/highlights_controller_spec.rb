@@ -25,7 +25,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     context 'user unknown' do
       it 'gets a 401 and does not make a highlight' do
         expect{
-          post '/api/v0/highlights', params: valid_attributes
+          post highlights_path, params: valid_attributes
         }.not_to change{Highlight.count}
 
         expect(response).to have_http_status(:unauthorized)
@@ -36,7 +36,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       before(:each) { stub_current_user_uuid(user_uuid) }
 
       context 'when the request is valid' do
-        before { post '/api/v0/highlights', params: valid_attributes }
+        before { post highlights_path, params: valid_attributes }
 
         it 'creates a highlight' do
           expect(json_response[:anchor]).to eq('foo anchor')
@@ -57,7 +57,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         before do
           new_attributes = valid_attributes.clone
           new_attributes[:highlight][:id] = target_id
-          post '/api/v0/highlights', params: new_attributes
+          post highlights_path, params: new_attributes
         end
 
         it 'adds a highlight with passed in id' do
@@ -69,7 +69,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
 
       context 'when the request params are invalid' do
         context 'bogus params' do
-          before { post '/api/v0/highlights', params: { something: 'Foobar' } }
+          before { post highlights_path, params: { something: 'Foobar' } }
 
           it 'returns status code 422' do
             expect(response).to have_http_status(422)
@@ -85,7 +85,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           before do
             new_attributes = valid_attributes.clone
             new_attributes[:highlight][:location_strategies] = [type: 'Foobar']
-            post '/api/v0/highlights', params: new_attributes
+            post highlights_path, params: new_attributes
           end
 
           it 'returns status code 422' do
