@@ -43,6 +43,8 @@ gem "aws-sdk-ssm"
 
 gem 'dotenv-rails'
 
+gem 'will_paginate', '~> 3.1.7'
+
 gem "openstax_swagger", github: 'openstax/swagger-rails', ref: '280045dbb8ebdeda108f5616b1ca14c5fba2d456'
 
 # Allow requests with a 'highlights' prefix to support use via CloudFront

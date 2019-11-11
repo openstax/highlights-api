@@ -69,14 +69,15 @@ Api::V0::Bindings::GetHighlights.class_exec do
   def query(user_uuid:)
     highlights = ::Highlight.by_user(user_uuid)
 
+    # The submitted GetHighlight properties create automatic chaining via
+    # the by_X scopes on the Highlight model.
     pagination = to_hash.dup
     filter_by = pagination.slice!(:page, :per_page)
     filter_by.each do |key, value|
       highlights = highlights.public_send("by_#{key}", value) if value.present?
     end
 
-    # apply willpaginate here
-    highlights
+    highlights.paginate(pagination)
   end
 end
 

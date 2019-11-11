@@ -38,10 +38,20 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     end
   end
 
+  def create
+    inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::NewHighlight)
+    render(json: error, status: error.status_code) and return if error
+
+    model = inbound_binding.create_model!(user_uuid: current_user_uuid)
+
+    response_binding = Api::V0::Bindings::Highlight.create_from_model(model)
+    render json: response_binding, status: :created
+  end
+
   swagger_path '/highlights' do
     operation :get do
       key :summary, 'Get the highlight(s)'
-      key :description, 'Get the highlight(s)'
+      key :description, 'Get the highlight(s) for the owner.'
       key :operationId, 'getHighlights'
       key :produces, [
         'application/json'
@@ -67,11 +77,13 @@ class Api::V0::HighlightsController < Api::V0::BaseController
           key :'$ref', :Highlights
         end
       end
-      extend Api::V0::SwaggerResponses::AuthenticationErrorId
+      extend Api::V0::SwaggerResponses::AuthenticationError
+      extend Api::V0::SwaggerResponses::ForbiddenError
       extend Api::V0::SwaggerResponses::UnprocessableEntityError
       extend Api::V0::SwaggerResponses::ServerError
     end
   end
+
   # Get highlights
   # Example call:
   #      /api/v0/highlights?source_type=”openstax_page”&source_parent_id=[“123”]&
@@ -84,16 +96,6 @@ class Api::V0::HighlightsController < Api::V0::BaseController
 
     response_binding = Api::V0::Bindings::Highlights.create_from_model(highlights)
     render json: response_binding, status: :ok
-  end
-
-  def create
-    inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::NewHighlight)
-    render(json: error, status: error.status_code) and return if error
-
-    model = inbound_binding.create_model!(user_uuid: current_user_uuid)
-
-    response_binding = Api::V0::Bindings::Highlight.create_from_model(model)
-    render json: response_binding, status: :created
   end
 
   swagger_path '/highlights/{id}' do

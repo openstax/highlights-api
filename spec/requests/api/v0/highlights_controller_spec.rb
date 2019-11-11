@@ -3,37 +3,64 @@ require 'rails_helper'
 RSpec.describe Api::V0::HighlightsController, type: :request do
   let(:user_uuid) { '55783d49-7562-4576-a626-3b877557a21f' }
 
+  before { allow(Rails.application.config).to receive(:consider_all_requests_local) { false } }
+
   describe 'GET /highlights' do
-    before do
-      stub_current_user_uuid(user_uuid)
+    let!(:highlight1) { create(:highlight, user_uuid: user_uuid) }
+    let!(:highlight2) { create(:highlight, user_uuid: user_uuid) }
+    let!(:highlight3) { create(:highlight) }
 
-      @highlight1 = create(:highlight, user_uuid: user_uuid)
-      @highlight2 = create(:highlight)
-    end
-
+    let(:per_page) { 10 }
     let(:query_params) do
       {
         source_type: 'openstax_page',
-        source_parent_ids: @highlight1.source_parent_ids,
+        source_parent_ids: highlight1.source_parent_ids,
         color: '#000000',
         page: 1,
-        per_page: 10,
+        per_page: per_page,
         order: 'desc'
       }
     end
 
-    it 'gets the highlights' do
-      get '/api/v0/highlights', params: query_params
-      expect(response).to have_http_status(:ok)
+    context 'when the user is not logged in' do
+      context 'when the highlight does exist' do
+        it('does not allow getting highlights') do
+          get highlights_path, params: query_params
+          expect(response).to have_http_status(:unauthorized)
+        end
+      end
+    end
 
-      highlights_json = json_response[:highlights]
+    context 'when the user is logged in' do
+      before do
+        stub_current_user_uuid(user_uuid)
+      end
 
-      expect(highlights_json.count).to eq 1
-      expect(highlights_json.first[:user_uuid]).to eq user_uuid
+      it 'gets the highlights for the user' do
+        get highlights_path, params: query_params
+        expect(response).to have_http_status(:ok)
+
+        highlights_json = json_response[:highlights]
+
+        expect(highlights_json.count).to eq 2
+        expect(highlights_json.first[:user_uuid]).to eq user_uuid
+      end
+
+      context 'when paging' do
+        let(:per_page) { 1 }
+
+        it 'gets the highlights for the user for the page' do
+          get highlights_path, params: query_params
+          expect(response).to have_http_status(:ok)
+
+          highlights_json = json_response[:highlights]
+
+          expect(highlights_json.count).to eq 1
+          expect(highlights_json.first[:user_uuid]).to eq user_uuid
+        end
+      end
     end
   end
-
-  before { allow(Rails.application.config).to receive(:consider_all_requests_local) { false } }
 
   describe 'POST /highlights' do
     let(:valid_attributes) do
@@ -54,9 +81,9 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
 
     context 'user unknown' do
       it 'gets a 401 and does not make a highlight' do
-        expect{
+        expect do
           post highlights_path, params: valid_attributes
-        }.not_to change{Highlight.count}
+        end.not_to change { Highlight.count }
 
         expect(response).to have_http_status(:unauthorized)
       end
@@ -84,15 +111,14 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       context 'when the request contains a valid id' do
         let(:target_id) { 'bfb9a31a-6a18-448d-8ecc-2474962d94da' }
 
-        before do
-          new_attributes = valid_attributes.clone
-          new_attributes[:highlight][:id] = target_id
-          post highlights_path, params: new_attributes
-        end
-
         it 'adds a highlight with passed in id' do
+          expect do
+            new_attributes = valid_attributes.clone
+            new_attributes[:highlight][:id] = target_id
+            post highlights_path, params: new_attributes
+          end.to change { Highlight.count }.by(1)
+
           expect(response).to have_http_status(201)
-          expect(Highlight.count).to eq 1
           expect(Highlight.first.id).to eq target_id
         end
       end
@@ -144,9 +170,9 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
 
       context 'when the highlight does exist' do
         it 'does not allow deletion' do
-          expect{
+          expect do
             delete highlights_path(id: highlight.id)
-          }.not_to change{Highlight.count}
+          end.not_to change { Highlight.count }
 
           expect(response).to have_http_status(:unauthorized)
         end
@@ -157,9 +183,9 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       before { stub_current_user_uuid(highlight.user_uuid) }
 
       it 'is deleted' do
-        expect{
+        expect do
           delete highlights_path(id: highlight.id)
-        }.to change{Highlight.count}.by(-1)
+        end.to change { Highlight.count }.by(-1)
 
         expect(response).to have_http_status :ok
       end
@@ -176,9 +202,9 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       before { stub_current_user_uuid(SecureRandom.uuid) }
 
       it 'does not allow deletion' do
-        expect{
+        expect do
           delete highlights_path(id: highlight.id)
-        }.not_to change{Highlight.count}
+        end.not_to change { Highlight.count }
 
         expect(response).to have_http_status(:forbidden)
       end
