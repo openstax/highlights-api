@@ -1,7 +1,7 @@
 class Api::V0::HighlightsController < Api::V0::BaseController
   before_action :render_unauthorized_if_no_current_user
 
-  before_action :get_highlight, only: [:show, :update, :destroy]
+  before_action :get_highlight, only: [:update, :destroy]
 
   swagger_path '/highlights' do
     operation :post do
