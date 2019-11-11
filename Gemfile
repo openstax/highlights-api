@@ -50,7 +50,11 @@ gem "openstax_path_prefixer", github: 'openstax/path_prefixer', ref: '0ed5cdba6b
 
 gem "openstax_auth", github: 'openstax/auth-rails', ref: '1e4268f422bfa2562de3a8e57b6471cbb09f86ea'
 
+# Exception reporting
 gem 'sentry-raven'
+
+# Profiling
+gem 'scout_apm', '~> 3.0.x'
 
 group :test do
   # Code Climate integration
