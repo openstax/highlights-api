@@ -46,24 +46,20 @@ task :install_secrets, [] do
   end
 
   database_secrets = secrets.delete('database')
-
-  File.open(File.expand_path("config/database.yml"), "w") do |file|
-    file.write({
-      'production' => {
-        'database' => database_secrets['name'],
-        'host' => database_secrets['url'],
-        'port' => database_secrets['port'],
-        'username' => database_secrets['username'],
-        'password' => database_secrets['password'],
-        'adapter' => "postgresql",
-        'encoding' => "unicode",
-        "pool" => '<%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>'
-      }
-    }.to_yaml[4..-1])
-  end
+  to_yaml("config/database.yml", {
+    'production' => {
+      'database' => database_secrets['name'],
+      'host' => database_secrets['url'],
+      'port' => database_secrets['port'],
+      'username' => database_secrets['username'],
+      'password' => database_secrets['password'],
+      'adapter' => "postgresql",
+      'encoding' => "unicode",
+      "pool" => '<%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>'
+    }
+  })
 
   scout_secrets = secrets.delete('scout')
-
   to_yaml("config/scout_apm.yml", {
     production: {
       key: scout_secrets[:license_key],
@@ -73,14 +69,14 @@ task :install_secrets, [] do
     }
   })
 
-  File.open(File.expand_path("config/secrets.yml"), "w") do |file|
-    # write the secrets hash as yaml, getting rid of the "---\n" at the front
-    file.write({'production' => secrets}.to_yaml[4..-1])
-  end
+  to_yaml("config/secrets.yml", {
+    'production' => secrets
+  })
 end
 
 def to_yaml(filename, hash)
   File.open(File.expand_path(filename), "w") do |file|
+    # write the hash as yaml, getting rid of the "---\n" at the front
     file.write(hash.to_yaml[4..-1])
   end
 end
