@@ -13,56 +13,18 @@ Swagger Codegen version: 2.4.9
 require 'date'
 
 module Api::V0::Bindings
-  class GetHighlights
-    # The page number.  Defaults to 1.
+  class HighlightsMeta
+    # The response page number
     attr_accessor :page
 
-    # The number of highlights to return per page.  Defaults to 15.
+    # The response per page
     attr_accessor :per_page
-
-    # The returned sorted order
-    attr_accessor :order
-
-    # The source_type of the highlight, typically a openstax_page
-    attr_accessor :source_type
-
-    # The parent IDs of the highlight. For book highlights, the parent_id could be a book, unit, or chapter ID
-    attr_accessor :source_parent_ids
-
-    # The highlight color.
-    attr_accessor :color
-
-    class EnumAttributeValidator
-      attr_reader :datatype
-      attr_reader :allowable_values
-
-      def initialize(datatype, allowable_values)
-        @allowable_values = allowable_values.map do |value|
-          case datatype.to_s
-          when /Integer/i
-            value.to_i
-          when /Float/i
-            value.to_f
-          else
-            value
-          end
-        end
-      end
-
-      def valid?(value)
-        !value || allowable_values.include?(value)
-      end
-    end
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
         :'page' => :'page',
-        :'per_page' => :'per_page',
-        :'order' => :'order',
-        :'source_type' => :'source_type',
-        :'source_parent_ids' => :'source_parent_ids',
-        :'color' => :'color'
+        :'per_page' => :'per_page'
       }
     end
 
@@ -70,11 +32,7 @@ module Api::V0::Bindings
     def self.swagger_types
       {
         :'page' => :'Integer',
-        :'per_page' => :'Integer',
-        :'order' => :'String',
-        :'source_type' => :'String',
-        :'source_parent_ids' => :'Array<String>',
-        :'color' => :'String'
+        :'per_page' => :'Integer'
       }
     end
 
@@ -93,81 +51,19 @@ module Api::V0::Bindings
       if attributes.has_key?(:'per_page')
         self.per_page = attributes[:'per_page']
       end
-
-      if attributes.has_key?(:'order')
-        self.order = attributes[:'order']
-      end
-
-      if attributes.has_key?(:'source_type')
-        self.source_type = attributes[:'source_type']
-      end
-
-      if attributes.has_key?(:'source_parent_ids')
-        if (value = attributes[:'source_parent_ids']).is_a?(Array)
-          self.source_parent_ids = value
-        end
-      end
-
-      if attributes.has_key?(:'color')
-        self.color = attributes[:'color']
-      end
     end
 
     # Show invalid properties with the reasons. Usually used together with valid?
     # @return Array for valid properties with the reasons
     def list_invalid_properties
       invalid_properties = Array.new
-      if @source_type.nil?
-        invalid_properties.push('invalid value for "source_type", source_type cannot be nil.')
-      end
-
-      if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        invalid_properties.push('invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.')
-      end
-
       invalid_properties
     end
 
     # Check to see if the all the properties in the model are valid
     # @return true if the model is valid
     def valid?
-      order_validator = EnumAttributeValidator.new('String', ['asc', 'desc'])
-      return false unless order_validator.valid?(@order)
-      return false if @source_type.nil?
-      source_type_validator = EnumAttributeValidator.new('String', ['openstax_page'])
-      return false unless source_type_validator.valid?(@source_type)
-      return false if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
       true
-    end
-
-    # Custom attribute writer method checking allowed values (enum).
-    # @param [Object] order Object to be assigned
-    def order=(order)
-      validator = EnumAttributeValidator.new('String', ['asc', 'desc'])
-      unless validator.valid?(order)
-        fail ArgumentError, 'invalid value for "order", must be one of #{validator.allowable_values}.'
-      end
-      @order = order
-    end
-
-    # Custom attribute writer method checking allowed values (enum).
-    # @param [Object] source_type Object to be assigned
-    def source_type=(source_type)
-      validator = EnumAttributeValidator.new('String', ['openstax_page'])
-      unless validator.valid?(source_type)
-        fail ArgumentError, 'invalid value for "source_type", must be one of #{validator.allowable_values}.'
-      end
-      @source_type = source_type
-    end
-
-    # Custom attribute writer method with validation
-    # @param [Object] color Value to be assigned
-    def color=(color)
-      if !color.nil? && color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        fail ArgumentError, 'invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.'
-      end
-
-      @color = color
     end
 
     # Checks equality by comparing each attribute.
@@ -176,11 +72,7 @@ module Api::V0::Bindings
       return true if self.equal?(o)
       self.class == o.class &&
           page == o.page &&
-          per_page == o.per_page &&
-          order == o.order &&
-          source_type == o.source_type &&
-          source_parent_ids == o.source_parent_ids &&
-          color == o.color
+          per_page == o.per_page
     end
 
     # @see the `==` method
@@ -192,7 +84,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [page, per_page, order, source_type, source_parent_ids, color].hash
+      [page, per_page].hash
     end
 
     # Builds the object from hash

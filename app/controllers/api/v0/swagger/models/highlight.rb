@@ -46,11 +46,11 @@ module Api::V0::Swagger::Models::Highlight
     key :required, [:source_type]
     property :page do
       key :type, :integer
-      key :description, 'The page number'
+      key :description, 'The page number.  Defaults to 1.'
     end
     property :per_page do
       key :type, :integer
-      key :description, 'The number of highlights to return per page'
+      key :description, 'The number of highlights to return per page.  Defaults to 15.'
     end
     property :order do
       key :type, :string
@@ -64,9 +64,20 @@ module Api::V0::Swagger::Models::Highlight
   end
 
   swagger_schema :Highlights do
-    property :highlights do
+    # organization from https://jsonapi.org/
+    property :meta do
+      property :page do
+        key :type, :integer
+        key :description, 'The response page number'
+      end
+      property :per_page do
+        key :type, :integer
+        key :description, 'The response per page'
+      end
+    end
+    property :data do
       key :type, :array
-      key :description, 'One or more highlights'
+      key :description, 'The selected highlight(s)'
       items do
         key :'$ref', :Highlight
       end

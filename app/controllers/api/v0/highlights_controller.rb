@@ -14,9 +14,6 @@ class Api::V0::HighlightsController < Api::V0::BaseController
       key :tags, [
         'Highlights'
       ]
-      # security do
-      #   key :api_id, []
-      # end
       parameter do
         key :name, :highlight
         key :in, :body
@@ -50,8 +47,14 @@ class Api::V0::HighlightsController < Api::V0::BaseController
 
   swagger_path '/highlights' do
     operation :get do
-      key :summary, 'Get the highlight(s)'
-      key :description, 'Get the highlight(s) for the owner.'
+      key :summary, 'Get selected highlights'
+      key :description, <<~DESC
+        Get selected highlight(s) for the owner.
+
+        Example call:
+          /api/v0/highlights?source_type=”openstax_page”&\
+            source_parent_id=[“123”]&color=#ff0000&page=1&per_page=20&order=desc
+      DESC
       key :operationId, 'getHighlights'
       key :produces, [
         'application/json'
@@ -59,9 +62,6 @@ class Api::V0::HighlightsController < Api::V0::BaseController
       key :tags, [
         'Highlights'
       ]
-      # security do
-      #   key :api_id, []
-      # end
       parameter do
         key :name, :get_highlights
         key :in, :query
@@ -71,30 +71,26 @@ class Api::V0::HighlightsController < Api::V0::BaseController
           key :'$ref', :GetHighlights
         end
       end
-      response 201 do
+      response 200 do
         key :description, 'Returns the desired highlight(s).'
         schema do
           key :'$ref', :Highlights
         end
       end
       extend Api::V0::SwaggerResponses::AuthenticationError
-      extend Api::V0::SwaggerResponses::ForbiddenError
       extend Api::V0::SwaggerResponses::UnprocessableEntityError
       extend Api::V0::SwaggerResponses::ServerError
     end
   end
 
-  # Get highlights
-  # Example call:
-  #      /api/v0/highlights?source_type=”openstax_page”&source_parent_id=[“123”]&
-  #         color=#ff0000&page=1&per_page=20&order=desc
   def index
     inbound_binding, error = bind(request.query_parameters, Api::V0::Bindings::GetHighlights)
     render(json: error, status: error.status_code) and return if error
 
-    highlights = inbound_binding.query(user_uuid: current_user_uuid)
+    selected_highlights, pagination_used = inbound_binding.query(user_uuid: current_user_uuid)
 
-    response_binding = Api::V0::Bindings::Highlights.create_from_model(highlights)
+    response_binding = Api::V0::Bindings::Highlights.create_from_models(selected_highlights,
+                                                                        pagination_used)
     render json: response_binding, status: :ok
   end
 
@@ -106,9 +102,6 @@ class Api::V0::HighlightsController < Api::V0::BaseController
       key :tags, [
         'Highlights'
       ]
-      # security do
-      #   key :api_id, []
-      # end
       parameter do
         key :name, :id
         key :in, :path

@@ -60,12 +60,18 @@ Api::V0::Bindings::NewHighlight.class_exec do
 end
 
 Api::V0::Bindings::Highlights.class_exec do
-  def self.create_from_model(highlights)
-    new(highlights: highlights.map(&:attributes))
+  def self.create_from_models(highlights, pagination)
+    attribs = { meta: pagination, data: highlights.to_a }
+    highlights_response = new(attribs)
   end
 end
 
 Api::V0::Bindings::GetHighlights.class_exec do
+  PAGING_DEFAULTS = {
+    per_page: 15,
+    page: 1
+  }.freeze
+
   def query(user_uuid:)
     highlights = ::Highlight.by_user(user_uuid)
 
@@ -76,8 +82,9 @@ Api::V0::Bindings::GetHighlights.class_exec do
     filter_by.each do |key, value|
       highlights = highlights.public_send("by_#{key}", value) if value.present?
     end
+    pagination = PAGING_DEFAULTS.merge(pagination)
 
-    highlights.paginate(pagination)
+    [highlights.paginate(pagination), pagination]
   end
 end
 

@@ -14,20 +14,24 @@ require 'date'
 
 module Api::V0::Bindings
   class Highlights
-    # One or more highlights
-    attr_accessor :highlights
+    attr_accessor :meta
+
+    # The selected highlight(s)
+    attr_accessor :data
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
-        :'highlights' => :'highlights'
+        :'meta' => :'meta',
+        :'data' => :'data'
       }
     end
 
     # Attribute type mapping.
     def self.swagger_types
       {
-        :'highlights' => :'Array<Highlight>'
+        :'meta' => :'HighlightsMeta',
+        :'data' => :'Array<Highlight>'
       }
     end
 
@@ -39,9 +43,13 @@ module Api::V0::Bindings
       # convert string to symbol for hash key
       attributes = attributes.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
 
-      if attributes.has_key?(:'highlights')
-        if (value = attributes[:'highlights']).is_a?(Array)
-          self.highlights = value
+      if attributes.has_key?(:'meta')
+        self.meta = attributes[:'meta']
+      end
+
+      if attributes.has_key?(:'data')
+        if (value = attributes[:'data']).is_a?(Array)
+          self.data = value
         end
       end
     end
@@ -64,7 +72,8 @@ module Api::V0::Bindings
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
-          highlights == o.highlights
+          meta == o.meta &&
+          data == o.data
     end
 
     # @see the `==` method
@@ -76,7 +85,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [highlights].hash
+      [meta, data].hash
     end
 
     # Builds the object from hash

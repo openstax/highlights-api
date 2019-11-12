@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Api::V0::HighlightsController, type: :request do
@@ -10,13 +12,15 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     let!(:highlight2) { create(:highlight, user_uuid: user_uuid) }
     let!(:highlight3) { create(:highlight) }
 
+    let(:page) { 1 }
     let(:per_page) { 10 }
+    let(:source_parent_ids) { highlight1.source_parent_ids }
     let(:query_params) do
       {
         source_type: 'openstax_page',
-        source_parent_ids: highlight1.source_parent_ids,
+        source_parent_ids: source_parent_ids,
         color: '#000000',
-        page: 1,
+        page: page,
         per_page: per_page,
         order: 'desc'
       }
@@ -40,23 +44,62 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         get highlights_path, params: query_params
         expect(response).to have_http_status(:ok)
 
-        highlights_json = json_response[:highlights]
+        highlights = json_response[:data]
 
-        expect(highlights_json.count).to eq 2
-        expect(highlights_json.first[:user_uuid]).to eq user_uuid
+        expect(highlights.count).to eq 2
+        expect(highlights.map { |json| json[:user_uuid] }.uniq).to eq [user_uuid]
       end
 
-      context 'when paging' do
-        let(:per_page) { 1 }
+      context 'when just one source id is passed in' do
+        let(:source_parent_ids) { [123] }
 
-        it 'gets the highlights for the user for the page' do
+        it('gets the highlights that have 123 as source') do
           get highlights_path, params: query_params
           expect(response).to have_http_status(:ok)
 
-          highlights_json = json_response[:highlights]
+          highlights = json_response[:data]
+          expect(highlights.count).to eq 2
+        end
+      end
 
-          expect(highlights_json.count).to eq 1
-          expect(highlights_json.first[:user_uuid]).to eq user_uuid
+      context 'when paging' do
+        context 'for a page that exists' do
+          let(:per_page) { 1 }
+          let(:page) { 1 }
+
+          it 'gets the highlights for the user for the page' do
+            get highlights_path, params: query_params
+            expect(response).to have_http_status(:ok)
+
+            highlights = json_response[:data]
+
+            expect(highlights.count).to eq 1
+            expect(highlights.first[:user_uuid]).to eq user_uuid
+          end
+        end
+
+        context 'for a page that doesnt exists' do
+          let(:per_page) { 1 }
+          let(:page) { 10 }
+
+          it 'gets no highlights' do
+            get highlights_path, params: query_params
+            expect(response).to have_http_status(:ok)
+            highlights = json_response[:data]
+
+            expect(highlights.count).to eq 0
+          end
+        end
+
+        context 'paging defaults' do
+          it 'returns the paging defaults in the meta' do
+            get highlights_path, params: query_params.except(:per_page, :page)
+            expect(response).to have_http_status(:ok)
+            meta = json_response[:meta]
+
+            expect(meta[:per_page]).to eq 15
+            expect(meta[:page]).to eq 1
+          end
         end
       end
     end
