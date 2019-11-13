@@ -20,11 +20,15 @@ module Api::V0::Bindings
     # The response per page
     attr_accessor :per_page
 
+    # The number of returned highlights
+    attr_accessor :total_count
+
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
         :'page' => :'page',
-        :'per_page' => :'per_page'
+        :'per_page' => :'per_page',
+        :'total_count' => :'total_count'
       }
     end
 
@@ -32,7 +36,8 @@ module Api::V0::Bindings
     def self.swagger_types
       {
         :'page' => :'Integer',
-        :'per_page' => :'Integer'
+        :'per_page' => :'Integer',
+        :'total_count' => :'Integer'
       }
     end
 
@@ -50,6 +55,10 @@ module Api::V0::Bindings
 
       if attributes.has_key?(:'per_page')
         self.per_page = attributes[:'per_page']
+      end
+
+      if attributes.has_key?(:'total_count')
+        self.total_count = attributes[:'total_count']
       end
     end
 
@@ -72,7 +81,8 @@ module Api::V0::Bindings
       return true if self.equal?(o)
       self.class == o.class &&
           page == o.page &&
-          per_page == o.per_page
+          per_page == o.per_page &&
+          total_count == o.total_count
     end
 
     # @see the `==` method
@@ -84,7 +94,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [page, per_page].hash
+      [page, per_page, total_count].hash
     end
 
     # Builds the object from hash

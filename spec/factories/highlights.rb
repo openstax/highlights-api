@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :highlight do
     user_uuid  { SecureRandom.uuid }
@@ -16,8 +18,12 @@ FactoryBot.define do
       ].to_json
     end
     source_id { SecureRandom.uuid }
-    source_parent_ids { [123, 456] }
+    source_parent_ids do
+      %w[ccf8e44e-05e5-4272-bd0a-aca50171b50f 972c21f9-a56e-4fa6-b52c-1a8854a9cc63]
+    end
     source_metadata { '{page_version: 14}' }
+    order_in_source { rand(100) }
+    source_order { '12.1' }
 
     trait :red do
       color { '#ff0000' }

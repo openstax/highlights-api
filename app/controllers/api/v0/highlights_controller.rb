@@ -51,6 +51,13 @@ class Api::V0::HighlightsController < Api::V0::BaseController
       key :description, <<~DESC
         Get selected highlight(s) for the owner.
 
+        Highlights can be filtered thru query parameters:  source_type,
+        source_parent_ids, and color.
+
+        Highlights are always paginated.  Pass in page and per_page to
+        request specific page, or omit the pagination params to get the defaults
+        of page = 1 and per_page of 15.
+
         Example call:
           /api/v0/highlights?source_type=”openstax_page”&\
             source_parent_id=[“123”]&color=#ff0000&page=1&per_page=20&order=desc

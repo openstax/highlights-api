@@ -61,7 +61,9 @@ end
 
 Api::V0::Bindings::Highlights.class_exec do
   def self.create_from_models(highlights, pagination)
-    attribs = { meta: pagination, data: highlights.to_a }
+    highlights = highlights.to_a unless highlights.is_a? Array
+    meta = pagination.merge(total_count: highlights.count)
+    attribs = { meta: meta, data: highlights }
     highlights_response = new(attribs)
   end
 end
@@ -72,6 +74,10 @@ Api::V0::Bindings::GetHighlights.class_exec do
     page: 1
   }.freeze
 
+  FILTER_DEFAULTS = {
+    order: 'asc'
+  }.freeze
+
   def query(user_uuid:)
     highlights = ::Highlight.by_user(user_uuid)
 
@@ -79,6 +85,7 @@ Api::V0::Bindings::GetHighlights.class_exec do
     # the by_X scopes on the Highlight model.
     pagination = to_hash.dup
     filter_by = pagination.slice!(:page, :per_page)
+    filter_by = FILTER_DEFAULTS.merge(filter_by)
     filter_by.each do |key, value|
       highlights = highlights.public_send("by_#{key}", value) if value.present?
     end

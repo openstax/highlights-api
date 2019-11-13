@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Api::V0::HighlightsController, type: :request do
   let(:user_uuid) { '55783d49-7562-4576-a626-3b877557a21f' }
+  let(:source_parent_id) { 'ccf8e44e-05e5-4272-bd0a-aca50171b50f' }
 
   before { allow(Rails.application.config).to receive(:consider_all_requests_local) { false } }
 
@@ -22,7 +23,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         color: '#000000',
         page: page,
         per_page: per_page,
-        order: 'desc'
+        order: 'asc'
       }
     end
 
@@ -51,9 +52,9 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       end
 
       context 'when just one source id is passed in' do
-        let(:source_parent_ids) { [123] }
+        let(:source_parent_ids) { [source_parent_id] }
 
-        it('gets the highlights that have 123 as source') do
+        it('gets the highlights that have this known uuid as source') do
           get highlights_path, params: query_params
           expect(response).to have_http_status(:ok)
 
@@ -72,9 +73,18 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
             expect(response).to have_http_status(:ok)
 
             highlights = json_response[:data]
-
-            expect(highlights.count).to eq 1
             expect(highlights.first[:user_uuid]).to eq user_uuid
+          end
+
+          it 'gets the correct total count' do
+            get highlights_path, params: query_params
+            expect(response).to have_http_status(:ok)
+
+            highlights = json_response[:data]
+            meta = json_response[:meta]
+
+            expect(meta[:total_count]).to eq 1
+            expect(highlights.count).to eq 1
           end
         end
 

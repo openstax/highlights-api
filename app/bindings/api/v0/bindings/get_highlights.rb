@@ -14,19 +14,19 @@ require 'date'
 
 module Api::V0::Bindings
   class GetHighlights
-    # The page number.  Defaults to 1.
+    # The page number of paginated results, one-indexed. Defaults to 1.
     attr_accessor :page
 
-    # The number of highlights to return per page.  Defaults to 15.
+    # The number of highlights per page for paginated results. Defaults to 15.
     attr_accessor :per_page
 
-    # The returned sorted order
+    # The desired sort order on the highlight creation time. Defaults to asc.
     attr_accessor :order
 
     # The source_type of the highlight, typically a openstax_page
     attr_accessor :source_type
 
-    # The parent IDs of the highlight. For book highlights, the parent_id could be a book, unit, or chapter ID
+    # The parent uuids of the highlight. For book highlights, the parent_id could be a book, unit, or chapter ID uuid.
     attr_accessor :source_parent_ids
 
     # The highlight color.

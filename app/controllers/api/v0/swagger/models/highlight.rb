@@ -46,16 +46,16 @@ module Api::V0::Swagger::Models::Highlight
     key :required, [:source_type]
     property :page do
       key :type, :integer
-      key :description, 'The page number.  Defaults to 1.'
+      key :description, 'The page number of paginated results, one-indexed. Defaults to 1.'
     end
     property :per_page do
       key :type, :integer
-      key :description, 'The number of highlights to return per page.  Defaults to 15.'
+      key :description, 'The number of highlights per page for paginated results. Defaults to 15.'
     end
     property :order do
       key :type, :string
       key :enum, %w[asc desc]
-      key :description, 'The returned sorted order'
+      key :description, 'The desired sort order on the highlight creation time. Defaults to asc.'
     end
   end
 
@@ -73,6 +73,10 @@ module Api::V0::Swagger::Models::Highlight
       property :per_page do
         key :type, :integer
         key :description, 'The response per page'
+      end
+      property :total_count do
+        key :type, :integer
+        key :description, 'The number of returned highlights'
       end
     end
     property :data do
@@ -96,10 +100,11 @@ module Api::V0::Swagger::Models::Highlight
     end
     property :source_parent_ids do
       key :type, :array
-      key :description, 'The parent IDs of the highlight. For book highlights, ' \
-                        'the parent_id could be a book, unit, or chapter ID'
+      key :description, 'The parent uuids of the highlight. For book highlights, ' \
+                        'the parent_id could be a book, unit, or chapter ID uuid.'
       items do
         key :type, :string
+        key :format, 'uuid'
       end
     end
     property :color do
