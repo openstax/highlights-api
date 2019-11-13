@@ -265,6 +265,60 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     end
   end
 
+  describe 'PUT /highlights/{id}' do
+    let!(:highlight) { FactoryBot.create(:highlight) }
+
+    context 'when the user is not logged in' do
+      context 'when the highlight does not exist' do
+        it 'gives a 401 before a 404' do
+          put highlights_path(id: SecureRandom.uuid)
+          expect(response).to have_http_status :unauthorized
+        end
+      end
+
+      context 'when the highlight does exist' do
+        it 'does not allow update' do
+          put highlights_path(id: highlight.id), params: { highlight: { color: "#ffffff" } }
+          expect(highlight.reload.color).to eq "#000000"
+          expect(response).to have_http_status(:unauthorized)
+        end
+      end
+    end
+
+    context 'when a logged-in user owns the highlight' do
+      before { stub_current_user_uuid(highlight.user_uuid) }
+
+      it 'can update color' do
+        put highlights_path(id: highlight.id), params: { highlight: { color: "#ffffff" } }
+        expect(highlight.reload.color).to eq "#ffffff"
+        expect(response).to have_http_status :ok
+      end
+
+      it 'can update annotation' do
+        put highlights_path(id: highlight.id), params: { highlight: { annotation: "oh yeah" } }
+        expect(highlight.reload.annotation).to eq "oh yeah"
+        expect(response).to have_http_status :ok
+      end
+
+      context 'when the highlight does not exist' do
+        it '404s' do
+          put highlights_path(id: SecureRandom.uuid)
+          expect(response).to have_http_status :not_found
+        end
+      end
+    end
+
+    context 'when a logged-in user does not own the highlight' do
+      before { stub_current_user_uuid(SecureRandom.uuid) }
+
+      it 'does not allow update' do
+        put highlights_path(id: highlight.id), params: { highlight: { color: "#ffffff" } }
+        expect(highlight.reload.color).to eq "#000000"
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+  end
+
   def highlights_path(id: nil)
     "/api/v0/highlights#{id.nil? ? '' : "/#{id}"}"
   end
