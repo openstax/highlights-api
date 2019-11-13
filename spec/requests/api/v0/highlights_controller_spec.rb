@@ -84,7 +84,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
             highlights = json_response[:data]
             meta = json_response[:meta]
 
-            expect(meta[:total_count]).to eq 1
+            expect(meta[:total_count]).to eq 2
             expect(highlights.count).to eq 1
           end
         end

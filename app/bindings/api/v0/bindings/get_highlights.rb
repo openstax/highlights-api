@@ -20,7 +20,7 @@ module Api::V0::Bindings
     # The number of highlights per page for paginated results. Defaults to 15.
     attr_accessor :per_page
 
-    # The desired sort order on the highlight creation time. Defaults to asc.
+    # The desired sort order direction. Defaults to asc.
     attr_accessor :order
 
     # The source_type of the highlight, typically a openstax_page

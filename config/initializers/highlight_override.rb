@@ -34,7 +34,7 @@ Api::V0::Bindings::NewHighlight.class_exec do
       return invalid_properties
     end
 
-    invalid_properties.push('invalid strategy detected') if location_strategies.any?(&:nil?)
+    invalid_properties.push('Empty or invalid strategy detected') if location_strategies.any?(&:nil?)
 
     location_strategies.each do |strategy|
       next if strategy.nil?
@@ -60,9 +60,9 @@ Api::V0::Bindings::NewHighlight.class_exec do
 end
 
 Api::V0::Bindings::Highlights.class_exec do
-  def self.create_from_models(highlights, pagination)
+  def self.create_from_models(highlights, pagination, total_count)
     highlights = highlights.to_a unless highlights.is_a? Array
-    meta = pagination.merge(total_count: highlights.count)
+    meta = pagination.merge(total_count: total_count)
     attribs = { meta: meta, data: highlights }
     highlights_response = new(attribs)
   end
@@ -91,7 +91,7 @@ Api::V0::Bindings::GetHighlights.class_exec do
     end
     pagination = PAGING_DEFAULTS.merge(pagination)
 
-    [highlights.paginate(pagination), pagination]
+    [highlights.paginate(pagination), pagination, highlights.count]
   end
 end
 

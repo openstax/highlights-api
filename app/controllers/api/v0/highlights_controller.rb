@@ -49,7 +49,7 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     operation :get do
       key :summary, 'Get selected highlights'
       key :description, <<~DESC
-        Get selected highlight(s) for the owner.
+        Get selected highlight(s) belonging to the calling user.
 
         Highlights can be filtered thru query parameters:  source_type,
         source_parent_ids, and color.
@@ -94,10 +94,11 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     inbound_binding, error = bind(request.query_parameters, Api::V0::Bindings::GetHighlights)
     render(json: error, status: error.status_code) and return if error
 
-    selected_highlights, pagination_used = inbound_binding.query(user_uuid: current_user_uuid)
+    selected_highlights, pagination_used, total_count = inbound_binding.query(user_uuid: current_user_uuid)
 
     response_binding = Api::V0::Bindings::Highlights.create_from_models(selected_highlights,
-                                                                        pagination_used)
+                                                                        pagination_used,
+                                                                        total_count)
     render json: response_binding, status: :ok
   end
 

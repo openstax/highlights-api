@@ -39,8 +39,8 @@ class Highlight < ApplicationRecord
 
   def normalize_source_ids
     if openstax_page?
-      self.source_id = source_id&.downcase
-      source_parent_ids.map!(&:downcase)
+      self.source_id = source_id&.downcase&.strip
+      source_parent_ids.map!(&:downcase).map!(&:strip)
     end
   end
 
