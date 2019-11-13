@@ -100,11 +100,10 @@ module Api::V0::Swagger::Models::Highlight
     end
     property :source_parent_ids do
       key :type, :array
-      key :description, 'The parent uuids of the highlight. For book highlights, ' \
+      key :description, 'The parent ids of the highlight. For book highlights, ' \
                         'the parent_id could be a book, unit, or chapter ID uuid.'
       items do
         key :type, :string
-        key :format, 'uuid'
       end
     end
     property :color do

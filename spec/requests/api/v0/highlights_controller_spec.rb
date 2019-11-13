@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe Api::V0::HighlightsController, type: :request do
   let(:user_uuid) { '55783d49-7562-4576-a626-3b877557a21f' }
   let(:source_parent_id) { 'ccf8e44e-05e5-4272-bd0a-aca50171b50f' }
+  let(:source_id) { SecureRandom.uuid }
 
   before { allow(Rails.application.config).to receive(:consider_all_requests_local) { false } }
 
@@ -120,7 +121,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       {
         highlight:
         {
-          source_id: 'foo id',
+          source_id: source_id,
           anchor: 'foo anchor',
           highlighted_content: 'foo content',
           source_type: 'openstax_page',

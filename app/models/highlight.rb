@@ -6,6 +6,7 @@
 # See https://docs.google.com/document/d/1eUzJ6YDwK25K8gHllXljr5ELKE06tWjAh6hXIAYcqsw/edit#heading=h.v01zz2q3y1e7 for more information.
 class Highlight < ApplicationRecord
   VALID_COLOR = /#?[a-f0-9]{6}/
+  VALID_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
   validates_format_of :color, with: /\A#{VALID_COLOR}\z/
   validates_presence_of :user_uuid,
@@ -14,6 +15,8 @@ class Highlight < ApplicationRecord
                         :anchor,
                         :highlighted_content,
                         :location_strategies
+
+  validate :source_ids_uuid_for_openstax_page
 
   enum source_type: [:openstax_page]
 
@@ -42,6 +45,23 @@ class Highlight < ApplicationRecord
   end
 
   private
+
+  def valid_uuid?(uuid)
+    VALID_UUID.match?(uuid.to_s.downcase)
+  end
+
+  def source_ids_uuid_for_openstax_page
+    return unless openstax_page?
+
+    source_parent_ids.each do |source_parent_id|
+      unless valid_uuid?(source_parent_id)
+        errors.add(:source_parent_ids, 'source parent id of type openstax page must be a uuid')
+      end
+    end
+    unless valid_uuid?(source_id)
+      errors.add(:source_id, 'source id of type openstax page must be a uuid')
+    end
+  end
 
   def self.postgres_style_array(souce_parent_ids)
     "{#{souce_parent_ids.join(',')}}"
