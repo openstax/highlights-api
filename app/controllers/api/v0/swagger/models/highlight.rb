@@ -132,7 +132,9 @@ module Api::V0::Swagger::Models::Highlight
     end
   end
 
-  add_properties(:Highlight) do
+  swagger_schema :HighlightUpdate do; end
+
+    add_properties(:Highlight) do
     property :source_type do
       key :type, :string
       key :enum, ['openstax_page']
@@ -154,6 +156,19 @@ module Api::V0::Swagger::Models::Highlight
     end
   end
 
+  add_properties(:HighlightUpdate) do
+    property :color do
+      key :type, :string
+      # remove the anchors because swagger-codegen always escapes them
+      key :pattern, ::Highlight::VALID_COLOR.inspect[1..-2]
+      key :description, 'The highlight color.'
+    end
+    property :annotation do
+      key :type, :string
+      key :description, 'The note attached to the highlight.'
+    end
+  end
+
   add_properties(:NewHighlight, :Highlight) do
     property :id do
       key :type, :string
@@ -171,6 +186,10 @@ module Api::V0::Swagger::Models::Highlight
     property :highlighted_content do
       key :type, :string
       key :description, 'The highlighted content.'
+    end
+    property :annotation do
+      key :type, :string
+      key :description, 'The note attached to the highlight.'
     end
     property :location_strategies do
       key :type, :array
