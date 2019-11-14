@@ -73,8 +73,7 @@ module Api::V0::Swagger::Models::Highlight
     end
     property :color do
       key :type, :string
-      # remove the anchors because swagger-codegen always escapes them
-      key :pattern, ::Highlight::VALID_COLOR.inspect[1..-2]
+      key :pattern, ::Highlight::VALID_COLOR.inspect
       key :description, 'The highlight color to limit results to.'
     end
   end
@@ -137,8 +136,7 @@ module Api::V0::Swagger::Models::Highlight
     end
     property :color do
       key :type, :string
-      # remove the anchors because swagger-codegen always escapes them
-      key :pattern, ::Highlight::VALID_COLOR.inspect[1..-2]
+      key :pattern, ::Highlight::VALID_COLOR.inspect
       key :description, 'The highlight color.'
     end
     property :anchor do
@@ -167,8 +165,7 @@ module Api::V0::Swagger::Models::Highlight
   swagger_schema :UpdateHighlight do
     property :color do
       key :type, :string
-      # remove the anchors because swagger-codegen always escapes them
-      key :pattern, ::Highlight::VALID_COLOR.inspect[1..-2]
+      key :pattern, ::Highlight::VALID_COLOR.inspect
       key :description, 'The new highlight color.'
     end
     property :annotation do
