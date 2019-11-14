@@ -20,7 +20,7 @@ module Api::V0::Bindings
     # The number of highlights per page for paginated results. Defaults to 15.
     attr_accessor :per_page
 
-    # The sort order direction to limit results to.
+    # The sort direction in which to return results.
     attr_accessor :order
 
     # The type of content that contains the highlight, (typically openstax-page) to limit results to.

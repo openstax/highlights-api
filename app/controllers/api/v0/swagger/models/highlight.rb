@@ -55,7 +55,7 @@ module Api::V0::Swagger::Models::Highlight
     property :order do
       key :type, :string
       key :enum, %w[asc desc]
-      key :description, 'The sort order direction to limit results to.'
+      key :description, 'The sort direction in which to return results.'
     end
     property :source_type do
       key :type, :string
@@ -79,10 +79,6 @@ module Api::V0::Swagger::Models::Highlight
     end
   end
 
-  swagger_schema :Highlight do
-    key :required, [:id]
-  end
-
   swagger_schema :Highlights do
     # organization from https://jsonapi.org/
     property :meta do
@@ -96,7 +92,7 @@ module Api::V0::Swagger::Models::Highlight
       end
       property :total_count do
         key :type, :integer
-        key :description, 'The number of total results.'
+        key :description, 'The number of results across all pages.'
       end
     end
     property :data do
@@ -108,37 +104,28 @@ module Api::V0::Swagger::Models::Highlight
     end
   end
 
-  swagger_schema :NewHighlight do
-    key :required, [:source_type, :source_id, :anchor, :highlighted_content, :color, :location_strategies]
-
-    property :source_type do
-      key :type, :string
-      key :enum, ['openstax_page']
-      key :description, 'The type of content that contains the highlight, typically openstax-page.'
-    end
-    property :source_parent_ids do
-      key :type, :array
-      key :description, 'The parent ids of the highlight. For book highlights, ' \
-                        'the parent_id could be a book, unit, or chapter ID uuid.'
-      items do
-        key :type, :string
-      end
-    end
-    property :color do
-      key :type, :string
-      # remove the anchors because swagger-codegen always escapes them
-      key :pattern, ::Highlight::VALID_COLOR.inspect[1..-2]
-      key :description, 'The highlight color in the hexadecimal color format.'
-    end
+  swagger_schema :Highlight do
+    key :required, [:id]
   end
 
-  swagger_schema :UpdateHighlight do; end
+  swagger_schema :NewHighlight do
+    key :required, [:source_type, :source_id, :anchor, :highlighted_content, :color, :location_strategies]
+  end
 
-  add_properties(:Highlight) do
+  add_properties(:Highlight, :NewHighlight) do
+    property :id do
+      key :type, :string
+      key :format, 'uuid'
+      key :description, 'The highlight ID.'
+    end
     property :source_type do
       key :type, :string
       key :enum, ['openstax_page']
       key :description, 'The type of content that contains the highlight, typically openstax-page.'
+    end
+    property :source_id do
+      key :type, :string
+      key :description, 'The source_id of the highlight.'
     end
     property :source_parent_ids do
       key :type, :array
@@ -153,31 +140,6 @@ module Api::V0::Swagger::Models::Highlight
       # remove the anchors because swagger-codegen always escapes them
       key :pattern, ::Highlight::VALID_COLOR.inspect[1..-2]
       key :description, 'The highlight color.'
-    end
-  end
-
-  add_properties(:UpdateHighlight) do
-    property :color do
-      key :type, :string
-      # remove the anchors because swagger-codegen always escapes them
-      key :pattern, ::Highlight::VALID_COLOR.inspect[1..-2]
-      key :description, 'The new highlight color.'
-    end
-    property :annotation do
-      key :type, :string
-      key :description, 'The new note for the highlight (replaces existing note).'
-    end
-  end
-
-  add_properties(:NewHighlight, :Highlight) do
-    property :id do
-      key :type, :string
-      key :format, 'uuid'
-      key :description, 'The highlight ID.'
-    end
-    property :source_id do
-      key :type, :string
-      key :description, 'The source_id of the highlight.'
     end
     property :anchor do
       key :type, :string
@@ -199,6 +161,19 @@ module Api::V0::Swagger::Models::Highlight
       items do
         key :type, :object
       end
+    end
+  end
+
+  swagger_schema :UpdateHighlight do
+    property :color do
+      key :type, :string
+      # remove the anchors because swagger-codegen always escapes them
+      key :pattern, ::Highlight::VALID_COLOR.inspect[1..-2]
+      key :description, 'The new highlight color.'
+    end
+    property :annotation do
+      key :type, :string
+      key :description, 'The new note for the highlight (replaces existing note).'
     end
   end
 end

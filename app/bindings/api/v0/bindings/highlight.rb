@@ -14,20 +14,20 @@ require 'date'
 
 module Api::V0::Bindings
   class Highlight
+    # The highlight ID.
+    attr_accessor :id
+
     # The type of content that contains the highlight, typically openstax-page.
     attr_accessor :source_type
+
+    # The source_id of the highlight.
+    attr_accessor :source_id
 
     # The parent ids of the highlight. For book highlights, the parent_id could be a book, unit, or chapter ID uuid.
     attr_accessor :source_parent_ids
 
     # The highlight color.
     attr_accessor :color
-
-    # The highlight ID.
-    attr_accessor :id
-
-    # The source_id of the highlight.
-    attr_accessor :source_id
 
     # The anchor of the highlight.
     attr_accessor :anchor
@@ -66,11 +66,11 @@ module Api::V0::Bindings
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
+        :'id' => :'id',
         :'source_type' => :'source_type',
+        :'source_id' => :'source_id',
         :'source_parent_ids' => :'source_parent_ids',
         :'color' => :'color',
-        :'id' => :'id',
-        :'source_id' => :'source_id',
         :'anchor' => :'anchor',
         :'highlighted_content' => :'highlighted_content',
         :'annotation' => :'annotation',
@@ -81,11 +81,11 @@ module Api::V0::Bindings
     # Attribute type mapping.
     def self.swagger_types
       {
+        :'id' => :'String',
         :'source_type' => :'String',
+        :'source_id' => :'String',
         :'source_parent_ids' => :'Array<String>',
         :'color' => :'String',
-        :'id' => :'String',
-        :'source_id' => :'String',
         :'anchor' => :'String',
         :'highlighted_content' => :'String',
         :'annotation' => :'String',
@@ -101,8 +101,16 @@ module Api::V0::Bindings
       # convert string to symbol for hash key
       attributes = attributes.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
 
+      if attributes.has_key?(:'id')
+        self.id = attributes[:'id']
+      end
+
       if attributes.has_key?(:'source_type')
         self.source_type = attributes[:'source_type']
+      end
+
+      if attributes.has_key?(:'source_id')
+        self.source_id = attributes[:'source_id']
       end
 
       if attributes.has_key?(:'source_parent_ids')
@@ -113,14 +121,6 @@ module Api::V0::Bindings
 
       if attributes.has_key?(:'color')
         self.color = attributes[:'color']
-      end
-
-      if attributes.has_key?(:'id')
-        self.id = attributes[:'id']
-      end
-
-      if attributes.has_key?(:'source_id')
-        self.source_id = attributes[:'source_id']
       end
 
       if attributes.has_key?(:'anchor')
@@ -146,12 +146,12 @@ module Api::V0::Bindings
     # @return Array for valid properties with the reasons
     def list_invalid_properties
       invalid_properties = Array.new
-      if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        invalid_properties.push('invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.')
-      end
-
       if @id.nil?
         invalid_properties.push('invalid value for "id", id cannot be nil.')
+      end
+
+      if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
+        invalid_properties.push('invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.')
       end
 
       invalid_properties
@@ -160,10 +160,10 @@ module Api::V0::Bindings
     # Check to see if the all the properties in the model are valid
     # @return true if the model is valid
     def valid?
+      return false if @id.nil?
       source_type_validator = EnumAttributeValidator.new('String', ['openstax_page'])
       return false unless source_type_validator.valid?(@source_type)
       return false if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
-      return false if @id.nil?
       true
     end
 
@@ -192,11 +192,11 @@ module Api::V0::Bindings
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
+          id == o.id &&
           source_type == o.source_type &&
+          source_id == o.source_id &&
           source_parent_ids == o.source_parent_ids &&
           color == o.color &&
-          id == o.id &&
-          source_id == o.source_id &&
           anchor == o.anchor &&
           highlighted_content == o.highlighted_content &&
           annotation == o.annotation &&
@@ -212,7 +212,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [source_type, source_parent_ids, color, id, source_id, anchor, highlighted_content, annotation, location_strategies].hash
+      [id, source_type, source_id, source_parent_ids, color, anchor, highlighted_content, annotation, location_strategies].hash
     end
 
     # Builds the object from hash

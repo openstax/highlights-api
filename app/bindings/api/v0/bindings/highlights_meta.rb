@@ -20,7 +20,7 @@ module Api::V0::Bindings
     # The response per page.
     attr_accessor :per_page
 
-    # The number of total results.
+    # The number of results across all pages.
     attr_accessor :total_count
 
     # Attribute mapping from ruby-style variable name to JSON key.
