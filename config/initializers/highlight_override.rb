@@ -96,3 +96,10 @@ Api::V0::Bindings::GetHighlights.class_exec do
   end
 end
 
+Api::V0::Bindings::UpdateHighlight.class_exec do
+  def update_model!(model)
+    model.color = color if color.present?
+    model.annotation = annotation if annotation.present?
+    model.tap(&:save!)
+  end
+end

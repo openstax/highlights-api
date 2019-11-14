@@ -103,6 +103,56 @@ class Api::V0::HighlightsController < Api::V0::BaseController
   end
 
   swagger_path '/highlights/{id}' do
+    operation :put do
+      key :summary, 'Update a highlight'
+      key :description, 'Update a highlight'
+      key :operationId, 'updateHighlight'
+      key :produces, [
+        'application/json'
+      ]
+      key :tags, [
+        'Highlights'
+      ]
+      parameter do
+        key :name, :id
+        key :in, :path
+        key :description, 'ID of the highlight to update.'
+        key :required, true
+        key :type, :string
+        key :format, 'uuid'
+      end
+      parameter do
+        key :name, :highlight
+        key :in, :body
+        key :description, 'The highlight updates.'
+        key :required, true
+        schema do
+          key :'$ref', :HighlightUpdate
+        end
+      end
+      response 200 do
+        key :description, 'Success.  Returns the updated highlight.'
+        schema do
+          key :'$ref', :Highlight
+        end
+      end
+      extend Api::V0::SwaggerResponses::AuthenticationError
+      extend Api::V0::SwaggerResponses::UnprocessableEntityError
+      extend Api::V0::SwaggerResponses::ServerError
+    end
+  end
+
+  def update
+    inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::UpdateHighlight)
+    render(json: error, status: error.status_code) and return if error
+
+    model = inbound_binding.update_model!(@highlight)
+
+    response_binding = Api::V0::Bindings::Highlight.create_from_model(model)
+    render json: response_binding, status: :ok
+  end
+
+  swagger_path '/highlights/{id}' do
     operation :delete do
       key :summary, 'Delete a highlight'
       key :description, 'Delete a highlight. Can only be done by the owner of the highlight.'
