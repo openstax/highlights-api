@@ -61,14 +61,16 @@ end
 
 Api::V0::Bindings::Highlights.class_exec do
   def self.create_from_models(highlights, pagination, total_count)
-    highlights = highlights.to_a unless highlights.is_a? Array
+    highlights_bindings = highlights.map { |highlight| Api::V0::Bindings::Highlight.new(highlight.attributes) }
     meta = pagination.merge(total_count: total_count)
-    attribs = { meta: meta, data: highlights }
+    attribs = { meta: meta, data: highlights_bindings }
     highlights_response = new(attribs)
   end
 end
 
-Api::V0::Bindings::GetHighlights.class_exec do
+# Api::V0::Bindings::GetHighlights.class_exec do
+Api::V0::Bindings::GetHighlights
+class Api::V0::Bindings::GetHighlights
   PAGING_DEFAULTS = {
     per_page: 15,
     page: 1

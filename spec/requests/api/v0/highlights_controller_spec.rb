@@ -49,7 +49,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         highlights = json_response[:data]
 
         expect(highlights.count).to eq 2
-        expect(highlights.map { |json| json[:user_uuid] }.uniq).to eq [user_uuid]
+        expect(highlights.map { |json| json[:anchor] }.uniq).to eq ['fs-id1170572203905']
       end
 
       context 'when just one source id is passed in' do
