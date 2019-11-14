@@ -74,7 +74,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
             expect(response).to have_http_status(:ok)
 
             highlights = json_response[:data]
-            expect(highlights.first[:user_uuid]).to eq user_uuid
+            expect(highlights.first[:anchor]).to eq 'fs-id1170572203905'
           end
 
           it 'gets the correct total count' do
