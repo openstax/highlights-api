@@ -61,7 +61,7 @@ module Api::V0::Swagger::Models::Highlight
       key :type, :string
       key :enum, ['openstax_page']
       key :description, 'The type of content that contains the highlight, '\
-                        '(typically openstax-page) to limit results to.'
+                        'to limit results to.'
     end
     property :source_parent_ids do
       key :type, :array
@@ -121,7 +121,7 @@ module Api::V0::Swagger::Models::Highlight
     property :source_type do
       key :type, :string
       key :enum, ['openstax_page']
-      key :description, 'The type of content that contains the highlight, typically openstax-page.'
+      key :description, 'The type of content that contains the highlight.'
     end
     property :source_id do
       key :type, :string
@@ -129,8 +129,8 @@ module Api::V0::Swagger::Models::Highlight
     end
     property :source_parent_ids do
       key :type, :array
-      key :description, 'The parent ids of the highlight. For book highlights, ' \
-                        'the parent_id could be a book, unit, or chapter ID uuid.'
+      key :description, 'The parent IDs of the highlight. For book highlights, ' \
+                        'these could be book, unit, and/or chapter UUIDs.'
       items do
         key :type, :string
       end

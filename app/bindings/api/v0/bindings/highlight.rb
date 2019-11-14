@@ -17,13 +17,13 @@ module Api::V0::Bindings
     # The highlight ID.
     attr_accessor :id
 
-    # The type of content that contains the highlight, typically openstax-page.
+    # The type of content that contains the highlight.
     attr_accessor :source_type
 
     # The source_id of the highlight.
     attr_accessor :source_id
 
-    # The parent ids of the highlight. For book highlights, the parent_id could be a book, unit, or chapter ID uuid.
+    # The parent IDs of the highlight. For book highlights, these could be book, unit, and/or chapter UUIDs.
     attr_accessor :source_parent_ids
 
     # The highlight color.

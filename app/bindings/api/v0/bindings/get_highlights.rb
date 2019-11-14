@@ -23,7 +23,7 @@ module Api::V0::Bindings
     # The sort direction in which to return results.
     attr_accessor :order
 
-    # The type of content that contains the highlight, (typically openstax-page) to limit results to.
+    # The type of content that contains the highlight, to limit results to.
     attr_accessor :source_type
 
     # One or more unrelated parent IDs; query results will have at least one parent ID that matches those provided.
