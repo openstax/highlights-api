@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Monkey patch the generated Bindings for the swagger Highlight model
 
 Api::V0::Bindings::NewHighlight.class_exec do
@@ -32,9 +34,7 @@ Api::V0::Bindings::NewHighlight.class_exec do
       return invalid_properties
     end
 
-    if location_strategies.any?(&:nil?)
-      invalid_properties.push('invalid strategy detected')
-    end
+    invalid_properties.push('Empty or invalid strategy detected') if location_strategies.any?(&:nil?)
 
     location_strategies.each do |strategy|
       next if strategy.nil?
@@ -47,7 +47,6 @@ Api::V0::Bindings::NewHighlight.class_exec do
   end
 end
 
-
 Api::V0::Bindings::Highlight.class_exec do
   def self.create_from_model(model)
     new(model.attributes)
@@ -59,3 +58,41 @@ Api::V0::Bindings::NewHighlight.class_exec do
     Highlight.create!(to_hash.merge(user_uuid: user_uuid))
   end
 end
+
+Api::V0::Bindings::Highlights.class_exec do
+  def self.create_from_models(highlights, pagination, total_count)
+    highlights_bindings = highlights.map do |highlight|
+      Api::V0::Bindings::Highlight.create_from_model(highlight)
+    end
+    new(meta: pagination.merge(total_count: total_count),
+        data: highlights_bindings)
+  end
+end
+
+Api::V0::Bindings::GetHighlights.class_exec do
+  PAGING_DEFAULTS = {
+    per_page: 15,
+    page: 1
+  }.freeze
+
+  FILTER_DEFAULTS = {
+    order: 'asc'
+  }.freeze
+
+  def query(user_uuid:)
+    highlights = ::Highlight.by_user(user_uuid)
+
+    # The submitted GetHighlight properties create automatic chaining via
+    # the by_X scopes on the Highlight model.
+    pagination = to_hash.dup
+    filter_by = pagination.slice!(:page, :per_page)
+    filter_by = FILTER_DEFAULTS.merge(filter_by)
+    filter_by.each do |key, value|
+      highlights = highlights.public_send("by_#{key}", value) if value.present?
+    end
+    pagination = PAGING_DEFAULTS.merge(pagination)
+
+    [highlights.paginate(pagination), pagination, highlights.count]
+  end
+end
+

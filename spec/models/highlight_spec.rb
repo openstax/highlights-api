@@ -4,7 +4,7 @@ RSpec.describe Highlight, type: :model do
   let(:highlight) { build(:highlight) }
 
   describe 'creates to db ok' do
-    let(:valid_uuid) { /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/ }
+    let(:valid_uuid) { Highlight::VALID_UUID }
 
     before { create(:highlight) }
 
@@ -67,6 +67,27 @@ RSpec.describe Highlight, type: :model do
         record = described_class.openstax_page.new(source_id: 'ABC')
         record.validate
         expect(record.source_id).to eq 'abc'
+      end
+
+      context 'source ids' do
+        it 'source_id must be a uuid' do
+          record = described_class.openstax_page.new(source_id: 'ABC')
+          record.validate
+          expect(record.errors['source_id']).to eq ['source id of type openstax page must be a uuid']
+
+          record = described_class.openstax_page.new(source_id: SecureRandom.uuid)
+          record.validate
+          expect(record.errors['source_id']).to be_empty
+        end
+        it 'source_parent_ids must be uuids' do
+          record = described_class.openstax_page.new(source_parent_ids: ['ABC'])
+          record.validate
+          expect(record.errors['source_parent_ids']).to eq ['source parent id of type openstax page must be a uuid']
+
+          record = described_class.openstax_page.new(source_parent_ids: [SecureRandom.uuid])
+          record.validate
+          expect(record.errors['source_parent_ids']).to be_empty
+        end
       end
     end
   end
