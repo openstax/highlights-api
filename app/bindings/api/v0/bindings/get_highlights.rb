@@ -20,16 +20,16 @@ module Api::V0::Bindings
     # The number of highlights per page for paginated results. Defaults to 15.
     attr_accessor :per_page
 
-    # The desired sort order direction. Defaults to asc.
+    # The sort order direction to limit results to.
     attr_accessor :order
 
-    # The source_type of the highlight, typically a openstax_page
+    # The type of content that contains the highlight, (typically openstax-page) to limit results to.
     attr_accessor :source_type
 
-    # The parent ids of the highlight. For book highlights, the parent_id could be a book, unit, or chapter ID uuid.
+    # One or more unrelated parent IDs; query results will have at least one parent ID that matches those provided.
     attr_accessor :source_parent_ids
 
-    # The highlight color.
+    # The highlight color to limit results to.
     attr_accessor :color
 
     class EnumAttributeValidator

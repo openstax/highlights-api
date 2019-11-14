@@ -14,13 +14,13 @@ require 'date'
 
 module Api::V0::Bindings
   class HighlightsMeta
-    # The response page number
+    # The response page number.
     attr_accessor :page
 
-    # The response per page
+    # The response per page.
     attr_accessor :per_page
 
-    # The number of total results
+    # The number of total results.
     attr_accessor :total_count
 
     # Attribute mapping from ruby-style variable name to JSON key.

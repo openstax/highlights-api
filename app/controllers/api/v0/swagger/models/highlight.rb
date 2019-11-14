@@ -134,7 +134,7 @@ module Api::V0::Swagger::Models::Highlight
 
   swagger_schema :UpdateHighlight do; end
 
-    add_properties(:Highlight) do
+  add_properties(:Highlight) do
     property :source_type do
       key :type, :string
       key :enum, ['openstax_page']

@@ -14,13 +14,13 @@ require 'date'
 
 module Api::V0::Bindings
   class NewHighlight
-    # The source_type of the highlight, typically a openstax_page
+    # The type of content that contains the highlight, typically openstax-page.
     attr_accessor :source_type
 
     # The parent ids of the highlight. For book highlights, the parent_id could be a book, unit, or chapter ID uuid.
     attr_accessor :source_parent_ids
 
-    # The highlight color.
+    # The highlight color in the hexadecimal color format.
     attr_accessor :color
 
     # The highlight ID.
@@ -38,7 +38,7 @@ module Api::V0::Bindings
     # The note attached to the highlight.
     attr_accessor :annotation
 
-    # Location strategies for the highlight. Items should have a schema matching the strategy schemas that have been defined
+    # Location strategies for the highlight. Items should have a schema matching the strategy schemas that have been defined.
     attr_accessor :location_strategies
 
     class EnumAttributeValidator

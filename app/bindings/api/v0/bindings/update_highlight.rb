@@ -14,10 +14,10 @@ require 'date'
 
 module Api::V0::Bindings
   class UpdateHighlight
-    # The highlight color.
+    # The new highlight color.
     attr_accessor :color
 
-    # The note attached to the highlight.
+    # The new note for the highlight (replaces existing note).
     attr_accessor :annotation
 
     # Attribute mapping from ruby-style variable name to JSON key.

@@ -16,7 +16,7 @@ module Api::V0::Bindings
   class Highlights
     attr_accessor :meta
 
-    # The selected highlight(s)
+    # The selected highlight(s).
     attr_accessor :data
 
     # Attribute mapping from ruby-style variable name to JSON key.
