@@ -13,7 +13,7 @@ Swagger Codegen version: 2.4.6
 require 'date'
 
 module Api::V0::Bindings
-  class HighlightUpdate
+  class UpdateHighlight
     # The highlight color.
     attr_accessor :color
 

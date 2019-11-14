@@ -132,7 +132,7 @@ module Api::V0::Swagger::Models::Highlight
     end
   end
 
-  swagger_schema :HighlightUpdate do; end
+  swagger_schema :UpdateHighlight do; end
 
     add_properties(:Highlight) do
     property :source_type do
@@ -156,16 +156,16 @@ module Api::V0::Swagger::Models::Highlight
     end
   end
 
-  add_properties(:HighlightUpdate) do
+  add_properties(:UpdateHighlight) do
     property :color do
       key :type, :string
       # remove the anchors because swagger-codegen always escapes them
       key :pattern, ::Highlight::VALID_COLOR.inspect[1..-2]
-      key :description, 'The highlight color.'
+      key :description, 'The new highlight color.'
     end
     property :annotation do
       key :type, :string
-      key :description, 'The note attached to the highlight.'
+      key :description, 'The new note for the highlight (replaces existing note).'
     end
   end
 
