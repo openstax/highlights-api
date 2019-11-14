@@ -13,26 +13,30 @@ Swagger Codegen version: 2.4.9
 require 'date'
 
 module Api::V0::Bindings
-  class UpdateHighlight
-    # The new highlight color.
-    attr_accessor :color
+  class InfoResults
+    # How long the request took (ms)
+    attr_accessor :overall_took_ms
 
-    # The new note for the highlight (replaces existing note).
-    attr_accessor :annotation
+    # Current version of Postgres
+    attr_accessor :postgres_version
+
+    attr_accessor :data
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
-        :'color' => :'color',
-        :'annotation' => :'annotation'
+        :'overall_took_ms' => :'overall_took_ms',
+        :'postgres_version' => :'postgres_version',
+        :'data' => :'data'
       }
     end
 
     # Attribute type mapping.
     def self.swagger_types
       {
-        :'color' => :'String',
-        :'annotation' => :'String'
+        :'overall_took_ms' => :'Integer',
+        :'postgres_version' => :'String',
+        :'data' => :'InfoData'
       }
     end
 
@@ -44,12 +48,16 @@ module Api::V0::Bindings
       # convert string to symbol for hash key
       attributes = attributes.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
 
-      if attributes.has_key?(:'color')
-        self.color = attributes[:'color']
+      if attributes.has_key?(:'overall_took_ms')
+        self.overall_took_ms = attributes[:'overall_took_ms']
       end
 
-      if attributes.has_key?(:'annotation')
-        self.annotation = attributes[:'annotation']
+      if attributes.has_key?(:'postgres_version')
+        self.postgres_version = attributes[:'postgres_version']
+      end
+
+      if attributes.has_key?(:'data')
+        self.data = attributes[:'data']
       end
     end
 
@@ -57,8 +65,8 @@ module Api::V0::Bindings
     # @return Array for valid properties with the reasons
     def list_invalid_properties
       invalid_properties = Array.new
-      if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        invalid_properties.push('invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.')
+      if @postgres_version.nil?
+        invalid_properties.push('invalid value for "postgres_version", postgres_version cannot be nil.')
       end
 
       invalid_properties
@@ -67,18 +75,8 @@ module Api::V0::Bindings
     # Check to see if the all the properties in the model are valid
     # @return true if the model is valid
     def valid?
-      return false if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
+      return false if @postgres_version.nil?
       true
-    end
-
-    # Custom attribute writer method with validation
-    # @param [Object] color Value to be assigned
-    def color=(color)
-      if !color.nil? && color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        fail ArgumentError, 'invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.'
-      end
-
-      @color = color
     end
 
     # Checks equality by comparing each attribute.
@@ -86,8 +84,9 @@ module Api::V0::Bindings
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
-          color == o.color &&
-          annotation == o.annotation
+          overall_took_ms == o.overall_took_ms &&
+          postgres_version == o.postgres_version &&
+          data == o.data
     end
 
     # @see the `==` method
@@ -99,7 +98,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [color, annotation].hash
+      [overall_took_ms, postgres_version, data].hash
     end
 
     # Builds the object from hash

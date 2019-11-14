@@ -37,5 +37,16 @@ if Rails.env.development?
                                             "type": 'TextPositionSelector',
                                             "start": '22' }])
 
+  Highlight.create!(user_uuid: 'c967ccb8-97ad-4031-9fe5-7df8af056bfb',
+                    source_type: 'openstax_page',
+                    color: '#cccccc',
+                    source_id: 'e0ebcd05-0fbf-4fc2-a063-9c68d424fc5c',
+                    source_parent_ids: ['72695679-ddbe-4132-9a09-5400be85a993'],
+                    anchor: 'fs-id48938221',
+                    highlighted_content: 'big clouds',
+                    location_strategies: [{ "end": '10',
+                                            "type": 'TextPositionSelector',
+                                            "start": '12' }])
+
   puts "#{Highlight.count} records seeded"
 end

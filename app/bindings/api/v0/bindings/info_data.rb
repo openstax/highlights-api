@@ -13,26 +13,41 @@ Swagger Codegen version: 2.4.9
 require 'date'
 
 module Api::V0::Bindings
-  class UpdateHighlight
-    # The new highlight color.
-    attr_accessor :color
+  class InfoData
+    # The total number of highlights
+    attr_accessor :total_highlights
 
-    # The new note for the highlight (replaces existing note).
-    attr_accessor :annotation
+    # The average number of highlights per user
+    attr_accessor :avg_highlights_per_user
+
+    # The max number of highlights used by any one user
+    attr_accessor :max_num_highlights_any_user
+
+    # The total number of notes/annotations
+    attr_accessor :total_notes
+
+    # The average length (chars) of a note
+    attr_accessor :avg_note_length
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
-        :'color' => :'color',
-        :'annotation' => :'annotation'
+        :'total_highlights' => :'total_highlights',
+        :'avg_highlights_per_user' => :'avg_highlights_per_user',
+        :'max_num_highlights_any_user' => :'max_num_highlights_any_user',
+        :'total_notes' => :'total_notes',
+        :'avg_note_length' => :'avg_note_length'
       }
     end
 
     # Attribute type mapping.
     def self.swagger_types
       {
-        :'color' => :'String',
-        :'annotation' => :'String'
+        :'total_highlights' => :'Integer',
+        :'avg_highlights_per_user' => :'Integer',
+        :'max_num_highlights_any_user' => :'Integer',
+        :'total_notes' => :'Integer',
+        :'avg_note_length' => :'Integer'
       }
     end
 
@@ -44,12 +59,24 @@ module Api::V0::Bindings
       # convert string to symbol for hash key
       attributes = attributes.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
 
-      if attributes.has_key?(:'color')
-        self.color = attributes[:'color']
+      if attributes.has_key?(:'total_highlights')
+        self.total_highlights = attributes[:'total_highlights']
       end
 
-      if attributes.has_key?(:'annotation')
-        self.annotation = attributes[:'annotation']
+      if attributes.has_key?(:'avg_highlights_per_user')
+        self.avg_highlights_per_user = attributes[:'avg_highlights_per_user']
+      end
+
+      if attributes.has_key?(:'max_num_highlights_any_user')
+        self.max_num_highlights_any_user = attributes[:'max_num_highlights_any_user']
+      end
+
+      if attributes.has_key?(:'total_notes')
+        self.total_notes = attributes[:'total_notes']
+      end
+
+      if attributes.has_key?(:'avg_note_length')
+        self.avg_note_length = attributes[:'avg_note_length']
       end
     end
 
@@ -57,28 +84,13 @@ module Api::V0::Bindings
     # @return Array for valid properties with the reasons
     def list_invalid_properties
       invalid_properties = Array.new
-      if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        invalid_properties.push('invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.')
-      end
-
       invalid_properties
     end
 
     # Check to see if the all the properties in the model are valid
     # @return true if the model is valid
     def valid?
-      return false if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
       true
-    end
-
-    # Custom attribute writer method with validation
-    # @param [Object] color Value to be assigned
-    def color=(color)
-      if !color.nil? && color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        fail ArgumentError, 'invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.'
-      end
-
-      @color = color
     end
 
     # Checks equality by comparing each attribute.
@@ -86,8 +98,11 @@ module Api::V0::Bindings
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
-          color == o.color &&
-          annotation == o.annotation
+          total_highlights == o.total_highlights &&
+          avg_highlights_per_user == o.avg_highlights_per_user &&
+          max_num_highlights_any_user == o.max_num_highlights_any_user &&
+          total_notes == o.total_notes &&
+          avg_note_length == o.avg_note_length
     end
 
     # @see the `==` method
@@ -99,7 +114,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [color, annotation].hash
+      [total_highlights, avg_highlights_per_user, max_num_highlights_any_user, total_notes, avg_note_length].hash
     end
 
     # Builds the object from hash
