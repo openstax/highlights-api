@@ -44,59 +44,35 @@ module Api::V0::Swagger::Models::Highlight
 
   swagger_schema :GetHighlights do
     key :required, [:source_type]
-    property :page do
-      key :type, :integer
-      key :description, 'The page number of paginated results, one-indexed. Defaults to 1.'
-    end
-    property :per_page do
-      key :type, :integer
-      key :description, 'The number of highlights per page for paginated results. Defaults to 15.'
-    end
-    property :order do
-      key :type, :string
-      key :enum, %w[asc desc]
-      key :description, 'The sort direction in which to return results.'
-    end
     property :source_type do
       key :type, :string
       key :enum, ['openstax_page']
-      key :description, 'The type of content that contains the highlight, '\
-                        'to limit results to.'
+      key :description, 'Limits results to those highlights made in sources of this type.'
     end
-    property :source_parent_ids do
-      key :type, :array
-      key :description, 'One or more unrelated parent IDs; query results will have '\
-                        'at least one parent ID that matches those provided.'
-      items do
-        key :type, :string
-      end
+    property :scope_id do
+      key :type, :string
+      key :description, 'Limits results to the source document container in which the highlight ' \
+                        'was made.  For openstax_page source_types, this is a versionless book UUID.'
+
     end
     property :color do
       key :type, :string
       key :pattern, ::Highlight::VALID_COLOR.inspect
-      key :description, 'The highlight color to limit results to.'
+      key :description, 'Limits results to this highlight color.'
     end
   end
 
   swagger_schema :Highlights do
     # organization from https://jsonapi.org/
     property :meta do
-      property :page do
+      property :count do
         key :type, :integer
-        key :description, 'The response page number.'
-      end
-      property :per_page do
-        key :type, :integer
-        key :description, 'The response per page.'
-      end
-      property :total_count do
-        key :type, :integer
-        key :description, 'The number of results across all pages.'
+        key :description, 'The number of results.'
       end
     end
     property :data do
       key :type, :array
-      key :description, 'The selected highlight(s).'
+      key :description, 'The filtered highlights.'
       items do
         key :'$ref', :Highlight
       end
@@ -124,15 +100,15 @@ module Api::V0::Swagger::Models::Highlight
     end
     property :source_id do
       key :type, :string
-      key :description, 'The source_id of the highlight.'
+      key :description, 'The ID of the source document in which the highlight is made.  ' \
+                        'Has source_type-specific constraints (e.g. all lowercase UUID for ' \
+                        'the \'openstax_page\' source_type).'
     end
-    property :source_parent_ids do
-      key :type, :array
-      key :description, 'The parent IDs of the highlight. For book highlights, ' \
-                        'these could be book, unit, and/or chapter UUIDs.'
-      items do
-        key :type, :string
-      end
+    property :scope_id do
+      key :type, :string
+      key :description, 'The ID of the container for the source in which the highlight is made.  ' \
+                        'Varies depending on source_type (e.g. is the lowercase, versionless ' \
+                        'book UUID for the \'openstax_page\' source_type).'
     end
     property :color do
       key :type, :string

@@ -14,30 +14,20 @@ require 'date'
 
 module Api::V0::Bindings
   class HighlightsMeta
-    # The response page number.
-    attr_accessor :page
-
-    # The response per page.
-    attr_accessor :per_page
-
-    # The number of results across all pages.
-    attr_accessor :total_count
+    # The number of results.
+    attr_accessor :count
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
-        :'page' => :'page',
-        :'per_page' => :'per_page',
-        :'total_count' => :'total_count'
+        :'count' => :'count'
       }
     end
 
     # Attribute type mapping.
     def self.swagger_types
       {
-        :'page' => :'Integer',
-        :'per_page' => :'Integer',
-        :'total_count' => :'Integer'
+        :'count' => :'Integer'
       }
     end
 
@@ -49,16 +39,8 @@ module Api::V0::Bindings
       # convert string to symbol for hash key
       attributes = attributes.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
 
-      if attributes.has_key?(:'page')
-        self.page = attributes[:'page']
-      end
-
-      if attributes.has_key?(:'per_page')
-        self.per_page = attributes[:'per_page']
-      end
-
-      if attributes.has_key?(:'total_count')
-        self.total_count = attributes[:'total_count']
+      if attributes.has_key?(:'count')
+        self.count = attributes[:'count']
       end
     end
 
@@ -80,9 +62,7 @@ module Api::V0::Bindings
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
-          page == o.page &&
-          per_page == o.per_page &&
-          total_count == o.total_count
+          count == o.count
     end
 
     # @see the `==` method
@@ -94,7 +74,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [page, per_page, total_count].hash
+      [count].hash
     end
 
     # Builds the object from hash

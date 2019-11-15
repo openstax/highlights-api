@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Api::V0::HighlightsController, type: :request do
   let(:user_uuid) { '55783d49-7562-4576-a626-3b877557a21f' }
-  let(:source_parent_id) { 'ccf8e44e-05e5-4272-bd0a-aca50171b50f' }
+  let(:scope_id) { 'ccf8e44e-05e5-4272-bd0a-aca50171b50f' }
   let(:source_id) { SecureRandom.uuid }
 
   before { allow(Rails.application.config).to receive(:consider_all_requests_local) { false } }
@@ -14,17 +14,12 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     let!(:highlight2) { create(:highlight, user_uuid: user_uuid) }
     let!(:highlight3) { create(:highlight) }
 
-    let(:page) { 1 }
-    let(:per_page) { 10 }
-    let(:source_parent_ids) { highlight1.source_parent_ids }
+    let(:scope_id) { highlight1.scope_id }
     let(:query_params) do
       {
         source_type: 'openstax_page',
-        source_parent_ids: source_parent_ids,
+        scope_id: scope_id,
         color: '#000000',
-        page: page,
-        per_page: per_page,
-        order: 'asc'
       }
     end
 
@@ -53,64 +48,12 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       end
 
       context 'when just one source id is passed in' do
-        let(:source_parent_ids) { [source_parent_id] }
-
         it('gets the highlights that have this known uuid as source') do
           get highlights_path, params: query_params
           expect(response).to have_http_status(:ok)
 
           highlights = json_response[:data]
           expect(highlights.count).to eq 2
-        end
-      end
-
-      context 'when paging' do
-        context 'for a page that exists' do
-          let(:per_page) { 1 }
-          let(:page) { 1 }
-
-          it 'gets the highlights for the user for the page' do
-            get highlights_path, params: query_params
-            expect(response).to have_http_status(:ok)
-
-            highlights = json_response[:data]
-            expect(highlights.first[:anchor]).to eq 'fs-id1170572203905'
-          end
-
-          it 'gets the correct total count' do
-            get highlights_path, params: query_params
-            expect(response).to have_http_status(:ok)
-
-            highlights = json_response[:data]
-            meta = json_response[:meta]
-
-            expect(meta[:total_count]).to eq 2
-            expect(highlights.count).to eq 1
-          end
-        end
-
-        context 'for a page that doesnt exists' do
-          let(:per_page) { 1 }
-          let(:page) { 10 }
-
-          it 'gets no highlights' do
-            get highlights_path, params: query_params
-            expect(response).to have_http_status(:ok)
-            highlights = json_response[:data]
-
-            expect(highlights.count).to eq 0
-          end
-        end
-
-        context 'paging defaults' do
-          it 'returns the paging defaults in the meta' do
-            get highlights_path, params: query_params.except(:per_page, :page)
-            expect(response).to have_http_status(:ok)
-            meta = json_response[:meta]
-
-            expect(meta[:per_page]).to eq 15
-            expect(meta[:page]).to eq 1
-          end
         end
       end
     end
@@ -124,6 +67,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           source_id: source_id,
           anchor: 'foo anchor',
           highlighted_content: 'foo content',
+          scope_id: scope_id,
           source_type: 'openstax_page',
           color: '#000000',
           location_strategies: [type: 'TextPositionSelector',

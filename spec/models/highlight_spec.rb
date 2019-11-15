@@ -57,10 +57,10 @@ RSpec.describe Highlight, type: :model do
         expect(record.color).to eq '#c0c0c0'
       end
 
-      it 'source_parent_ids will be downcased' do
-        record = described_class.openstax_page.new(source_parent_ids: ['ABC'])
+      it 'scope_id will be downcased' do
+        record = described_class.openstax_page.new(scope_id: 'ABC')
         record.validate
-        expect(record.source_parent_ids).to eq ['abc']
+        expect(record.scope_id).to eq 'abc'
       end
 
       it 'source_id will be downcased' do
@@ -73,20 +73,20 @@ RSpec.describe Highlight, type: :model do
         it 'source_id must be a uuid' do
           record = described_class.openstax_page.new(source_id: 'ABC')
           record.validate
-          expect(record.errors['source_id']).to eq ['source id of type openstax page must be a uuid']
+          expect(record.errors['source_id']).to eq ['must be a UUID for source_type openstax_page']
 
           record = described_class.openstax_page.new(source_id: SecureRandom.uuid)
           record.validate
           expect(record.errors['source_id']).to be_empty
         end
-        it 'source_parent_ids must be uuids' do
-          record = described_class.openstax_page.new(source_parent_ids: ['ABC'])
+        it 'scope_id must be a uuid' do
+          record = described_class.openstax_page.new(scope_id: 'ABC')
           record.validate
-          expect(record.errors['source_parent_ids']).to eq ['source parent id of type openstax page must be a uuid']
+          expect(record.errors['scope_id']).to eq ['must be a UUID for source_type openstax_page']
 
-          record = described_class.openstax_page.new(source_parent_ids: [SecureRandom.uuid])
+          record = described_class.openstax_page.new(scope_id: SecureRandom.uuid)
           record.validate
-          expect(record.errors['source_parent_ids']).to be_empty
+          expect(record.errors['scope_id']).to be_empty
         end
       end
     end

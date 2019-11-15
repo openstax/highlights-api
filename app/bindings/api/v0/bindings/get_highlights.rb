@@ -14,22 +14,13 @@ require 'date'
 
 module Api::V0::Bindings
   class GetHighlights
-    # The page number of paginated results, one-indexed. Defaults to 1.
-    attr_accessor :page
-
-    # The number of highlights per page for paginated results. Defaults to 15.
-    attr_accessor :per_page
-
-    # The sort direction in which to return results.
-    attr_accessor :order
-
-    # The type of content that contains the highlight, to limit results to.
+    # Limits results to those highlights made in sources of this type.
     attr_accessor :source_type
 
-    # One or more unrelated parent IDs; query results will have at least one parent ID that matches those provided.
-    attr_accessor :source_parent_ids
+    # Limits results to the source document container in which the highlight was made.  For openstax_page source_types, this is a versionless book UUID.
+    attr_accessor :scope_id
 
-    # The highlight color to limit results to.
+    # Limits results to this highlight color.
     attr_accessor :color
 
     class EnumAttributeValidator
@@ -57,11 +48,8 @@ module Api::V0::Bindings
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
-        :'page' => :'page',
-        :'per_page' => :'per_page',
-        :'order' => :'order',
         :'source_type' => :'source_type',
-        :'source_parent_ids' => :'source_parent_ids',
+        :'scope_id' => :'scope_id',
         :'color' => :'color'
       }
     end
@@ -69,11 +57,8 @@ module Api::V0::Bindings
     # Attribute type mapping.
     def self.swagger_types
       {
-        :'page' => :'Integer',
-        :'per_page' => :'Integer',
-        :'order' => :'String',
         :'source_type' => :'String',
-        :'source_parent_ids' => :'Array<String>',
+        :'scope_id' => :'String',
         :'color' => :'String'
       }
     end
@@ -86,26 +71,12 @@ module Api::V0::Bindings
       # convert string to symbol for hash key
       attributes = attributes.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
 
-      if attributes.has_key?(:'page')
-        self.page = attributes[:'page']
-      end
-
-      if attributes.has_key?(:'per_page')
-        self.per_page = attributes[:'per_page']
-      end
-
-      if attributes.has_key?(:'order')
-        self.order = attributes[:'order']
-      end
-
       if attributes.has_key?(:'source_type')
         self.source_type = attributes[:'source_type']
       end
 
-      if attributes.has_key?(:'source_parent_ids')
-        if (value = attributes[:'source_parent_ids']).is_a?(Array)
-          self.source_parent_ids = value
-        end
+      if attributes.has_key?(:'scope_id')
+        self.scope_id = attributes[:'scope_id']
       end
 
       if attributes.has_key?(:'color')
@@ -131,23 +102,11 @@ module Api::V0::Bindings
     # Check to see if the all the properties in the model are valid
     # @return true if the model is valid
     def valid?
-      order_validator = EnumAttributeValidator.new('String', ['asc', 'desc'])
-      return false unless order_validator.valid?(@order)
       return false if @source_type.nil?
       source_type_validator = EnumAttributeValidator.new('String', ['openstax_page'])
       return false unless source_type_validator.valid?(@source_type)
       return false if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
       true
-    end
-
-    # Custom attribute writer method checking allowed values (enum).
-    # @param [Object] order Object to be assigned
-    def order=(order)
-      validator = EnumAttributeValidator.new('String', ['asc', 'desc'])
-      unless validator.valid?(order)
-        fail ArgumentError, 'invalid value for "order", must be one of #{validator.allowable_values}.'
-      end
-      @order = order
     end
 
     # Custom attribute writer method checking allowed values (enum).
@@ -175,11 +134,8 @@ module Api::V0::Bindings
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
-          page == o.page &&
-          per_page == o.per_page &&
-          order == o.order &&
           source_type == o.source_type &&
-          source_parent_ids == o.source_parent_ids &&
+          scope_id == o.scope_id &&
           color == o.color
     end
 
@@ -192,7 +148,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [page, per_page, order, source_type, source_parent_ids, color].hash
+      [source_type, scope_id, color].hash
     end
 
     # Builds the object from hash
