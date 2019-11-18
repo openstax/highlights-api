@@ -1,4 +1,5 @@
 class Api::V0::DiagnosticsController < Api::V0::BaseController
+  before_action :validate_current_user_authorized_as_admin
 
   # Forcing an exception
   def exception
