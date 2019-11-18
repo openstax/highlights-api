@@ -33,7 +33,7 @@ class HighlightsInfo
             GROUP BY user_uuid) temp_table
     SQL
 
-    ActiveRecord::Base.connection.select_value(query)
+    ActiveRecord::Base.connection.select_value(query).to_i
   end
 
   def max_num_highlights_any_user
@@ -59,9 +59,10 @@ class HighlightsInfo
       SELECT
        AVG(pg_column_size(annotation))
       FROM highlights
+      WHERE annotation IS NOT NULL
     SQL
 
-    ActiveRecord::Base.connection.select_value(query)
+    ActiveRecord::Base.connection.select_value(query).to_i
   end
 
   def postgres_version
