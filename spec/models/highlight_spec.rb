@@ -147,6 +147,10 @@ RSpec.describe Highlight, type: :model do
             hl2 = create(:highlight, source_id: uuid1, scope_id: uuid1, prev_highlight: hl1)
             expect(hl2.order_in_source).to be > hl1.order_in_source
           end
+
+          it 'is happily deleted' do
+            expect(hl1.destroy).to be_truthy
+          end
         end
 
         context 'working in a different scope' do
@@ -188,6 +192,32 @@ RSpec.describe Highlight, type: :model do
           hl3 = create(:highlight, source_id: uuid1, scope_id: uuid1, prev_highlight: hl1, next_highlight: hl2)
           expect(hl3.order_in_source).to be > hl1.order_in_source
           expect(hl3.order_in_source).to be < hl2.order_in_source
+        end
+
+        it 'sets the first highlight\'s next pointer to null when the last one is deleted' do
+          hl2.destroy
+          hl1.reload
+          expect(hl1.next_highlight_id).to be_nil
+        end
+
+        it 'sets the last highlight\'s prev pointer to null when the first one is deleted' do
+          hl1.destroy
+          hl2.reload
+          expect(hl2.prev_highlight_id).to be_nil
+        end
+      end
+
+      context 'when there are three highlights on a source' do
+        let!(:hl1) { create(:highlight, source_id: uuid1, scope_id: uuid1) }
+        let!(:hl2) { create(:highlight, source_id: uuid1, scope_id: uuid1, prev_highlight: hl1) }
+        let!(:mid) { create(:highlight, source_id: uuid1, scope_id: uuid1, prev_highlight: hl1, next_highlight: hl2) }
+
+        it 'reconnects neighbors when the middle highlight is deleted' do
+          mid.destroy
+          hl1.reload
+          hl2.reload
+          expect(hl1.next_highlight_id).to eq hl2.id
+          expect(hl2.prev_highlight_id).to eq hl1.id
         end
       end
     end

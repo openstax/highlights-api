@@ -33,6 +33,7 @@ class Highlight < ApplicationRecord
   scope :by_source_ids, ->(source_ids) { where(source_id: source_ids) }
 
   around_create :insert_new_highlight_between_neighbors
+  before_destroy :reconnect_neighbors_around_destroyed_highlight
 
   def normalize_color
     self.color = color&.downcase
@@ -125,5 +126,10 @@ class Highlight < ApplicationRecord
 
     prev_highlight&.update_attributes(next_highlight_id: id)
     next_highlight&.update_attributes(prev_highlight_id: id)
+  end
+
+  def reconnect_neighbors_around_destroyed_highlight
+    prev_highlight&.update_attributes(next_highlight_id: next_highlight_id)
+    next_highlight&.update_attributes(prev_highlight_id: prev_highlight_id)
   end
 end
