@@ -146,7 +146,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           end
         end
 
-        context 'when there is one highlight' do
+        context 'when there is one existing highlight' do
           # Lots more invalid data tests in the model spec
           it '422s when the new highlight does not specify prev or next' do
             post highlights_path, params: valid_attributes
@@ -159,6 +159,9 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
             post highlights_path, params: valid_attributes
             expect(response).to have_http_status(:created)
             expect(json_response[:order_in_source]).to be > 0
+            expect(json_response[:prev_highlight_id]).to eq @hl1_id
+            expect(json_response[:next_highlight_id]).to be_nil
+            expect(Highlight.find(@hl1_id).next_highlight_id).to eq json_response[:id]
           end
 
           it 'puts the new highlight before the first one when set a next highlight' do

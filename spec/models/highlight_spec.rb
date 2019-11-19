@@ -141,11 +141,15 @@ RSpec.describe Highlight, type: :model do
           it 'works to make one before (at beginning) as long as it specifies the existing as next' do
             hl3 = create(:highlight, source_id: uuid1, scope_id: uuid1, next_highlight: hl1)
             expect(hl3.order_in_source).to be < hl1.order_in_source
+            hl1.reload
+            expect(hl1.prev_highlight_id).to eq hl3.id
           end
 
           it 'works to make one after (at end) as long as it specifies the existing as prev' do
             hl2 = create(:highlight, source_id: uuid1, scope_id: uuid1, prev_highlight: hl1)
             expect(hl2.order_in_source).to be > hl1.order_in_source
+            hl1.reload
+            expect(hl1.next_highlight_id).to eq hl2.id
           end
 
           it 'is happily deleted' do
@@ -190,6 +194,10 @@ RSpec.describe Highlight, type: :model do
 
         it 'works to make one in the middle when prev and next are correct' do
           hl3 = create(:highlight, source_id: uuid1, scope_id: uuid1, prev_highlight: hl1, next_highlight: hl2)
+          hl1.reload
+          hl2.reload
+          expect(hl1.next_highlight_id).to eq hl3.id
+          expect(hl2.prev_highlight_id).to eq hl3.id
           expect(hl3.order_in_source).to be > hl1.order_in_source
           expect(hl3.order_in_source).to be < hl2.order_in_source
         end
