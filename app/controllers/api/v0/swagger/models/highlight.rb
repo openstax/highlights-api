@@ -19,20 +19,20 @@ module Api::V0::Swagger::Models::Highlight
   end
 
   swagger_schema :XpathRangeSelector do
-    key :required, [:endContainer, :endOffset, :startContainer, :startOffset, :type]
-    property :endContainer do
+    key :required, [:end_container, :end_offset, :start_container, :start_offset, :type]
+    property :end_container do
       key :type, :string
       key :description, 'The end container for the xpath range selector.'
     end
-    property :endOffset do
+    property :end_offset do
       key :type, :integer
       key :description, 'The end offset for the xpath range selector.'
     end
-    property :startContainer do
+    property :start_container do
       key :type, :string
       key :description, 'The start container for the xpath range selector.'
     end
-    property :startOffset do
+    property :start_offset do
       key :type, :integer
       key :description, 'The start offset for the xpath range selector.'
     end

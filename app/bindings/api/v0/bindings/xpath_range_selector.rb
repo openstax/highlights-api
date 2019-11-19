@@ -32,10 +32,10 @@ module Api::V0::Bindings
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
-        :'end_container' => :'endContainer',
-        :'end_offset' => :'endOffset',
-        :'start_container' => :'startContainer',
-        :'start_offset' => :'startOffset',
+        :'end_container' => :'end_container',
+        :'end_offset' => :'end_offset',
+        :'start_container' => :'start_container',
+        :'start_offset' => :'start_offset',
         :'type' => :'type'
       }
     end
@@ -59,20 +59,20 @@ module Api::V0::Bindings
       # convert string to symbol for hash key
       attributes = attributes.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
 
-      if attributes.has_key?(:'endContainer')
-        self.end_container = attributes[:'endContainer']
+      if attributes.has_key?(:'end_container')
+        self.end_container = attributes[:'end_container']
       end
 
-      if attributes.has_key?(:'endOffset')
-        self.end_offset = attributes[:'endOffset']
+      if attributes.has_key?(:'end_offset')
+        self.end_offset = attributes[:'end_offset']
       end
 
-      if attributes.has_key?(:'startContainer')
-        self.start_container = attributes[:'startContainer']
+      if attributes.has_key?(:'start_container')
+        self.start_container = attributes[:'start_container']
       end
 
-      if attributes.has_key?(:'startOffset')
-        self.start_offset = attributes[:'startOffset']
+      if attributes.has_key?(:'start_offset')
+        self.start_offset = attributes[:'start_offset']
       end
 
       if attributes.has_key?(:'type')
