@@ -52,7 +52,9 @@ module Api::V0::Swagger::Models::Highlight
     property :scope_id do
       key :type, :string
       key :description, 'Limits results to the source document container in which the highlight ' \
-                        'was made.  For openstax_page source_types, this is a versionless book UUID.'
+                        'was made.  For openstax_page source_types, this is a versionless book UUID. ' \
+                        'If this is not specified, results across scopes will be returned, meaning ' \
+                        'the order of the results will not be meaningful.'
     end
     property :source_ids do
       key :type, :array

@@ -17,7 +17,7 @@ module Api::V0::Bindings
     # Limits results to those highlights made in sources of this type.
     attr_accessor :source_type
 
-    # Limits results to the source document container in which the highlight was made.  For openstax_page source_types, this is a versionless book UUID.
+    # Limits results to the source document container in which the highlight was made.  For openstax_page source_types, this is a versionless book UUID. If this is not specified, results across scopes will be returned, meaning the order of the results will not be meaningful.
     attr_accessor :scope_id
 
     # One or more source IDs; query results will contain highlights ordered by the order of these source IDs and ordered within each source.  If parameter is an empty array, no results will be returned.  If the parameter is not provided, all highlights under the scope will be returned.

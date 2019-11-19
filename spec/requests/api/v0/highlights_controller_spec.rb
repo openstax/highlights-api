@@ -74,6 +74,21 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           )
         end
       end
+
+      context 'when empty source IDs are provided' do
+        it 'returns nada' do
+          get highlights_path, params: query_params.merge(source_ids: [])
+          expect(highlights).to be_empty
+        end
+      end
+
+      context 'when the scope is not provided but source IDs are' do
+        it 'returns results without for any scope which is going to mean that order is not good' do
+          query_params.delete(:scope_id)
+          get highlights_path, params: query_params.merge(source_ids: [highlight1.source_id])
+          expect(highlights.size).to eq 4
+        end
+      end
     end
   end
 
