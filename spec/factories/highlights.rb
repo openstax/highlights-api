@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :highlight do
-    user_uuid  { SecureRandom.uuid }
+    user_uuid { SecureRandom.uuid }
     source_type { 'openstax_page' }
     color { '#000000' }
     anchor { 'fs-id1170572203905' }
@@ -20,8 +20,9 @@ FactoryBot.define do
     source_id { SecureRandom.uuid }
     scope_id { 'ccf8e44e-05e5-4272-bd0a-aca50171b50f' }
     source_metadata { '{page_version: 14}' }
-    order_in_source { rand(100) }
-    source_order { '12.1' }
+    # order_in_source { rand(1e6)/(1e6*1.0) }
+    prev_highlight { nil }
+    next_highlight { nil }
 
     trait :red do
       color { '#ff0000' }

@@ -6,13 +6,18 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
   let(:user_uuid) { '55783d49-7562-4576-a626-3b877557a21f' }
   let(:scope_id) { 'ccf8e44e-05e5-4272-bd0a-aca50171b50f' }
   let(:source_id) { SecureRandom.uuid }
+  let(:scope_1_id) { SecureRandom.uuid }
 
   before { allow(Rails.application.config).to receive(:consider_all_requests_local) { false } }
 
   describe 'GET /highlights' do
-    let!(:highlight1) { create(:highlight, user_uuid: user_uuid) }
-    let!(:highlight2) { create(:highlight, user_uuid: user_uuid) }
-    let!(:highlight3) { create(:highlight) }
+    let!(:highlight1) { create(:highlight, user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id) }
+    let!(:highlight2) { create(:highlight, user_uuid: user_uuid,                       scope_id: scope_1_id) }
+    let!(:highlight3) { create(:highlight, user_uuid: user_uuid,                       scope_id: scope_1_id) }
+    let!(:highlight4) { create(:highlight, user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1) }
+    let!(:highlight5) { create(:highlight, user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
+    let!(:highlight6) { create(:highlight, user_uuid: user_uuid, source_id: source_id, scope_id: SecureRandom.uuid) }
+    let!(:highlight7) { create(:highlight) }
 
     let(:scope_id) { highlight1.scope_id }
     let(:query_params) do
@@ -22,6 +27,8 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         color: '#000000',
       }
     end
+
+    let(:highlights) { json_response[:data] }
 
     context 'when the user is not logged in' do
       context 'when the highlight does exist' do
@@ -37,23 +44,33 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         stub_current_user_uuid(user_uuid)
       end
 
-      it 'gets the highlights for the user' do
-        get highlights_path, params: query_params
-        expect(response).to have_http_status(:ok)
-
-        highlights = json_response[:data]
-
-        expect(highlights.count).to eq 2
-        expect(highlights.map { |json| json[:anchor] }.uniq).to eq ['fs-id1170572203905']
+      context 'when just one source id is passed in' do
+        it('gets the user\'s highlights for that one source') do
+          get highlights_path, params: query_params.merge(source_ids: [highlight2.source_id])
+          expect(response).to have_http_status(:ok)
+          expect(highlights[0][:id]).to eq highlight2.id
+        end
       end
 
-      context 'when just one source id is passed in' do
-        it('gets the highlights that have this known uuid as source') do
-          get highlights_path, params: query_params
+      context 'when multiple source IDs and scope provided' do
+        it('gets the user\'s highlights in the order of the source IDs and then by order within page') do
+          get highlights_path, params: query_params.merge(
+            source_ids: [highlight3, highlight2, highlight1].map(&:source_id),
+            scope_id: scope_1_id
+          )
           expect(response).to have_http_status(:ok)
+          expect(highlights.map{|hl| hl[:id]}).to eq(
+            [highlight3, highlight2, highlight1, highlight5, highlight4].map(&:id)
+          )
+        end
+      end
 
-          highlights = json_response[:data]
-          expect(highlights.count).to eq 2
+      context 'when only the scope is provided' do
+        it 'returns all the user\'s highlights in that scope' do
+          get highlights_path, params: query_params.merge(scope_id: scope_1_id)
+          expect(highlights.map{|hl| hl[:id]}).to contain_exactly(
+            *[highlight1, highlight2, highlight3, highlight4, highlight5].map(&:id)
+          )
         end
       end
     end

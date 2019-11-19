@@ -26,6 +26,12 @@ module Api::V0::Bindings
     # The ID of the container for the source in which the highlight is made.  Varies depending on source_type (e.g. is the lowercase, versionless book UUID for the 'openstax_page' source_type).
     attr_accessor :scope_id
 
+    # The ID of the highlight immediately before this highlight.  May be null if there are no preceding highlights in this source.
+    attr_accessor :prev_highlight_id
+
+    # The ID of the highlight immediately after this highlight.  May be null if there are no following highlights in this source.
+    attr_accessor :next_highlight_id
+
     # The highlight color.
     attr_accessor :color
 
@@ -40,6 +46,9 @@ module Api::V0::Bindings
 
     # Location strategies for the highlight. Items should have a schema matching the strategy schemas that have been defined.
     attr_accessor :location_strategies
+
+    # A number whose relative value gives the highlight's order within the source. Its value has no meaning on its own.
+    attr_accessor :order_in_source
 
     class EnumAttributeValidator
       attr_reader :datatype
@@ -70,11 +79,14 @@ module Api::V0::Bindings
         :'source_type' => :'source_type',
         :'source_id' => :'source_id',
         :'scope_id' => :'scope_id',
+        :'prev_highlight_id' => :'prev_highlight_id',
+        :'next_highlight_id' => :'next_highlight_id',
         :'color' => :'color',
         :'anchor' => :'anchor',
         :'highlighted_content' => :'highlighted_content',
         :'annotation' => :'annotation',
-        :'location_strategies' => :'location_strategies'
+        :'location_strategies' => :'location_strategies',
+        :'order_in_source' => :'order_in_source'
       }
     end
 
@@ -85,11 +97,14 @@ module Api::V0::Bindings
         :'source_type' => :'String',
         :'source_id' => :'String',
         :'scope_id' => :'String',
+        :'prev_highlight_id' => :'String',
+        :'next_highlight_id' => :'String',
         :'color' => :'String',
         :'anchor' => :'String',
         :'highlighted_content' => :'String',
         :'annotation' => :'String',
-        :'location_strategies' => :'Array<Object>'
+        :'location_strategies' => :'Array<Object>',
+        :'order_in_source' => :'Float'
       }
     end
 
@@ -117,6 +132,14 @@ module Api::V0::Bindings
         self.scope_id = attributes[:'scope_id']
       end
 
+      if attributes.has_key?(:'prev_highlight_id')
+        self.prev_highlight_id = attributes[:'prev_highlight_id']
+      end
+
+      if attributes.has_key?(:'next_highlight_id')
+        self.next_highlight_id = attributes[:'next_highlight_id']
+      end
+
       if attributes.has_key?(:'color')
         self.color = attributes[:'color']
       end
@@ -137,6 +160,10 @@ module Api::V0::Bindings
         if (value = attributes[:'location_strategies']).is_a?(Array)
           self.location_strategies = value
         end
+      end
+
+      if attributes.has_key?(:'order_in_source')
+        self.order_in_source = attributes[:'order_in_source']
       end
     end
 
@@ -194,11 +221,14 @@ module Api::V0::Bindings
           source_type == o.source_type &&
           source_id == o.source_id &&
           scope_id == o.scope_id &&
+          prev_highlight_id == o.prev_highlight_id &&
+          next_highlight_id == o.next_highlight_id &&
           color == o.color &&
           anchor == o.anchor &&
           highlighted_content == o.highlighted_content &&
           annotation == o.annotation &&
-          location_strategies == o.location_strategies
+          location_strategies == o.location_strategies &&
+          order_in_source == o.order_in_source
     end
 
     # @see the `==` method
@@ -210,7 +240,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [id, source_type, source_id, scope_id, color, anchor, highlighted_content, annotation, location_strategies].hash
+      [id, source_type, source_id, scope_id, prev_highlight_id, next_highlight_id, color, anchor, highlighted_content, annotation, location_strategies, order_in_source].hash
     end
 
     # Builds the object from hash

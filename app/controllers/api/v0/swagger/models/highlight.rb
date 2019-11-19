@@ -53,7 +53,17 @@ module Api::V0::Swagger::Models::Highlight
       key :type, :string
       key :description, 'Limits results to the source document container in which the highlight ' \
                         'was made.  For openstax_page source_types, this is a versionless book UUID.'
-
+    end
+    property :source_ids do
+      key :type, :array
+      key :description, 'One or more source IDs; query results will contain highlights ordered '\
+                        'by the order of these source IDs and ordered within each source.  If ' \
+                        'parameter is an empty array, no results will be returned.  If the ' \
+                        'parameter is not provided, all highlights under the scope will be ' \
+                        'returned.'
+      items do
+        key :type, :string
+      end
     end
     property :color do
       key :type, :string
@@ -110,6 +120,18 @@ module Api::V0::Swagger::Models::Highlight
                         'Varies depending on source_type (e.g. is the lowercase, versionless ' \
                         'book UUID for the \'openstax_page\' source_type).'
     end
+    property :prev_highlight_id do
+      key :type, :string
+      key :format, 'uuid'
+      key :description, 'The ID of the highlight immediately before this highlight.  May be ' \
+                        'null if there are no preceding highlights in this source.'
+    end
+    property :next_highlight_id do
+      key :type, :string
+      key :format, 'uuid'
+      key :description, 'The ID of the highlight immediately after this highlight.  May be ' \
+                        'null if there are no following highlights in this source.'
+    end
     property :color do
       key :type, :string
       key :pattern, ::Highlight::VALID_COLOR.inspect
@@ -135,6 +157,15 @@ module Api::V0::Swagger::Models::Highlight
       items do
         key :type, :object
       end
+    end
+  end
+
+  add_properties(:Highlight) do
+    property :order_in_source do
+      key :type, :number
+      key :readOnly, true
+      key :description, 'A number whose relative value gives the highlight\'s order within the ' \
+                        'source. Its value has no meaning on its own.'
     end
   end
 

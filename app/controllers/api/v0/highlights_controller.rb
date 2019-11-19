@@ -52,7 +52,7 @@ class Api::V0::HighlightsController < Api::V0::BaseController
         Get filtered highlights belonging to the calling user.
 
         Highlights can be filtered thru query parameters:  source_type,
-        scope_id, and color.
+        scope_id, source_ids, and color.
 
         Example call:
           /api/v0/highlights?source_type=openstax_page&scope_id=123&color=#ff0000

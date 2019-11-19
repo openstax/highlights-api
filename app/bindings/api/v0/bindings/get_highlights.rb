@@ -20,6 +20,9 @@ module Api::V0::Bindings
     # Limits results to the source document container in which the highlight was made.  For openstax_page source_types, this is a versionless book UUID.
     attr_accessor :scope_id
 
+    # One or more source IDs; query results will contain highlights ordered by the order of these source IDs and ordered within each source.  If parameter is an empty array, no results will be returned.  If the parameter is not provided, all highlights under the scope will be returned.
+    attr_accessor :source_ids
+
     # Limits results to this highlight color.
     attr_accessor :color
 
@@ -50,6 +53,7 @@ module Api::V0::Bindings
       {
         :'source_type' => :'source_type',
         :'scope_id' => :'scope_id',
+        :'source_ids' => :'source_ids',
         :'color' => :'color'
       }
     end
@@ -59,6 +63,7 @@ module Api::V0::Bindings
       {
         :'source_type' => :'String',
         :'scope_id' => :'String',
+        :'source_ids' => :'Array<String>',
         :'color' => :'String'
       }
     end
@@ -77,6 +82,12 @@ module Api::V0::Bindings
 
       if attributes.has_key?(:'scope_id')
         self.scope_id = attributes[:'scope_id']
+      end
+
+      if attributes.has_key?(:'source_ids')
+        if (value = attributes[:'source_ids']).is_a?(Array)
+          self.source_ids = value
+        end
       end
 
       if attributes.has_key?(:'color')
@@ -136,6 +147,7 @@ module Api::V0::Bindings
       self.class == o.class &&
           source_type == o.source_type &&
           scope_id == o.scope_id &&
+          source_ids == o.source_ids &&
           color == o.color
     end
 
@@ -148,7 +160,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [source_type, scope_id, color].hash
+      [source_type, scope_id, source_ids, color].hash
     end
 
     # Builds the object from hash

@@ -81,6 +81,16 @@ Api::V0::Bindings::GetHighlights.class_exec do
       highlights = highlights.public_send("by_#{key}", value) if value.present?
     end
 
+    highlights = highlights.to_a
+
+    if source_ids.present?
+      source_id_order = source_ids.each_with_object({}).with_index do |(source_id, hash), index|
+        hash[source_id] = index
+      end
+
+      highlights.sort_by!{ |highlight| [source_id_order[highlight.source_id], highlight.order_in_source] }
+    end
+
     highlights
   end
 end
