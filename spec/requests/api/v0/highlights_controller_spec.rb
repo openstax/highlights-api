@@ -7,6 +7,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
   let(:scope_id) { 'ccf8e44e-05e5-4272-bd0a-aca50171b50f' }
   let(:source_id) { SecureRandom.uuid }
   let(:scope_1_id) { SecureRandom.uuid }
+  let(:uuid1) { SecureRandom.uuid }
 
   before { allow(Rails.application.config).to receive(:consider_all_requests_local) { false } }
 
@@ -79,18 +80,21 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
   describe 'POST /highlights' do
     let(:valid_attributes) do
       {
-        highlight:
-        {
-          source_id: source_id,
-          anchor: 'foo anchor',
-          highlighted_content: 'foo content',
-          scope_id: scope_id,
-          source_type: 'openstax_page',
-          color: '#000000',
-          location_strategies: [type: 'TextPositionSelector',
-                                start: 12,
-                                end: 10]
-        }
+        highlight: valid_inner_attributes
+      }
+    end
+
+    let(:valid_inner_attributes) do
+      {
+        source_id: source_id,
+        anchor: 'foo anchor',
+        highlighted_content: 'foo content',
+        scope_id: scope_id,
+        source_type: 'openstax_page',
+        color: '#000000',
+        location_strategies: [type: 'TextPositionSelector',
+                              start: 12,
+                              end: 10]
       }
     end
 
@@ -108,18 +112,46 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       before(:each) { stub_current_user_uuid(user_uuid) }
 
       context 'when the request is valid' do
-        before { post highlights_path, params: valid_attributes }
-
-        it 'creates a highlight' do
-          expect(json_response[:anchor]).to eq('foo anchor')
+        before do
+          post highlights_path, params: valid_attributes
+          @hl1_id = json_response[:id]
         end
 
-        it 'returns status code 201' do
-          expect(response).to have_http_status(201)
+        context 'when there are no highlights yet' do
+          it 'creates a highlight' do
+            expect(json_response[:anchor]).to eq('foo anchor')
+          end
+
+          it 'returns status code 201' do
+            expect(response).to have_http_status(201)
+          end
+
+          it 'is owned by the right user' do
+            expect(Highlight.first.user_uuid).to eq user_uuid
+          end
         end
 
-        it 'is owned by the right user' do
-          expect(Highlight.first.user_uuid).to eq user_uuid
+        context 'when there is one highlight' do
+          # Lots more invalid data tests in the model spec
+          it '422s when the new highlight does not specify prev or next' do
+            post highlights_path, params: valid_attributes
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response.body).to match(/Must specify previous or next highlight/)
+          end
+
+          it 'puts the new highlight after the first one when set a prev highlight' do
+            valid_inner_attributes.merge!(prev_highlight_id: @hl1_id)
+            post highlights_path, params: valid_attributes
+            expect(response).to have_http_status(:created)
+            expect(json_response[:order_in_source]).to be > 0
+          end
+
+          it 'puts the new highlight before the first one when set a next highlight' do
+            valid_inner_attributes.merge!(next_highlight_id: @hl1_id)
+            post highlights_path, params: valid_attributes
+            expect(response).to have_http_status(:created)
+            expect(json_response[:order_in_source]).to be < 0
+          end
         end
       end
 
@@ -209,6 +241,26 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         it '404s' do
           delete highlights_path(id: SecureRandom.uuid)
           expect(response).to have_http_status :not_found
+        end
+      end
+
+      context 'when there are two highlights' do
+        let!(:other) do
+          create(:highlight, user_uuid: highlight.user_uuid, source_id: highlight.source_id,
+                 scope_id: highlight.scope_id, prev_highlight: highlight)
+        end
+
+        it 'sets the first highlight\'s next pointer to nil when the second highlight is deleted' do
+          highlight.reload
+          expect(highlight.next_highlight_id).not_to be_nil
+
+          expect {
+            delete highlights_path(id: other.id)
+          }.to change { Highlight.count }.by(-1)
+
+          expect(response).to have_http_status(:ok)
+          highlight.reload
+          expect(highlight.next_highlight_id).to be_nil
         end
       end
     end
