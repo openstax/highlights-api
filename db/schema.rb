@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_17_173513) do
+ActiveRecord::Schema.define(version: 2019_11_18_173703) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -22,19 +22,24 @@ ActiveRecord::Schema.define(version: 2019_10_17_173513) do
     t.integer "source_type", default: 0, null: false
     t.string "source_id", null: false
     t.jsonb "source_metadata"
-    t.text "source_parent_ids", default: [], array: true
     t.text "anchor", null: false
     t.text "highlighted_content", null: false
     t.text "annotation"
     t.string "color", null: false
-    t.text "source_order"
-    t.integer "order_in_source"
     t.jsonb "location_strategies", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["source_parent_ids"], name: "index_highlights_on_source_parent_ids", using: :gin
+    t.string "scope_id"
+    t.float "order_in_source", null: false
+    t.uuid "prev_highlight_id"
+    t.uuid "next_highlight_id"
+    t.index ["next_highlight_id"], name: "index_highlights_on_next_highlight_id"
+    t.index ["prev_highlight_id"], name: "index_highlights_on_prev_highlight_id"
+    t.index ["scope_id"], name: "index_highlights_on_scope_id"
     t.index ["source_type"], name: "index_highlights_on_source_type"
     t.index ["user_uuid"], name: "index_highlights_on_user_uuid"
   end
 
+  add_foreign_key "highlights", "highlights", column: "next_highlight_id"
+  add_foreign_key "highlights", "highlights", column: "prev_highlight_id"
 end

@@ -20,11 +20,17 @@ module Api::V0::Bindings
     # The type of content that contains the highlight.
     attr_accessor :source_type
 
-    # The source_id of the highlight.
+    # The ID of the source document in which the highlight is made.  Has source_type-specific constraints (e.g. all lowercase UUID for the 'openstax_page' source_type).
     attr_accessor :source_id
 
-    # The parent IDs of the highlight. For book highlights, these could be book, unit, and/or chapter UUIDs.
-    attr_accessor :source_parent_ids
+    # The ID of the container for the source in which the highlight is made.  Varies depending on source_type (e.g. is the lowercase, versionless book UUID for the 'openstax_page' source_type).
+    attr_accessor :scope_id
+
+    # The ID of the highlight immediately before this highlight.  May be null if there are no preceding highlights in this source.
+    attr_accessor :prev_highlight_id
+
+    # The ID of the highlight immediately after this highlight.  May be null if there are no following highlights in this source.
+    attr_accessor :next_highlight_id
 
     # The highlight color.
     attr_accessor :color
@@ -69,7 +75,9 @@ module Api::V0::Bindings
         :'id' => :'id',
         :'source_type' => :'source_type',
         :'source_id' => :'source_id',
-        :'source_parent_ids' => :'source_parent_ids',
+        :'scope_id' => :'scope_id',
+        :'prev_highlight_id' => :'prev_highlight_id',
+        :'next_highlight_id' => :'next_highlight_id',
         :'color' => :'color',
         :'anchor' => :'anchor',
         :'highlighted_content' => :'highlighted_content',
@@ -84,7 +92,9 @@ module Api::V0::Bindings
         :'id' => :'String',
         :'source_type' => :'String',
         :'source_id' => :'String',
-        :'source_parent_ids' => :'Array<String>',
+        :'scope_id' => :'String',
+        :'prev_highlight_id' => :'String',
+        :'next_highlight_id' => :'String',
         :'color' => :'String',
         :'anchor' => :'String',
         :'highlighted_content' => :'String',
@@ -113,10 +123,16 @@ module Api::V0::Bindings
         self.source_id = attributes[:'source_id']
       end
 
-      if attributes.has_key?(:'source_parent_ids')
-        if (value = attributes[:'source_parent_ids']).is_a?(Array)
-          self.source_parent_ids = value
-        end
+      if attributes.has_key?(:'scope_id')
+        self.scope_id = attributes[:'scope_id']
+      end
+
+      if attributes.has_key?(:'prev_highlight_id')
+        self.prev_highlight_id = attributes[:'prev_highlight_id']
+      end
+
+      if attributes.has_key?(:'next_highlight_id')
+        self.next_highlight_id = attributes[:'next_highlight_id']
       end
 
       if attributes.has_key?(:'color')
@@ -224,7 +240,9 @@ module Api::V0::Bindings
           id == o.id &&
           source_type == o.source_type &&
           source_id == o.source_id &&
-          source_parent_ids == o.source_parent_ids &&
+          scope_id == o.scope_id &&
+          prev_highlight_id == o.prev_highlight_id &&
+          next_highlight_id == o.next_highlight_id &&
           color == o.color &&
           anchor == o.anchor &&
           highlighted_content == o.highlighted_content &&
@@ -241,7 +259,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [id, source_type, source_id, source_parent_ids, color, anchor, highlighted_content, annotation, location_strategies].hash
+      [id, source_type, source_id, scope_id, prev_highlight_id, next_highlight_id, color, anchor, highlighted_content, annotation, location_strategies].hash
     end
 
     # Builds the object from hash
