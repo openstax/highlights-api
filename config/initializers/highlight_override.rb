@@ -84,6 +84,7 @@ Api::V0::Bindings::GetHighlights.class_exec do
     highlights = highlights.to_a
 
     if source_ids.present?
+      # Sort the highlights in Ruby, not Postgres
       source_id_order = source_ids.each_with_object({}).with_index do |(source_id, hash), index|
         hash[source_id] = index
       end

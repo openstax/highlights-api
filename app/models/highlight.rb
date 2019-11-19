@@ -106,8 +106,6 @@ class Highlight < ApplicationRecord
         end
       end
     end
-
-    errors.any?
   end
 
   def insert_new_highlight_between_neighbors
