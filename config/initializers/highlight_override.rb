@@ -2,6 +2,8 @@
 
 # Monkey patch the generated Bindings for the swagger Highlight model
 
+require 'will_paginate/array'
+
 Api::V0::Bindings::NewHighlight.class_exec do
   def valid_location_strategies?
     location_strategies.present? &&
@@ -60,14 +62,20 @@ Api::V0::Bindings::NewHighlight.class_exec do
 end
 
 Api::V0::Bindings::Highlights.class_exec do
-  def self.create_from_models(highlights)
-    highlights_bindings = highlights.map do |highlight|
+  def self.create_from_query_result(query_result)
+    highlights_bindings = query_result.map do |highlight|
       Api::V0::Bindings::Highlight.create_from_model(highlight)
     end
-    new(meta: {
-          total_count: highlights.count,
-        },
-        data: highlights_bindings)
+
+    new(
+      meta: {
+        page: query_result.current_page.to_i,
+        per_page: query_result.per_page,
+        total_count: query_result.total_entries,
+        count: query_result.size
+      },
+      data: highlights_bindings
+    )
   end
 end
 
@@ -77,7 +85,7 @@ Api::V0::Bindings::GetHighlights.class_exec do
 
     # The submitted GetHighlight properties create automatic chaining via
     # the by_X scopes on the Highlight model.
-    to_hash.each do |key, value|
+    to_hash.except(:page, :per_page).each do |key, value|
       highlights = highlights.public_send("by_#{key}", value) if value.present?
     end
 
@@ -90,9 +98,15 @@ Api::V0::Bindings::GetHighlights.class_exec do
       end
 
       highlights.sort_by!{ |highlight| [source_id_order[highlight.source_id], highlight.order_in_source] }
+    else
+      # Have to sort by something for pagination to be sensible, choose created_at
+      highlights.sort_by!(&:created_at)
     end
 
-    highlights
+    highlights.paginate(
+      page: page || Api::V0::Swagger::Models::Highlight::DEFAULT_HIGHLIGHTS_PAGE,
+      per_page: per_page || Api::V0::Swagger::Models::Highlight::DEFAULT_HIGHLIGHTS_PER_PAGE
+    )
   end
 end
 

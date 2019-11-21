@@ -2,6 +2,10 @@ module Api::V0::Swagger::Models::Highlight
   include Swagger::Blocks
   include OpenStax::Swagger::SwaggerBlocksExtensions
 
+  DEFAULT_HIGHLIGHTS_PER_PAGE = 15
+  MAX_HIGHLIGHTS_PER_PAGE = 200
+  DEFAULT_HIGHLIGHTS_PAGE = 1
+
   swagger_schema :TextPositionSelector do
     key :required, [:type, :start, :end]
     property :start do
@@ -72,14 +76,39 @@ module Api::V0::Swagger::Models::Highlight
       key :pattern, ::Highlight::VALID_COLOR.inspect
       key :description, 'Limits results to this highlight color.'
     end
+    property :page do
+      key :type, :integer
+      key :description, 'The page number of paginated results, one-indexed.'
+      key :minimum, 1
+      key :default, DEFAULT_HIGHLIGHTS_PAGE
+    end
+    property :per_page do
+      key :type, :integer
+      key :description, 'The number of highlights per page for paginated results.'
+      key :minimum, 0
+      key :maximum, MAX_HIGHLIGHTS_PER_PAGE
+      key :default, DEFAULT_HIGHLIGHTS_PER_PAGE
+    end
   end
 
   swagger_schema :Highlights do
     # organization from https://jsonapi.org/
     property :meta do
+      property :page do
+        key :type, :integer
+        key :description, 'The current page number for these paginated results, one-indexed.'
+      end
+      property :per_page do
+        key :type, :integer
+        key :description, 'The requested number of results per page.'
+      end
       property :count do
         key :type, :integer
-        key :description, 'The number of results.'
+        key :description, 'The number of results in the current page.'
+      end
+      property :total_count do
+        key :type, :integer
+        key :description, 'The number of results across all pages.'
       end
     end
     property :data do

@@ -54,6 +54,9 @@ class Api::V0::HighlightsController < Api::V0::BaseController
         Highlights can be filtered thru query parameters:  source_type,
         scope_id, source_ids, and color.
 
+        Results are paginated and ordered.  When source_ids are specified, the order is order
+        within the sources.  When source_ids are not specified, the order is by creation time.
+
         Example call:
           /api/v0/highlights?source_type=openstax_page&scope_id=123&color=#ff0000
       DESC
@@ -89,9 +92,9 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     inbound_binding, error = bind(request.query_parameters, Api::V0::Bindings::GetHighlights)
     render(json: error, status: error.status_code) and return if error
 
-    highlights = inbound_binding.query(user_uuid: current_user_uuid)
+    query_result = inbound_binding.query(user_uuid: current_user_uuid)
 
-    response_binding = Api::V0::Bindings::Highlights.create_from_models(highlights)
+    response_binding = Api::V0::Bindings::Highlights.create_from_query_result(query_result)
     render json: response_binding, status: :ok
   end
 
