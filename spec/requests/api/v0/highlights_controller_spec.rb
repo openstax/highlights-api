@@ -90,50 +90,31 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
 
         context 'with paging' do
           it('gets the user\'s highlights in the order of the source IDs and then by order within page and paginates') do
-            get highlights_path, params: query_params.merge(
-              source_ids: [highlight3, highlight2, highlight1].map(&:source_id),
-              scope_id: scope_1_id,
-              per_page: 2,
-              page: 1
-            )
-            expect(response).to have_http_status(:ok)
-            expect(highlights.map{|hl| hl[:id]}).to eq(
-              [highlight3, highlight2].map(&:id)
-            )
-            expect(json_response[:meta][:per_page]).to eq 2
-            expect(json_response[:meta][:page]).to eq 1
-            expect(json_response[:meta][:total_count]).to eq 5
-            expect(json_response[:meta][:count]).to eq 2
+            test_cases = [
+              { page: 1,
+                expected_result_ids: [highlight3, highlight2].map(&:id) },
+              { page: 2,
+                expected_result_ids: [highlight1, highlight5].map(&:id) },
+              { page: 3,
+                expected_result_ids: [highlight4].map(&:id) }
+            ]
 
-            get highlights_path, params: query_params.merge(
-              source_ids: [highlight3, highlight2, highlight1].map(&:source_id),
-              scope_id: scope_1_id,
-              per_page: 2,
-              page: 2
-            )
-            expect(response).to have_http_status(:ok)
-            expect(highlights.map{|hl| hl[:id]}).to eq(
-              [highlight1, highlight5].map(&:id)
-            )
-            expect(json_response[:meta][:per_page]).to eq 2
-            expect(json_response[:meta][:page]).to eq 2
-            expect(json_response[:meta][:total_count]).to eq 5
-            expect(json_response[:meta][:count]).to eq 2
+            test_cases.each do |test_case|
+              get highlights_path, params: query_params.merge(
+                source_ids: [highlight3, highlight2, highlight1].map(&:source_id),
+                scope_id: scope_1_id,
+                per_page: 2,
+                page: test_case[:page]
+              )
+              expect(response).to have_http_status(:ok)
+              expect(highlights.map{|hl| hl[:id]}).to eq(test_case[:expected_result_ids])
 
-            get highlights_path, params: query_params.merge(
-              source_ids: [highlight3, highlight2, highlight1].map(&:source_id),
-              scope_id: scope_1_id,
-              per_page: 2,
-              page: 3
-            )
-            expect(response).to have_http_status(:ok)
-            expect(highlights.map{|hl| hl[:id]}).to eq(
-              [highlight4].map(&:id)
-            )
-            expect(json_response[:meta][:per_page]).to eq 2
-            expect(json_response[:meta][:page]).to eq 3
-            expect(json_response[:meta][:total_count]).to eq 5
-            expect(json_response[:meta][:count]).to eq 1
+              meta = json_response[:meta]
+              expect(meta[:per_page]).to eq 2
+              expect(meta[:page]).to eq test_case[:page]
+              expect(meta[:total_count]).to eq 5
+              expect(meta[:count]).to eq test_case[:expected_result_ids].size
+            end
           end
         end
       end

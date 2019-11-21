@@ -2,6 +2,8 @@
 
 # Monkey patch the generated Bindings for the swagger Highlight model
 
+require 'will_paginate/array'
+
 Api::V0::Bindings::NewHighlight.class_exec do
   def valid_location_strategies?
     location_strategies.present? &&
@@ -61,20 +63,17 @@ end
 
 Api::V0::Bindings::Highlights.class_exec do
   def self.create_from_query_result(query_result)
-    highlights = query_result[:items]
-
-    highlights_bindings = highlights.map do |highlight|
+    highlights_bindings = query_result.map do |highlight|
       Api::V0::Bindings::Highlight.create_from_model(highlight)
     end
 
     new(
-      meta: query_result.slice(
-        :page,
-        :per_page,
-        :total_count
-      ).merge(
-        count: highlights.size
-      ),
+      meta: {
+        page: query_result.current_page.to_i,
+        per_page: query_result.per_page,
+        total_count: query_result.total_entries,
+        count: query_result.size
+      },
       data: highlights_bindings
     )
   end
@@ -104,18 +103,10 @@ Api::V0::Bindings::GetHighlights.class_exec do
       highlights.sort_by!(&:created_at)
     end
 
-    local_page = page || Api::V0::Swagger::Models::Highlight::DEFAULT_HIGHLIGHTS_PAGE
-    local_per_page = per_page || Api::V0::Swagger::Models::Highlight::DEFAULT_HIGHLIGHTS_PER_PAGE
-
-    first_index_in_page = (local_page - 1) * local_per_page
-    last_index_in_page = first_index_in_page + local_per_page - 1
-
-    {
-      page: local_page,
-      per_page: local_per_page,
-      total_count: highlights.size,
-      items: highlights[first_index_in_page..last_index_in_page]
-    }
+    highlights.paginate(
+      page: page || Api::V0::Swagger::Models::Highlight::DEFAULT_HIGHLIGHTS_PAGE,
+      per_page: per_page || Api::V0::Swagger::Models::Highlight::DEFAULT_HIGHLIGHTS_PER_PAGE
+    )
   end
 end
 
