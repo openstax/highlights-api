@@ -58,6 +58,9 @@ gem 'sentry-raven'
 # Profiling
 gem 'scout_apm', '~> 3.0.x'
 
+# CORS
+gem 'rack-cors'
+
 group :test do
   # Code Climate integration
   # gem "codeclimate-test-reporter", require: false
