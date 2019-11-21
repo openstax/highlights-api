@@ -9,7 +9,9 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::NewHighlight)
     render(json: error, status: error.status_code) and return if error
 
-    model = inbound_binding.create_model!(user_id: current_user_uuid)
+    ServiceLimits.create_check(current_user_uuid, inbound_binding) do |binding|
+      model = binding.create_model!(user_id: current_user_uuid)
+    end
 
     response_binding = Api::V0::Bindings::Highlight.create_from_model(model)
     render json: response_binding, status: :created
@@ -40,14 +42,17 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::HighlightUpdate)
     render(json: error, status: error.status_code) and return if error
 
-    model = inbound_binding.update_model!(@highlight)
+    ServiceLimits.update_check(current_user_uuid, inbound_binding) do |binding|
+      model = binding.update_model!(@highlight)
+    end
 
     response_binding = Api::V0::Bindings::Highlight.create_from_model(model)
     render json: response_binding, status: :ok
   end
 
   def destroy
-    @highlight.destroy!
+    ServiceLimits.delete_reset(current_user_uuid, @highlight, &:destroy!)
+
     head :ok
   end
 
