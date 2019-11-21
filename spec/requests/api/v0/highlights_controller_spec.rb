@@ -12,13 +12,13 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
   before { allow(Rails.application.config).to receive(:consider_all_requests_local) { false } }
 
   describe 'GET /highlights' do
-    let!(:highlight1) { create(:highlight, user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id) }
-    let!(:highlight2) { create(:highlight, user_uuid: user_uuid,                       scope_id: scope_1_id) }
-    let!(:highlight3) { create(:highlight, user_uuid: user_uuid,                       scope_id: scope_1_id) }
-    let!(:highlight4) { create(:highlight, user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1) }
-    let!(:highlight5) { create(:highlight, user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
-    let!(:highlight6) { create(:highlight, user_uuid: user_uuid, source_id: source_id, scope_id: SecureRandom.uuid) }
-    let!(:highlight7) { create(:highlight) }
+    let!(:highlight1) { create(:highlight, id: fake_uuid(1), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id) }
+    let!(:highlight2) { create(:highlight, id: fake_uuid(2), user_uuid: user_uuid,                       scope_id: scope_1_id) }
+    let!(:highlight3) { create(:highlight, id: fake_uuid(3), user_uuid: user_uuid,                       scope_id: scope_1_id) }
+    let!(:highlight4) { create(:highlight, id: fake_uuid(4), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1) }
+    let!(:highlight5) { create(:highlight, id: fake_uuid(5), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
+    let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_uuid: user_uuid, source_id: source_id, scope_id: SecureRandom.uuid) }
+    let!(:highlight7) { create(:highlight, id: fake_uuid(7)) }
 
     let(:scope_id) { highlight1.scope_id }
     let(:query_params) do
@@ -28,8 +28,6 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         color: '#000000',
       }
     end
-
-    let(:highlights) { json_response[:data] }
 
     context 'when the user is not logged in' do
       context 'when the highlight does exist' do
@@ -45,24 +43,98 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         stub_current_user_uuid(user_uuid)
       end
 
+      context 'bad pagination values' do
+        it 'complains when per_page is too high' do
+          get highlights_path, params: query_params.merge(per_page: 300)
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response.body).to match(/must be smaller than or equal to 200/)
+        end
+
+        it 'complains when page is too low' do
+          get highlights_path, params: query_params.merge(page: 0)
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response.body).to match(/must be greater than or equal to 1/)
+        end
+      end
+
       context 'when just one source id is passed in' do
         it('gets the user\'s highlights for that one source') do
           get highlights_path, params: query_params.merge(source_ids: [highlight2.source_id])
           expect(response).to have_http_status(:ok)
           expect(highlights[0][:id]).to eq highlight2.id
         end
+
+        it('returns pagination data') do
+          get highlights_path, params: query_params.merge(source_ids: [highlight2.source_id])
+          expect(response).to have_http_status(:ok)
+          expect(json_response[:meta][:per_page]).to eq 15
+          expect(json_response[:meta][:page]).to eq 1
+          expect(json_response[:meta][:total_count]).to eq 1
+          expect(json_response[:meta][:count]).to eq 1
+        end
       end
 
       context 'when multiple source IDs and scope provided' do
-        it('gets the user\'s highlights in the order of the source IDs and then by order within page') do
-          get highlights_path, params: query_params.merge(
-            source_ids: [highlight3, highlight2, highlight1].map(&:source_id),
-            scope_id: scope_1_id
-          )
-          expect(response).to have_http_status(:ok)
-          expect(highlights.map{|hl| hl[:id]}).to eq(
-            [highlight3, highlight2, highlight1, highlight5, highlight4].map(&:id)
-          )
+        context 'without paging' do
+          it('gets the user\'s highlights in the order of the source IDs and then by order within page') do
+            get highlights_path, params: query_params.merge(
+              source_ids: [highlight3, highlight2, highlight1].map(&:source_id),
+              scope_id: scope_1_id
+            )
+            expect(response).to have_http_status(:ok)
+            expect(highlights.map{|hl| hl[:id]}).to eq(
+              [highlight3, highlight2, highlight1, highlight5, highlight4].map(&:id)
+            )
+          end
+        end
+
+        context 'with paging' do
+          it('gets the user\'s highlights in the order of the source IDs and then by order within page and paginates') do
+            get highlights_path, params: query_params.merge(
+              source_ids: [highlight3, highlight2, highlight1].map(&:source_id),
+              scope_id: scope_1_id,
+              per_page: 2,
+              page: 1
+            )
+            expect(response).to have_http_status(:ok)
+            expect(highlights.map{|hl| hl[:id]}).to eq(
+              [highlight3, highlight2].map(&:id)
+            )
+            expect(json_response[:meta][:per_page]).to eq 2
+            expect(json_response[:meta][:page]).to eq 1
+            expect(json_response[:meta][:total_count]).to eq 5
+            expect(json_response[:meta][:count]).to eq 2
+
+            get highlights_path, params: query_params.merge(
+              source_ids: [highlight3, highlight2, highlight1].map(&:source_id),
+              scope_id: scope_1_id,
+              per_page: 2,
+              page: 2
+            )
+            expect(response).to have_http_status(:ok)
+            expect(highlights.map{|hl| hl[:id]}).to eq(
+              [highlight1, highlight5].map(&:id)
+            )
+            expect(json_response[:meta][:per_page]).to eq 2
+            expect(json_response[:meta][:page]).to eq 2
+            expect(json_response[:meta][:total_count]).to eq 5
+            expect(json_response[:meta][:count]).to eq 2
+
+            get highlights_path, params: query_params.merge(
+              source_ids: [highlight3, highlight2, highlight1].map(&:source_id),
+              scope_id: scope_1_id,
+              per_page: 2,
+              page: 3
+            )
+            expect(response).to have_http_status(:ok)
+            expect(highlights.map{|hl| hl[:id]}).to eq(
+              [highlight4].map(&:id)
+            )
+            expect(json_response[:meta][:per_page]).to eq 2
+            expect(json_response[:meta][:page]).to eq 3
+            expect(json_response[:meta][:total_count]).to eq 5
+            expect(json_response[:meta][:count]).to eq 1
+          end
         end
       end
 
@@ -352,5 +424,13 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
 
   def highlights_path(id: nil)
     "/api/v0/highlights#{id.nil? ? '' : "/#{id}"}"
+  end
+
+  def fake_uuid(char)
+    SecureRandom.uuid.gsub(/[a-f0-9]/,char.to_s)
+  end
+
+  def highlights
+    json_response[:data]
   end
 end
