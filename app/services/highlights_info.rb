@@ -30,7 +30,7 @@ class HighlightsInfo
           ( SELECT
               COUNT(*) AS highlights_count
             FROM highlights
-            GROUP BY user_uuid) temp_table
+            GROUP BY user_id) temp_table
     SQL
 
     ActiveRecord::Base.connection.select_value(query).to_i

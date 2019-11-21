@@ -1,11 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe HighlightsInfo, type: :service do
-  let(:some_user_uuid) { SecureRandom.uuid }
-  let!(:highlight1) { create(:highlight, user_uuid: some_user_uuid, annotation: 'Spoonman') }
-  let!(:highlight2) { create(:highlight, user_uuid: some_user_uuid, annotation: 'Come as you are') }
-  let!(:highlight3) { create(:highlight, user_uuid: some_user_uuid, annotation: 'Burden in my hand') }
-  let!(:highlight4) { create(:highlight, user_uuid: SecureRandom.uuid, annotation: nil) }
+  let(:some_user_id) { SecureRandom.uuid }
+  let!(:highlight1) { create(:highlight, user_id: some_user_id, annotation: 'Spoonman') }
+  let!(:highlight2) { create(:highlight, user_id: some_user_id, annotation: 'Come as you are') }
+  let!(:highlight3) { create(:highlight, user_id: some_user_id, annotation: 'Burden in my hand') }
+  let!(:highlight4) { create(:highlight, user_id: SecureRandom.uuid, annotation: nil) }
 
   describe '#call' do
     let(:info_results) { subject.call }

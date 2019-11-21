@@ -9,7 +9,7 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::NewHighlight)
     render(json: error, status: error.status_code) and return if error
 
-    model = inbound_binding.create_model!(user_uuid: current_user_uuid)
+    model = inbound_binding.create_model!(user_id: current_user_uuid)
 
     response_binding = Api::V0::Bindings::Highlight.create_from_model(model)
     render json: response_binding, status: :created
@@ -19,7 +19,7 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     inbound_binding, error = bind(query_parameters, Api::V0::Bindings::GetHighlightsParameters)
     render(json: error, status: error.status_code) and return if error
 
-    query_result = inbound_binding.query(user_uuid: current_user_uuid)
+    query_result = inbound_binding.query(user_id: current_user_uuid)
 
     response_binding = Api::V0::Bindings::Highlights.create_from_query_result(query_result)
     render json: response_binding, status: :ok
@@ -55,7 +55,7 @@ class Api::V0::HighlightsController < Api::V0::BaseController
 
   def get_highlight
     @highlight = Highlight.find(params[:id])
-    raise SecurityTransgression unless @highlight.user_uuid == current_user_uuid
+    raise SecurityTransgression unless @highlight.user_id == current_user_uuid
   end
 
   def query_parameters
