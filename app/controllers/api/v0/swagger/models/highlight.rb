@@ -2,10 +2,6 @@ module Api::V0::Swagger::Models::Highlight
   include Swagger::Blocks
   include OpenStax::Swagger::SwaggerBlocksExtensions
 
-  DEFAULT_HIGHLIGHTS_PER_PAGE = 15
-  MAX_HIGHLIGHTS_PER_PAGE = 200
-  DEFAULT_HIGHLIGHTS_PAGE = 1
-
   swagger_schema :TextPositionSelector do
     key :required, [:type, :start, :end]
     property :start do
@@ -43,51 +39,6 @@ module Api::V0::Swagger::Models::Highlight
     property :type do
       key :type, :string
       key :description, 'The type for the xpath range selector.'
-    end
-  end
-
-  swagger_schema :GetHighlights do
-    key :required, [:source_type]
-    property :source_type do
-      key :type, :string
-      key :enum, ['openstax_page']
-      key :description, 'Limits results to those highlights made in sources of this type.'
-    end
-    property :scope_id do
-      key :type, :string
-      key :description, 'Limits results to the source document container in which the highlight ' \
-                        'was made.  For openstax_page source_types, this is a versionless book UUID. ' \
-                        'If this is not specified, results across scopes will be returned, meaning ' \
-                        'the order of the results will not be meaningful.'
-    end
-    property :source_ids do
-      key :type, :array
-      key :description, 'One or more source IDs; query results will contain highlights ordered '\
-                        'by the order of these source IDs and ordered within each source.  If ' \
-                        'parameter is an empty array, no results will be returned.  If the ' \
-                        'parameter is not provided, all highlights under the scope will be ' \
-                        'returned.'
-      items do
-        key :type, :string
-      end
-    end
-    property :color do
-      key :type, :string
-      key :pattern, ::Highlight::VALID_COLOR.inspect
-      key :description, 'Limits results to this highlight color.'
-    end
-    property :page do
-      key :type, :integer
-      key :description, 'The page number of paginated results, one-indexed.'
-      key :minimum, 1
-      key :default, DEFAULT_HIGHLIGHTS_PAGE
-    end
-    property :per_page do
-      key :type, :integer
-      key :description, 'The number of highlights per page for paginated results.'
-      key :minimum, 0
-      key :maximum, MAX_HIGHLIGHTS_PER_PAGE
-      key :default, DEFAULT_HIGHLIGHTS_PER_PAGE
     end
   end
 
@@ -200,7 +151,7 @@ module Api::V0::Swagger::Models::Highlight
     end
   end
 
-  swagger_schema :UpdateHighlight do
+  swagger_schema :HighlightUpdate do
     property :color do
       key :type, :string
       key :pattern, ::Highlight::VALID_COLOR.inspect

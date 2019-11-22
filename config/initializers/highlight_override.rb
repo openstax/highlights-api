@@ -49,15 +49,15 @@ Api::V0::Bindings::NewHighlight.class_exec do
   end
 end
 
-Api::V0::Bindings::Highlight.class_exec do
-  def self.create_from_model(model)
-    new(model.attributes)
-  end
-end
-
 Api::V0::Bindings::NewHighlight.class_exec do
   def create_model!(user_uuid:)
     Highlight.create!(to_hash.merge(user_uuid: user_uuid))
+  end
+end
+
+Api::V0::Bindings::Highlight.class_exec do
+  def self.create_from_model(model)
+    new(model.attributes)
   end
 end
 
@@ -104,13 +104,13 @@ Api::V0::Bindings::GetHighlights.class_exec do
     end
 
     highlights.paginate(
-      page: page || Api::V0::Swagger::Models::Highlight::DEFAULT_HIGHLIGHTS_PAGE,
-      per_page: per_page || Api::V0::Swagger::Models::Highlight::DEFAULT_HIGHLIGHTS_PER_PAGE
+      page: page || Api::V0::HighlightsSwagger::DEFAULT_HIGHLIGHTS_PAGE,
+      per_page: per_page || Api::V0::HighlightsSwagger::DEFAULT_HIGHLIGHTS_PER_PAGE
     )
   end
 end
 
-Api::V0::Bindings::UpdateHighlight.class_exec do
+Api::V0::Bindings::HighlightUpdate.class_exec do
   def update_model!(model)
     model.color = color if color.present?
     model.annotation = annotation if annotation.present?

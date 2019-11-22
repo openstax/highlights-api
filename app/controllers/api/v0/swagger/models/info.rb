@@ -26,7 +26,6 @@ module Api::V0::Swagger::Models::Info
   end
 
   swagger_schema :InfoResults do
-    key :required, [:overall_took, :postgres_version]
     property :overall_took_ms do
       key :type, :integer
       key :readOnly, true

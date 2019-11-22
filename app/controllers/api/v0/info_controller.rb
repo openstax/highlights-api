@@ -9,7 +9,7 @@ class Api::V0::InfoController < Api::V0::BaseController
       response 200 do
         key :description, 'Success.  Returns basic highlights metrics.'
         schema do
-          key :'$ref', :Info
+          key :'$ref', :InfoResults
         end
       end
       extend Api::V0::SwaggerResponses::ServerError
