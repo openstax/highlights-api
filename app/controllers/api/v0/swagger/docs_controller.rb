@@ -10,14 +10,14 @@ class Api::V0::Swagger::DocsController < ApplicationController
     key :swagger, '2.0'
     info do
       key :version, '0.1.0'
-      key :title, 'OpenStax Highlightgs API'
+      key :title, 'OpenStax Highlights API'
       key :description, <<~DESC
         The highlights API for OpenStax.
 
         Requests to this API should include `#{ACCEPT_HEADER}` in the `Accept` header.
 
-        The desired API version is specified in the request URL, e.g. `[domain]#{BASE_PATH}/highlights`.\
-        While the API does support a default version, that version will change over\
+        The desired API version is specified in the request URL, e.g. `[domain]#{BASE_PATH}/highlights`. \
+        While the API does support a default version, that version will change over \
         time and therefore should not be used in production code!
       DESC
       key :termsOfService, 'https://openstax.org/tos'

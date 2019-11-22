@@ -1,7 +1,7 @@
 =begin
-#OpenStax Highlightgs API
+#OpenStax Highlights API
 
-#The highlights API for OpenStax.  Requests to this API should include `application/json` in the `Accept` header.  The desired API version is specified in the request URL, e.g. `[domain]/highlights/api/v0/highlights`.While the API does support a default version, that version will change overtime and therefore should not be used in production code! 
+#The highlights API for OpenStax.  Requests to this API should include `application/json` in the `Accept` header.  The desired API version is specified in the request URL, e.g. `[domain]/highlights/api/v0/highlights`. While the API does support a default version, that version will change over time and therefore should not be used in production code! 
 
 OpenAPI spec version: 0.1.0
 
@@ -23,7 +23,7 @@ module Api::V0::Bindings
     # One or more source IDs; query results will contain highlights ordered by the order of these source IDs and ordered within each source.  If parameter is an empty array, no results will be returned.  If the parameter is not provided, all highlights under the scope will be returned.
     attr_accessor :source_ids
 
-    # Limits results to this highlight color.
+    # Limits results to this highlight color. Must be of the form /#?[a-f0-9]{6}/.
     attr_accessor :color
 
     # The page number of paginated results, one-indexed.

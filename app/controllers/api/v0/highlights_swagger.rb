@@ -259,7 +259,8 @@ class Api::V0::HighlightsSwagger
         key :type, :string
         key :required, false
         key :pattern, ::Highlight::VALID_COLOR.inspect
-        key :description, 'Limits results to this highlight color.'
+        key :description, "Limits results to this highlight color. Must be of the form " \
+                          "#{::Highlight::VALID_COLOR.inspect}."
       end
       parameter do
         key :name, :page
