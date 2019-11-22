@@ -137,9 +137,9 @@ class Api::V0::HighlightsSwagger
     end
     property :location_strategies do
       key :type, :array
-      key :description, 'Location strategies for the highlight. ' \
-                        'Items should have a schema matching the strategy ' \
-                        'schemas that have been defined.'
+      key :description, "Location strategies for the highlight. Items should have a schema " \
+                        "matching the strategy schemas that have been defined. (" \
+                        "`XpathRangeSelector` or `TextPositionSelector`)."
       items do
         key :type, :object
       end
