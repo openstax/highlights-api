@@ -1,6 +1,6 @@
 require 'uri'
 
-class Api::V0::Swagger::DocsController < ApplicationController
+class Api::V0::SwaggerController < ApplicationController
   include ::Swagger::Blocks
 
   ACCEPT_HEADER = 'application/json'
