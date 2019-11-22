@@ -46,6 +46,12 @@ class Api::V0::InfoSwagger
       key :summary, 'Get info on highlights'
       key :description, 'Get info on highlights'
       key :operationId, 'info'
+      key :produces, [
+        'application/json'
+      ]
+      key :tags, [
+        'Info'
+      ]
       response 200 do
         key :description, 'Success.  Returns basic highlights metrics.'
         schema do
