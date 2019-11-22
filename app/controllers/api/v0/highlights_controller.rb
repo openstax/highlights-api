@@ -16,7 +16,7 @@ class Api::V0::HighlightsController < Api::V0::BaseController
   end
 
   def index
-    inbound_binding, error = bind(request.query_parameters, Api::V0::Bindings::GetHighlights)
+    inbound_binding, error = bind(request.query_parameters, Api::V0::Bindings::GetHighlightsParameters)
     render(json: error, status: error.status_code) and return if error
 
     query_result = inbound_binding.query(user_uuid: current_user_uuid)

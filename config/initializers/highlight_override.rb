@@ -79,7 +79,7 @@ Api::V0::Bindings::Highlights.class_exec do
   end
 end
 
-Api::V0::Bindings::GetHighlights.class_exec do
+Api::V0::Bindings::GetHighlightsParameters.class_exec do
   def query(user_uuid:)
     highlights = ::Highlight.by_user(user_uuid)
 

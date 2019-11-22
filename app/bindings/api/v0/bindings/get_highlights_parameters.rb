@@ -13,7 +13,7 @@ Swagger Codegen version: 2.4.6
 require 'date'
 
 module Api::V0::Bindings
-  class GetHighlights
+  class GetHighlightsParameters
     # Limits results to those highlights made in sources of this type.
     attr_accessor :source_type
 
