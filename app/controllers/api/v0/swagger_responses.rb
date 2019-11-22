@@ -1,4 +1,21 @@
 module Api::V0::SwaggerResponses
+  include Swagger::Blocks
+  include OpenStax::Swagger::SwaggerBlocksExtensions
+
+  swagger_schema :Error do
+    property :status_code do
+      key :type, :integer
+      key :description, "The HTTP status code"
+    end
+    property :messages do
+      key :type, :array
+      key :description, "The error messages, if any"
+      items do
+        key :type, :string
+      end
+    end
+  end
+
   module AuthenticationError
     def self.extended(base)
       base.response 401 do

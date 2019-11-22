@@ -38,12 +38,9 @@ class Api::V0::Swagger::DocsController < ApplicationController
   end
 
   SWAGGERED_CLASSES = [
-    Api::V0::Swagger::Models::Highlight,
-    Api::V0::Swagger::Models::Error,
-    Api::V0::Swagger::Models::Info,
+    Api::V0::SwaggerResponses,
     Api::V0::HighlightsSwagger,
-    # Api::V0::HighlightsController,
-    Api::V0::InfoController,
+    Api::V0::InfoSwagger,
     self,
   ].freeze
 

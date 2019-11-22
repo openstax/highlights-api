@@ -16,8 +16,8 @@ GIT
 
 GIT
   remote: https://github.com/openstax/swagger-rails.git
-  revision: 280045dbb8ebdeda108f5616b1ca14c5fba2d456
-  ref: 280045dbb8ebdeda108f5616b1ca14c5fba2d456
+  revision: 6965c476297a2a4604ddd2e600b76c4721318d5c
+  ref: 6965c476297a2a4604ddd2e600b76c4721318d5c
   specs:
     openstax_swagger (0.1.0)
       oj
