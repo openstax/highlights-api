@@ -23,8 +23,10 @@ class Api::V0::HighlightsController < Api::V0::BaseController
 
     query_result = inbound_binding.query(user_id: current_user_uuid)
 
-    response_binding = Api::V0::Bindings::Highlights.create_from_query_result(query_result)
-    render json: response_binding, status: :ok
+    ServiceLimits.get_check(query_result) do |query_result|
+      response_binding = Api::V0::Bindings::Highlights.create_from_query_result(query_result)
+      render json: response_binding, status: :ok
+    end
   end
 
   def summary

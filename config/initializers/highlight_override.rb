@@ -80,8 +80,8 @@ Api::V0::Bindings::Highlights.class_exec do
 end
 
 Api::V0::Bindings::GetHighlightsParameters.class_exec do
-  def query(user_uuid:)
-    highlights = ::Highlight.by_user(user_uuid)
+  def query(user_id:)
+    highlights = ::Highlight.by_user(user_id)
 
     # The submitted GetHighlight properties create automatic chaining via
     # the by_X scopes on the Highlight model.
