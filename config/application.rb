@@ -28,7 +28,7 @@ module HighlightsApi
     config.middleware.insert_before 0, Rack::Cors do
       allow do
         origins '*'
-        resource '/api/v\d+/swagger', headers: :any, methods: [:get]
+        resource '/api/v0/swagger', headers: :any, methods: [:get, :options, :head]
       end
     end
 

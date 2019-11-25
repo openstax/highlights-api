@@ -1,7 +1,7 @@
 =begin
-#OpenStax Highlightgs API
+#OpenStax Highlights API
 
-#The highlights API for OpenStax.  Requests to this API should include `application/json` in the `Accept` header.  The desired API version is specified in the request URL, e.g. `[domain]/highlights/api/v0/highlights`.While the API does support a default version, that version will change overtime and therefore should not be used in production code! 
+#The highlights API for OpenStax.  Requests to this API should include `application/json` in the `Accept` header.  The desired API version is specified in the request URL, e.g. `[domain]/highlights/api/v0/highlights`. While the API does support a default version, that version will change over time and therefore should not be used in production code! 
 
 OpenAPI spec version: 0.1.0
 
@@ -13,26 +13,68 @@ Swagger Codegen version: 2.4.6
 require 'date'
 
 module Api::V0::Bindings
-  class UpdateHighlight
-    # The new highlight color.
+  class GetHighlightsParameters
+    # Limits results to those highlights made in sources of this type.
+    attr_accessor :source_type
+
+    # Limits results to the source document container in which the highlight was made.  For openstax_page source_types, this is a versionless book UUID. If this is not specified, results across scopes will be returned, meaning the order of the results will not be meaningful.
+    attr_accessor :scope_id
+
+    # One or more source IDs; query results will contain highlights ordered by the order of these source IDs and ordered within each source.  If parameter is an empty array, no results will be returned.  If the parameter is not provided, all highlights under the scope will be returned.
+    attr_accessor :source_ids
+
+    # Limits results to this highlight color. Must be of the form /#?[a-f0-9]{6}/.
     attr_accessor :color
 
-    # The new note for the highlight (replaces existing note).
-    attr_accessor :annotation
+    # The page number of paginated results, one-indexed.
+    attr_accessor :page
+
+    # The number of highlights per page for paginated results.
+    attr_accessor :per_page
+
+    class EnumAttributeValidator
+      attr_reader :datatype
+      attr_reader :allowable_values
+
+      def initialize(datatype, allowable_values)
+        @allowable_values = allowable_values.map do |value|
+          case datatype.to_s
+          when /Integer/i
+            value.to_i
+          when /Float/i
+            value.to_f
+          else
+            value
+          end
+        end
+      end
+
+      def valid?(value)
+        !value || allowable_values.include?(value)
+      end
+    end
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
+        :'source_type' => :'source_type',
+        :'scope_id' => :'scope_id',
+        :'source_ids' => :'source_ids',
         :'color' => :'color',
-        :'annotation' => :'annotation'
+        :'page' => :'page',
+        :'per_page' => :'per_page'
       }
     end
 
     # Attribute type mapping.
     def self.swagger_types
       {
+        :'source_type' => :'String',
+        :'scope_id' => :'String',
+        :'source_ids' => :'Array<String>',
         :'color' => :'String',
-        :'annotation' => :'String'
+        :'page' => :'Integer',
+        :'per_page' => :'Integer'
       }
     end
 
@@ -44,12 +86,30 @@ module Api::V0::Bindings
       # convert string to symbol for hash key
       attributes = attributes.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
 
+      if attributes.has_key?(:'source_type')
+        self.source_type = attributes[:'source_type']
+      end
+
+      if attributes.has_key?(:'scope_id')
+        self.scope_id = attributes[:'scope_id']
+      end
+
+      if attributes.has_key?(:'source_ids')
+        if (value = attributes[:'source_ids']).is_a?(Array)
+          self.source_ids = value
+        end
+      end
+
       if attributes.has_key?(:'color')
         self.color = attributes[:'color']
       end
 
-      if attributes.has_key?(:'annotation')
-        self.annotation = attributes[:'annotation']
+      if attributes.has_key?(:'page')
+        self.page = attributes[:'page']
+      end
+
+      if attributes.has_key?(:'per_page')
+        self.per_page = attributes[:'per_page']
       end
     end
 
@@ -57,8 +117,24 @@ module Api::V0::Bindings
     # @return Array for valid properties with the reasons
     def list_invalid_properties
       invalid_properties = Array.new
+      if @source_type.nil?
+        invalid_properties.push('invalid value for "source_type", source_type cannot be nil.')
+      end
+
       if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
         invalid_properties.push('invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.')
+      end
+
+      if !@page.nil? && @page < 1
+        invalid_properties.push('invalid value for "page", must be greater than or equal to 1.')
+      end
+
+      if !@per_page.nil? && @per_page > 200
+        invalid_properties.push('invalid value for "per_page", must be smaller than or equal to 200.')
+      end
+
+      if !@per_page.nil? && @per_page < 0
+        invalid_properties.push('invalid value for "per_page", must be greater than or equal to 0.')
       end
 
       invalid_properties
@@ -67,8 +143,24 @@ module Api::V0::Bindings
     # Check to see if the all the properties in the model are valid
     # @return true if the model is valid
     def valid?
+      return false if @source_type.nil?
+      source_type_validator = EnumAttributeValidator.new('String', ['openstax_page'])
+      return false unless source_type_validator.valid?(@source_type)
       return false if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
+      return false if !@page.nil? && @page < 1
+      return false if !@per_page.nil? && @per_page > 200
+      return false if !@per_page.nil? && @per_page < 0
       true
+    end
+
+    # Custom attribute writer method checking allowed values (enum).
+    # @param [Object] source_type Object to be assigned
+    def source_type=(source_type)
+      validator = EnumAttributeValidator.new('String', ['openstax_page'])
+      unless validator.valid?(source_type)
+        fail ArgumentError, 'invalid value for "source_type", must be one of #{validator.allowable_values}.'
+      end
+      @source_type = source_type
     end
 
     # Custom attribute writer method with validation
@@ -81,13 +173,41 @@ module Api::V0::Bindings
       @color = color
     end
 
+    # Custom attribute writer method with validation
+    # @param [Object] page Value to be assigned
+    def page=(page)
+      if !page.nil? && page < 1
+        fail ArgumentError, 'invalid value for "page", must be greater than or equal to 1.'
+      end
+
+      @page = page
+    end
+
+    # Custom attribute writer method with validation
+    # @param [Object] per_page Value to be assigned
+    def per_page=(per_page)
+      if !per_page.nil? && per_page > 200
+        fail ArgumentError, 'invalid value for "per_page", must be smaller than or equal to 200.'
+      end
+
+      if !per_page.nil? && per_page < 0
+        fail ArgumentError, 'invalid value for "per_page", must be greater than or equal to 0.'
+      end
+
+      @per_page = per_page
+    end
+
     # Checks equality by comparing each attribute.
     # @param [Object] Object to be compared
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
+          source_type == o.source_type &&
+          scope_id == o.scope_id &&
+          source_ids == o.source_ids &&
           color == o.color &&
-          annotation == o.annotation
+          page == o.page &&
+          per_page == o.per_page
     end
 
     # @see the `==` method
@@ -99,7 +219,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [color, annotation].hash
+      [source_type, scope_id, source_ids, color, page, per_page].hash
     end
 
     # Builds the object from hash

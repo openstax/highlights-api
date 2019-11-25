@@ -8,7 +8,7 @@ Rails.application.routes.draw do
 
       resources :highlights, except: :show
 
-      get :swagger, to: 'swagger/docs#json'
+      get :swagger, to: 'swagger#json'
 
       get :info, to: 'info#info'
 

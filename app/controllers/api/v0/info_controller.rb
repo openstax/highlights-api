@@ -1,20 +1,7 @@
 class Api::V0::InfoController < Api::V0::BaseController
   before_action :validate_current_user_authorized_as_admin
 
-  swagger_path '/info' do
-    operation :get do
-      key :summary, 'Get info on highlights'
-      key :description, 'Get info on highlights'
-      key :operationId, 'info'
-      response 200 do
-        key :description, 'Success.  Returns basic highlights metrics.'
-        schema do
-          key :'$ref', :Info
-        end
-      end
-      extend Api::V0::SwaggerResponses::ServerError
-    end
-  end
+  # See Api::V0::InfoSwagger for documentation
 
   def info
     started_at = Time.now

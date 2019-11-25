@@ -1,7 +1,7 @@
 =begin
-#OpenStax Highlightgs API
+#OpenStax Highlights API
 
-#The highlights API for OpenStax.  Requests to this API should include `application/json` in the `Accept` header.  The desired API version is specified in the request URL, e.g. `[domain]/highlights/api/v0/highlights`.While the API does support a default version, that version will change overtime and therefore should not be used in production code! 
+#The highlights API for OpenStax.  Requests to this API should include `application/json` in the `Accept` header.  The desired API version is specified in the request URL, e.g. `[domain]/highlights/api/v0/highlights`. While the API does support a default version, that version will change over time and therefore should not be used in production code! 
 
 OpenAPI spec version: 0.1.0
 
@@ -65,17 +65,12 @@ module Api::V0::Bindings
     # @return Array for valid properties with the reasons
     def list_invalid_properties
       invalid_properties = Array.new
-      if @postgres_version.nil?
-        invalid_properties.push('invalid value for "postgres_version", postgres_version cannot be nil.')
-      end
-
       invalid_properties
     end
 
     # Check to see if the all the properties in the model are valid
     # @return true if the model is valid
     def valid?
-      return false if @postgres_version.nil?
       true
     end
 
