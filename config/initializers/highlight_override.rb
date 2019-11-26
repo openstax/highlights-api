@@ -117,3 +117,23 @@ Api::V0::Bindings::HighlightUpdate.class_exec do
     model.tap(&:save!)
   end
 end
+
+Api::V0::Bindings::GetHighlightsSummaryParameters.class_exec do
+  def summarize(user_uuid:)
+    highlights = ::Highlight.by_user(user_uuid)
+
+    # The submitted GetHighlight properties create automatic chaining via
+    # the by_X scopes on the Highlight model.
+    to_hash.each do |key, value|
+      highlights = highlights.public_send("by_#{key}", value) if value.present?
+    end
+
+    highlights.group(:source_id).count
+  end
+end
+
+Api::V0::Bindings::HighlightsSummary.class_exec do
+  def self.create_from_summary_result(summary_result)
+    new(counts_per_source: summary_result)
+  end
+end

@@ -25,6 +25,17 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     render json: response_binding, status: :ok
   end
 
+  def summary
+    inbound_binding, error = bind(request.query_parameters,
+                                  Api::V0::Bindings::GetHighlightsSummaryParameters)
+    render(json: error, status: error.status_code) and return if error
+
+    summary_result = inbound_binding.summarize(user_uuid: current_user_uuid)
+
+    response_binding = Api::V0::Bindings::HighlightsSummary.create_from_summary_result(summary_result)
+    render json: response_binding, status: :ok
+  end
+
   def update
     inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::HighlightUpdate)
     render(json: error, status: error.status_code) and return if error

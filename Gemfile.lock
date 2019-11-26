@@ -14,10 +14,8 @@ GIT
     openstax_path_prefixer (0.0.1)
       rails (>= 3.0)
 
-GIT
-  remote: https://github.com/openstax/swagger-rails.git
-  revision: 5d461d131077b257663290f7154fa2b0c5a25eaf
-  ref: 5d461d131077b257663290f7154fa2b0c5a25eaf
+PATH
+  remote: /Users/jps/dev/openstax/swagger-rails
   specs:
     openstax_swagger (0.1.0)
       oj

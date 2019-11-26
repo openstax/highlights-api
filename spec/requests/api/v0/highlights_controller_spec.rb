@@ -439,8 +439,52 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     end
   end
 
+  context 'GET /highlights/summary' do
+    let!(:highlight1) { create(:highlight, id: fake_uuid(1), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id) }
+    let!(:highlight2) { create(:highlight, id: fake_uuid(2), user_uuid: user_uuid,                       scope_id: scope_1_id) }
+    let!(:highlight3) { create(:highlight, id: fake_uuid(3), user_uuid: user_uuid,                       scope_id: scope_1_id, color: "#ffffff") }
+    let!(:highlight4) { create(:highlight, id: fake_uuid(4), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1) }
+    let!(:highlight5) { create(:highlight, id: fake_uuid(5), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
+    let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_uuid: user_uuid, source_id: source_id, scope_id: SecureRandom.uuid) }
+    let!(:highlight7) { create(:highlight, id: fake_uuid(7)) }
+
+    let(:scope_id) { highlight1.scope_id }
+    let(:query_params) do
+      {
+        source_type: 'openstax_page',
+        scope_id: scope_id,
+        color: '#000000',
+      }
+    end
+
+    context 'when a user is logged in' do
+      before { stub_current_user_uuid(user_uuid) }
+
+      it 'returns good counts' do
+        get summary_path, params: query_params
+        expect(response).to have_http_status(:ok)
+        expect(json_response[:counts_per_source]).to eq({
+          "#{source_id}".to_sym => 3,
+          highlight2.source_id.to_sym => 1,
+          highlight3.source_id.to_sym => 1,
+        })
+      end
+    end
+
+    context 'when a user is not logged in' do
+      it 'does not give a summary' do
+        get summary_path, params: query_params
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+  end
+
   def highlights_path(id: nil)
     "/api/v0/highlights#{id.nil? ? '' : "/#{id}"}"
+  end
+
+  def summary_path
+    "/api/v0/highlights/summary"
   end
 
   def fake_uuid(char)
