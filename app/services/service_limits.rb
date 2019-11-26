@@ -1,100 +1,119 @@
+# ServiceLimits
+#
+# This class is the guard check for the HighlightsController CRUD actions
 class ServiceLimits
   MAX_HIGHLIGHTS_PER_SOURCE_PER_USER = 300
-  MAX_HIGHLIGHTS_PER_USER = 20_000
-  MAX_NOTE_CHARS_PER_USER = 300_000
-  MAX_CHARS_PER_NOTE = 1_000
-  MAX_HIGHLIGHTS_PER_GET = 300
+  MAX_HIGHLIGHTS_PER_USER            = 20_000
+  MAX_ANNOTATION_CHARS_PER_USER      = 300_000
+  MAX_CHARS_PER_ANNOTATION           = 1_000
 
   class ServiceLimitsError < StandardError; end
-  class ExceededMaxHighlightsPerGet < ServiceLimitsError; end
-  class ExceededMaxHighlightsPerUser < ServiceLimitsError; end
-  class ExceededMaxHighlightsPerUserPerSource < ServiceLimitsError; end
-  class ExceededMaxNoteCharsPerUser < ServiceLimitsError; end
-  class ExceededMaxNoteChars < ServiceLimitsError; end
 
-  def self.get_check(highlights)
-    ActiveRecord::Base.transaction do
-      validate_max_gets(request_highlights_count: highlights.count)
-
-      yield highlights
+  class ExceededMaxHighlightsPerUser < ServiceLimitsError
+    def message
+      "Exceeded (#{MAX_HIGHLIGHTS_PER_USER} max highlights per user"
     end
   end
 
-  def self.create_check(user_uuid, inbound_binding)
-    ActiveRecord::Base.transaction do
-      user = User.find_or_create_by(id: user_uuid)
-
-      validate_max_highlights(user: user, source_id: inbound_binding.source_id)
-      validate_note_chars(user: user, note: inbound_binding.annotation)
-
-      yield inbound_binding
+  class ExceededMaxHighlightsPerUserPerSource < ServiceLimitsError
+    def message
+      "Exceeded (#{MAX_HIGHLIGHTS_PER_SOURCE_PER_USER} max highlights per user per source"
     end
   end
 
-  def self.update_check(user_uuid, inbound_binding)
-    ActiveRecord::Base.transaction do
-      user = User.find_or_create_by(id: user_uuid)
-
-      validate_note_chars(user: user, note: inbound_binding.annotation)
-
-      yield inbound_binding
+  class ExceededMaxAnnotationCharsPerUser < ServiceLimitsError
+    def message
+      "Exceeded (#{MAX_ANNOTATION_CHARS_PER_USER} max annotation chars per user"
     end
   end
 
-  def self.delete_reset(user_uuid, highlight)
+  class ExceededMaxAnnotationChars < ServiceLimitsError
+    def message
+      "Exceeded (#{MAX_CHARS_PER_ANNOTATION} max chars per annotation"
+    end
+  end
+
+  def initialize(user_id:)
+    @user_id = user_id
+  end
+
+  def with_create_protection
     ActiveRecord::Base.transaction do
-      user = User.find_or_create_by(id: user_uuid)
+      yield(build_user).tap do |model|
+        raise ActiveRecord::RecordInvalid, 'Block did not yield an active record model' unless model.is_a?(Highlight)
+        raise ActiveRecord::RecordInvalid, 'Model errors detected' if model.errors.present?
 
-      user.reset_max_counts(user: user, highlight: highlight)
+        track_and_validate_max_highlights(model)
+        track_and_validate_annotation_chars(model) if model.annotation.present?
+      end
+    end
+  end
 
-      yield highlight
+  def with_update_protection
+    ActiveRecord::Base.transaction do
+      yield.tap do |model|
+        raise ActiveRecord::RecordInvalid, 'Model errors detected' if model.errors.present?
+
+        track_and_validate_annotation_chars(model)
+      end
+    end
+  end
+
+  def with_delete_reincrement
+    ActiveRecord::Base.transaction do
+      yield.tap do |model|
+        reset_max_counts_for_deleted_highlight(model)
+      end
     end
   end
 
   private
 
-  def self.validate_max_gets(request_highlights_count:)
-    if request_highlights_count > MAX_HIGHLIGHTS_PER_GET
-      raise ExceededMaxHighlightsPerGet
-    end
+  def build_user
+    @user ||= User.find_or_create_by(id: @user_id)
   end
 
-  def self.validate_max_highlights(user:, source_id:)
+  def track_and_validate_max_highlights(new_highlight)
+    user = build_user
+
     if user.num_highlights < MAX_HIGHLIGHTS_PER_USER
       user.increment_num_highlights(by: 1)
     else
       raise ExceededMaxHighlightsPerUser
     end
 
-    user_source = UserSource.find_or_create_by(users_id: user.id, source_id: source_id)
-    if user_source.num_highlights >= MAX_HIGHLIGHTS_PER_SOURCE_PER_USER
+    user_source = UserSource.find_or_create_by(users_id: user.id, source_id: new_highlight.source_id)
+    if user_source.num_highlights < MAX_HIGHLIGHTS_PER_SOURCE_PER_USER
       user_source.increment_num_highlights(by: 1)
     else
       raise ExceededMaxHighlightsPerUserPerSource
     end
   end
 
-  def self.validate_note_chars(user:, note:)
-    return unless note.present?
+  def track_and_validate_annotation_chars(new_highlight)
+    return unless new_highlight.present?
 
-    note_length = note.length
+    user = build_user
+    note_length = new_highlight.annotation.length
 
-    if note_length > MAX_CHARS_PER_NOTE
-      raise ExceededMaxNoteChars
+    if note_length > MAX_CHARS_PER_ANNOTATION
+      raise ExceededMaxAnnotationChars
     end
 
-    if user.num_annotation_characters + note_length < MAX_NOTE_CHARS_PER_USER
+    if user.num_annotation_characters + note_length < MAX_ANNOTATION_CHARS_PER_USER
       user.increment_num_annotation_characters(by: note_length)
     else
-      raise ExceededMaxNoteCharsPerUser
+      raise ExceededMaxAnnotationCharsPerUser
     end
   end
 
-  def self.reset_max_counts(user:, highlight:)
+  def reset_max_counts_for_deleted_highlight(highlight)
+    user = build_user
+
     user.increment_num_highlights(by: -1)
     user.increment_num_annotation_characters(by: -highlight.annotation.length)
 
-    user_source = UserSource.find_by(users_id: user.id, source_id: highlight.source_id)
+    user_source = UserSource.find_by(users_id: highlight.user.id, source_id: highlight.source_id)
     user_source.increment_num_highlights(by: -1)
   end
 end

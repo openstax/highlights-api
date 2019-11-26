@@ -3,7 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe Api::V0::HighlightsController, type: :request do
-  let(:user_id) { '55783d49-7562-4576-a626-3b877557a21f' }
+  let!(:user) { create(:user_with_sources) }
+
+  let(:user_id) { user.id }
   let(:scope_id) { 'ccf8e44e-05e5-4272-bd0a-aca50171b50f' }
   let(:source_id) { SecureRandom.uuid }
   let(:scope_1_id) { SecureRandom.uuid }
@@ -12,12 +14,12 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
   before { allow(Rails.application.config).to receive(:consider_all_requests_local) { false } }
 
   describe 'GET /highlights' do
-    let!(:highlight1) { create(:highlight, id: fake_uuid(1), user_id: user_uuid, source_id: source_id, scope_id: scope_1_id) }
-    let!(:highlight2) { create(:highlight, id: fake_uuid(2), user_id: user_uuid,                       scope_id: scope_1_id) }
-    let!(:highlight3) { create(:highlight, id: fake_uuid(3), user_id: user_uuid,                       scope_id: scope_1_id) }
-    let!(:highlight4) { create(:highlight, id: fake_uuid(4), user_id: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1) }
-    let!(:highlight5) { create(:highlight, id: fake_uuid(5), user_id: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
-    let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_id: user_uuid, source_id: source_id, scope_id: SecureRandom.uuid) }
+    let!(:highlight1) { create(:highlight, id: fake_uuid(1), user_id: user_id, source_id: source_id, scope_id: scope_1_id) }
+    let!(:highlight2) { create(:highlight, id: fake_uuid(2), user_id: user_id,                       scope_id: scope_1_id) }
+    let!(:highlight3) { create(:highlight, id: fake_uuid(3), user_id: user_id,                       scope_id: scope_1_id) }
+    let!(:highlight4) { create(:highlight, id: fake_uuid(4), user_id: user_id, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1) }
+    let!(:highlight5) { create(:highlight, id: fake_uuid(5), user_id: user_id, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
+    let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_id: user_id, source_id: source_id, scope_id: SecureRandom.uuid) }
     let!(:highlight7) { create(:highlight, id: fake_uuid(7)) }
 
     let(:scope_id) { highlight1.scope_id }
@@ -188,7 +190,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     end
 
     context 'user known' do
-      before(:each) { stub_current_user_uuid(useruid) }
+      before(:each) { stub_current_user_uuid(user_id) }
 
       context 'when the request is valid' do
         before do

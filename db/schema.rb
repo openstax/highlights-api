@@ -43,18 +43,18 @@ ActiveRecord::Schema.define(version: 2019_11_20_222312) do
   end
 
   create_table "user_sources", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "users_id"
+    t.uuid "user_id"
     t.string "source_id", null: false
     t.integer "num_highlights", default: 0
-    t.index ["users_id"], name: "index_user_sources_on_users_id"
+    t.index ["user_id"], name: "index_user_sources_on_user_id"
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.integer "num_annotation_characters"
+    t.integer "num_annotation_characters", default: 0
     t.integer "num_highlights", default: 0
   end
 
   add_foreign_key "highlights", "highlights", column: "next_highlight_id"
   add_foreign_key "highlights", "highlights", column: "prev_highlight_id"
-  add_foreign_key "user_sources", "users", column: "users_id"
+  add_foreign_key "user_sources", "users"
 end
