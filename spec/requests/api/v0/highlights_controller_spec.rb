@@ -25,7 +25,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       {
         source_type: 'openstax_page',
         scope_id: scope_id,
-        color: '#000000',
+        color: 'yellow',
       }
     end
 
@@ -170,7 +170,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         highlighted_content: 'foo content',
         scope_id: scope_id,
         source_type: 'openstax_page',
-        color: '#000000',
+        color: 'yellow',
         location_strategies: [type: 'TextPositionSelector',
                               start: 12,
                               end: 10]
@@ -266,6 +266,15 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           it 'returns a validation failure message' do
             expect(response.body)
               .to match(/must conform to the pattern/)
+          end
+        end
+
+        context 'bad color' do
+          it 'returns a 422' do
+            valid_inner_attributes.merge!(color: "lemon")
+            post highlights_path, params: valid_attributes
+            expect(response).to have_http_status(422)
+            expect(response.body).to match(/invalid value for.*color/)
           end
         end
 
@@ -389,8 +398,8 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
 
       context 'when the highlight does exist' do
         it 'does not allow update' do
-          put highlights_path(id: highlight.id), params: { highlight: { color: "#ffffff" } }
-          expect(highlight.reload.color).to eq "#000000"
+          put highlights_path(id: highlight.id), params: { highlight: { color: "red" } }
+          expect(highlight.reload.color).to eq "yellow"
           expect(response).to have_http_status(:unauthorized)
         end
       end
@@ -400,8 +409,8 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       before { stub_current_user_uuid(highlight.user_uuid) }
 
       it 'can update color' do
-        put highlights_path(id: highlight.id), params: { highlight: { color: "#ffffff" } }
-        expect(highlight.reload.color).to eq "#ffffff"
+        put highlights_path(id: highlight.id), params: { highlight: { color: "red" } }
+        expect(highlight.reload.color).to eq "red"
         expect(response).to have_http_status :ok
       end
 
@@ -423,8 +432,8 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       before { stub_current_user_uuid(SecureRandom.uuid) }
 
       it 'does not allow update' do
-        put highlights_path(id: highlight.id), params: { highlight: { color: "#ffffff" } }
-        expect(highlight.reload.color).to eq "#000000"
+        put highlights_path(id: highlight.id), params: { highlight: { color: "red" } }
+        expect(highlight.reload.color).to eq "yellow"
         expect(response).to have_http_status(:forbidden)
       end
     end

@@ -31,19 +31,6 @@ RSpec.describe Highlight, type: :model do
       end
     end
 
-    describe '#color' do
-      it 'must be hex' do
-        expect(highlight.valid?).to be_truthy
-
-        highlight.color = 'invalid color'
-        expect(highlight.valid?).to be_falsey
-        expect(highlight.errors[:color]).to include('is invalid')
-
-        highlight.color = '#c0c0c0'
-        expect(highlight.valid?).to be_truthy
-      end
-    end
-
     context 'generic normalizations' do
       it 'color will be downcased' do
         record = described_class.new(color: '#C0C0C0')

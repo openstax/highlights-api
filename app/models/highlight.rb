@@ -8,12 +8,10 @@ class Highlight < ApplicationRecord
   belongs_to :prev_highlight, class_name: 'Highlight', optional: true
   belongs_to :next_highlight, class_name: 'Highlight', optional: true
 
-  VALID_COLOR = /#?[a-f0-9]{6}/
   VALID_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
   before_validation :normalize_color, :normalize_ids
 
-  validates_format_of :color, with: /\A#{VALID_COLOR}\z/
   validates_presence_of :user_uuid,
                         :source_type,
                         :source_id,

@@ -32,7 +32,7 @@ module Api::V0::Bindings
     # The ID of the highlight immediately after this highlight.  May be null if there are no following highlights in this source.
     attr_accessor :next_highlight_id
 
-    # The highlight color.
+    # The name of the highlight color.  Corresponding RGB values for different states (e.g. focused, passive) are maintained in the client.
     attr_accessor :color
 
     # The anchor of the highlight.
@@ -178,10 +178,6 @@ module Api::V0::Bindings
         invalid_properties.push('invalid value for "color", color cannot be nil.')
       end
 
-      if @color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        invalid_properties.push('invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.')
-      end
-
       if @anchor.nil?
         invalid_properties.push('invalid value for "anchor", anchor cannot be nil.')
       end
@@ -206,7 +202,8 @@ module Api::V0::Bindings
       return false if @source_id.nil?
       return false if @source_id !~ Regexp.new(/(?-mix:^[^,]+$)/)
       return false if @color.nil?
-      return false if @color !~ Regexp.new(/#?[a-f0-9]{6}/)
+      color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
+      return false unless color_validator.valid?(@color)
       return false if @anchor.nil?
       return false if @highlighted_content.nil?
       return false if @location_strategies.nil?
@@ -237,17 +234,13 @@ module Api::V0::Bindings
       @source_id = source_id
     end
 
-    # Custom attribute writer method with validation
-    # @param [Object] color Value to be assigned
+    # Custom attribute writer method checking allowed values (enum).
+    # @param [Object] color Object to be assigned
     def color=(color)
-      if color.nil?
-        fail ArgumentError, 'color cannot be nil'
+      validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
+      unless validator.valid?(color)
+        fail ArgumentError, 'invalid value for "color", must be one of #{validator.allowable_values}.'
       end
-
-      if color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        fail ArgumentError, 'invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.'
-      end
-
       @color = color
     end
 
