@@ -14,11 +14,33 @@ require 'date'
 
 module Api::V0::Bindings
   class HighlightUpdate
-    # The new highlight color.
+    # The new name of the highlight color.  Corresponding RGB values for different states (e.g. focused, passive) are maintained in the client.
     attr_accessor :color
 
     # The new note for the highlight (replaces existing note).
     attr_accessor :annotation
+
+    class EnumAttributeValidator
+      attr_reader :datatype
+      attr_reader :allowable_values
+
+      def initialize(datatype, allowable_values)
+        @allowable_values = allowable_values.map do |value|
+          case datatype.to_s
+          when /Integer/i
+            value.to_i
+          when /Float/i
+            value.to_f
+          else
+            value
+          end
+        end
+      end
+
+      def valid?(value)
+        !value || allowable_values.include?(value)
+      end
+    end
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
@@ -57,27 +79,24 @@ module Api::V0::Bindings
     # @return Array for valid properties with the reasons
     def list_invalid_properties
       invalid_properties = Array.new
-      if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        invalid_properties.push('invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.')
-      end
-
       invalid_properties
     end
 
     # Check to see if the all the properties in the model are valid
     # @return true if the model is valid
     def valid?
-      return false if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
+      color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
+      return false unless color_validator.valid?(@color)
       true
     end
 
-    # Custom attribute writer method with validation
-    # @param [Object] color Value to be assigned
+    # Custom attribute writer method checking allowed values (enum).
+    # @param [Object] color Object to be assigned
     def color=(color)
-      if !color.nil? && color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        fail ArgumentError, 'invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.'
+      validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
+      unless validator.valid?(color)
+        fail ArgumentError, 'invalid value for "color", must be one of #{validator.allowable_values}.'
       end
-
       @color = color
     end
 

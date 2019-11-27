@@ -20,7 +20,7 @@ module Api::V0::Bindings
     # The type of content that contains the highlight.
     attr_accessor :source_type
 
-    # The ID of the source document in which the highlight is made.  Has source_type-specific constraints (e.g. all lowercase UUID for the 'openstax_page' source_type).
+    # The ID of the source document in which the highlight is made.  Has source_type-specific constraints (e.g. all lowercase UUID for the 'openstax_page' source_type).  Because source_ids are passed to query endpoints as comma-separated values, they cannot contain commas.
     attr_accessor :source_id
 
     # The ID of the container for the source in which the highlight is made.  Varies depending on source_type (e.g. is the lowercase, versionless book UUID for the 'openstax_page' source_type).
@@ -32,7 +32,7 @@ module Api::V0::Bindings
     # The ID of the highlight immediately after this highlight.  May be null if there are no following highlights in this source.
     attr_accessor :next_highlight_id
 
-    # The highlight color.
+    # The name of the highlight color.  Corresponding RGB values for different states (e.g. focused, passive) are maintained in the client.
     attr_accessor :color
 
     # The anchor of the highlight.
@@ -175,8 +175,8 @@ module Api::V0::Bindings
         invalid_properties.push('invalid value for "id", id cannot be nil.')
       end
 
-      if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        invalid_properties.push('invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.')
+      if !@source_id.nil? && @source_id !~ Regexp.new(/(?-mix:^[^,]+$)/)
+        invalid_properties.push('invalid value for "source_id", must conform to the pattern /(?-mix:^[^,]+$)/.')
       end
 
       invalid_properties
@@ -188,7 +188,9 @@ module Api::V0::Bindings
       return false if @id.nil?
       source_type_validator = EnumAttributeValidator.new('String', ['openstax_page'])
       return false unless source_type_validator.valid?(@source_type)
-      return false if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
+      return false if !@source_id.nil? && @source_id !~ Regexp.new(/(?-mix:^[^,]+$)/)
+      color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
+      return false unless color_validator.valid?(@color)
       true
     end
 
@@ -203,12 +205,22 @@ module Api::V0::Bindings
     end
 
     # Custom attribute writer method with validation
-    # @param [Object] color Value to be assigned
-    def color=(color)
-      if !color.nil? && color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        fail ArgumentError, 'invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.'
+    # @param [Object] source_id Value to be assigned
+    def source_id=(source_id)
+      if !source_id.nil? && source_id !~ Regexp.new(/(?-mix:^[^,]+$)/)
+        fail ArgumentError, 'invalid value for "source_id", must conform to the pattern /(?-mix:^[^,]+$)/.'
       end
 
+      @source_id = source_id
+    end
+
+    # Custom attribute writer method checking allowed values (enum).
+    # @param [Object] color Object to be assigned
+    def color=(color)
+      validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
+      unless validator.valid?(color)
+        fail ArgumentError, 'invalid value for "color", must be one of #{validator.allowable_values}.'
+      end
       @color = color
     end
 

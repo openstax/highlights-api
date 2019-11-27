@@ -25,7 +25,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       {
         source_type: 'openstax_page',
         scope_id: scope_id,
-        color: '#000000',
+        color: 'yellow',
       }
     end
 
@@ -88,10 +88,10 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           end
         end
 
-        context 'source IDs passed as source_ids[]=entry1&source_ids[]=entry2 in the query parameters' do
+        context 'source IDs passed as comma-separated values in the query parameters' do
           it 'handles them fine' do
             get "/api/v0/highlights?source_type=openstax_page&scope_id=#{scope_1_id}&" \
-                "source_ids[]=#{highlight3.source_id}&source_ids[]=#{highlight2.source_id}&source_ids[]=#{highlight1.source_id}"
+                "source_ids=#{highlight3.source_id},#{highlight2.source_id},#{highlight1.source_id}"
             expect(response).to have_http_status(:ok)
             expect(highlights.map{|hl| hl[:id]}).to eq(
               [highlight3, highlight2, highlight1, highlight5, highlight4].map(&:id)
@@ -170,7 +170,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         highlighted_content: 'foo content',
         scope_id: scope_id,
         source_type: 'openstax_page',
-        color: '#000000',
+        color: 'yellow',
         location_strategies: [type: 'TextPositionSelector',
                               start: 12,
                               end: 10]
@@ -253,6 +253,31 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       end
 
       context 'when the request params are invalid' do
+        context 'source_id with comma' do
+          before do
+            valid_inner_attributes.merge!(source_id: "foo,bar")
+            post highlights_path, params: valid_attributes
+          end
+
+          it 'returns status code 422' do
+            expect(response).to have_http_status(422)
+          end
+
+          it 'returns a validation failure message' do
+            expect(response.body)
+              .to match(/must conform to the pattern/)
+          end
+        end
+
+        context 'bad color' do
+          it 'returns a 422' do
+            valid_inner_attributes.merge!(color: "lemon")
+            post highlights_path, params: valid_attributes
+            expect(response).to have_http_status(422)
+            expect(response.body).to match(/invalid value for.*color/)
+          end
+        end
+
         context 'bogus params' do
           before { post highlights_path, params: { something: 'Foobar' } }
 
@@ -373,8 +398,8 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
 
       context 'when the highlight does exist' do
         it 'does not allow update' do
-          put highlights_path(id: highlight.id), params: { highlight: { color: "#ffffff" } }
-          expect(highlight.reload.color).to eq "#000000"
+          put highlights_path(id: highlight.id), params: { highlight: { color: "red" } }
+          expect(highlight.reload.color).to eq "yellow"
           expect(response).to have_http_status(:unauthorized)
         end
       end
@@ -384,8 +409,8 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       before { stub_current_user_uuid(highlight.user_uuid) }
 
       it 'can update color' do
-        put highlights_path(id: highlight.id), params: { highlight: { color: "#ffffff" } }
-        expect(highlight.reload.color).to eq "#ffffff"
+        put highlights_path(id: highlight.id), params: { highlight: { color: "red" } }
+        expect(highlight.reload.color).to eq "red"
         expect(response).to have_http_status :ok
       end
 
@@ -407,8 +432,8 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       before { stub_current_user_uuid(SecureRandom.uuid) }
 
       it 'does not allow update' do
-        put highlights_path(id: highlight.id), params: { highlight: { color: "#ffffff" } }
-        expect(highlight.reload.color).to eq "#000000"
+        put highlights_path(id: highlight.id), params: { highlight: { color: "red" } }
+        expect(highlight.reload.color).to eq "yellow"
         expect(response).to have_http_status(:forbidden)
       end
     end

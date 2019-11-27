@@ -23,7 +23,7 @@ module Api::V0::Bindings
     # One or more source IDs; query results will contain highlights ordered by the order of these source IDs and ordered within each source.  If parameter is an empty array, no results will be returned.  If the parameter is not provided, all highlights under the scope will be returned.
     attr_accessor :source_ids
 
-    # Limits results to this highlight color. Must be of the form /#?[a-f0-9]{6}/.
+    # Limits results to this highlight color.
     attr_accessor :color
 
     # The page number of paginated results, one-indexed.
@@ -121,10 +121,6 @@ module Api::V0::Bindings
         invalid_properties.push('invalid value for "source_type", source_type cannot be nil.')
       end
 
-      if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        invalid_properties.push('invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.')
-      end
-
       if !@page.nil? && @page < 1
         invalid_properties.push('invalid value for "page", must be greater than or equal to 1.')
       end
@@ -146,7 +142,8 @@ module Api::V0::Bindings
       return false if @source_type.nil?
       source_type_validator = EnumAttributeValidator.new('String', ['openstax_page'])
       return false unless source_type_validator.valid?(@source_type)
-      return false if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
+      color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
+      return false unless color_validator.valid?(@color)
       return false if !@page.nil? && @page < 1
       return false if !@per_page.nil? && @per_page > 200
       return false if !@per_page.nil? && @per_page < 0
@@ -163,13 +160,13 @@ module Api::V0::Bindings
       @source_type = source_type
     end
 
-    # Custom attribute writer method with validation
-    # @param [Object] color Value to be assigned
+    # Custom attribute writer method checking allowed values (enum).
+    # @param [Object] color Object to be assigned
     def color=(color)
-      if !color.nil? && color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        fail ArgumentError, 'invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.'
+      validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
+      unless validator.valid?(color)
+        fail ArgumentError, 'invalid value for "color", must be one of #{validator.allowable_values}.'
       end
-
       @color = color
     end
 

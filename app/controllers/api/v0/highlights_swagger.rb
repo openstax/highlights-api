@@ -6,6 +6,8 @@ class Api::V0::HighlightsSwagger
   MAX_HIGHLIGHTS_PER_PAGE = 200
   DEFAULT_HIGHLIGHTS_PAGE = 1
 
+  VALID_HIGHLIGHT_COLORS = %w(yellow green blue purple red)
+
   swagger_schema :TextPositionSelector do
     key :required, [:type, :start, :end]
     property :start do
@@ -96,9 +98,12 @@ class Api::V0::HighlightsSwagger
     end
     property :source_id do
       key :type, :string
+      key :pattern, /^[^,]+$/
       key :description, 'The ID of the source document in which the highlight is made.  ' \
                         'Has source_type-specific constraints (e.g. all lowercase UUID for ' \
-                        'the \'openstax_page\' source_type).'
+                        'the \'openstax_page\' source_type).  Because source_ids are passed ' \
+                        'to query endpoints as comma-separated values, they cannot contain ' \
+                        'commas.'
     end
     property :scope_id do
       key :type, :string
@@ -120,8 +125,10 @@ class Api::V0::HighlightsSwagger
     end
     property :color do
       key :type, :string
-      key :pattern, ::Highlight::VALID_COLOR.inspect
-      key :description, 'The highlight color.'
+      key :enum, VALID_HIGHLIGHT_COLORS
+      key :description, 'The name of the highlight color.  Corresponding RGB values for ' \
+                        'different states (e.g. focused, passive) are maintained in the ' \
+                        'client.'
     end
     property :anchor do
       key :type, :string
@@ -158,8 +165,10 @@ class Api::V0::HighlightsSwagger
   swagger_schema :HighlightUpdate do
     property :color do
       key :type, :string
-      key :pattern, ::Highlight::VALID_COLOR.inspect
-      key :description, 'The new highlight color.'
+      key :enum, VALID_HIGHLIGHT_COLORS
+      key :description, 'The new name of the highlight color.  Corresponding RGB values for ' \
+                        'different states (e.g. focused, passive) are maintained in the ' \
+                        'client.'
     end
     property :annotation do
       key :type, :string
@@ -212,7 +221,7 @@ class Api::V0::HighlightsSwagger
         within the sources.  When source_ids are not specified, the order is by creation time.
 
         Example call:
-          /api/v0/highlights?source_type=openstax_page&scope_id=123&color=#ff0000
+          /api/v0/highlights?source_type=openstax_page&scope_id=123&color=#{VALID_HIGHLIGHT_COLORS.first}
       DESC
       key :operationId, 'getHighlights'
       key :produces, [
@@ -243,7 +252,7 @@ class Api::V0::HighlightsSwagger
         key :name, :source_ids
         key :in, :query
         key :type, :array
-        key :collectionFormat, :multi
+        key :collectionFormat, :csv
         key :required, false
         key :description, 'One or more source IDs; query results will contain highlights ordered '\
                           'by the order of these source IDs and ordered within each source.  If ' \
@@ -259,9 +268,8 @@ class Api::V0::HighlightsSwagger
         key :in, :query
         key :type, :string
         key :required, false
-        key :pattern, ::Highlight::VALID_COLOR.inspect
-        key :description, "Limits results to this highlight color. Must be of the form " \
-                          "#{::Highlight::VALID_COLOR.inspect}."
+        key :enum, VALID_HIGHLIGHT_COLORS
+        key :description, 'Limits results to this highlight color.'
       end
       parameter do
         key :name, :page
