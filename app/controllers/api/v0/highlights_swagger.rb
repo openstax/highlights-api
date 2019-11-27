@@ -243,6 +243,7 @@ class Api::V0::HighlightsSwagger
         key :name, :source_ids
         key :in, :query
         key :type, :array
+        key :collectionFormat, :multi
         key :required, false
         key :description, 'One or more source IDs; query results will contain highlights ordered '\
                           'by the order of these source IDs and ordered within each source.  If ' \

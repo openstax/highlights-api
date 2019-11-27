@@ -44,7 +44,7 @@ module Api::V0::Bindings
     # The note attached to the highlight.
     attr_accessor :annotation
 
-    # Location strategies for the highlight. Items should have a schema matching the strategy schemas that have been defined.
+    # Location strategies for the highlight. Items should have a schema matching the strategy schemas that have been defined. (`XpathRangeSelector` or `TextPositionSelector`).
     attr_accessor :location_strategies
 
     # A number whose relative value gives the highlight's order within the source. Its value has no meaning on its own.

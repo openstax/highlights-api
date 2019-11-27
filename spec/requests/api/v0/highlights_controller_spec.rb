@@ -88,6 +88,17 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           end
         end
 
+        context 'source IDs passed as source_ids[]=entry1&source_ids[]=entry2 in the query parameters' do
+          it 'handles them fine' do
+            get "/api/v0/highlights?source_type=openstax_page&scope_id=#{scope_1_id}&" \
+                "source_ids[]=#{highlight3.source_id}&source_ids[]=#{highlight2.source_id}&source_ids[]=#{highlight1.source_id}"
+            expect(response).to have_http_status(:ok)
+            expect(highlights.map{|hl| hl[:id]}).to eq(
+              [highlight3, highlight2, highlight1, highlight5, highlight4].map(&:id)
+            )
+          end
+        end
+
         context 'with paging' do
           it('gets the user\'s highlights in the order of the source IDs and then by order within page and paginates') do
             test_cases = [
