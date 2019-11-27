@@ -96,9 +96,12 @@ class Api::V0::HighlightsSwagger
     end
     property :source_id do
       key :type, :string
+      key :pattern, /^[^,]+$/
       key :description, 'The ID of the source document in which the highlight is made.  ' \
                         'Has source_type-specific constraints (e.g. all lowercase UUID for ' \
-                        'the \'openstax_page\' source_type).'
+                        'the \'openstax_page\' source_type).  Because source_ids are passed ' \
+                        'to query endpoints as comma-separated values, they cannot contain ' \
+                        'commas.'
     end
     property :scope_id do
       key :type, :string
@@ -243,7 +246,7 @@ class Api::V0::HighlightsSwagger
         key :name, :source_ids
         key :in, :query
         key :type, :array
-        key :collectionFormat, :multi
+        key :collectionFormat, :csv
         key :required, false
         key :description, 'One or more source IDs; query results will contain highlights ordered '\
                           'by the order of these source IDs and ordered within each source.  If ' \

@@ -20,7 +20,7 @@ module Api::V0::Bindings
     # The type of content that contains the highlight.
     attr_accessor :source_type
 
-    # The ID of the source document in which the highlight is made.  Has source_type-specific constraints (e.g. all lowercase UUID for the 'openstax_page' source_type).
+    # The ID of the source document in which the highlight is made.  Has source_type-specific constraints (e.g. all lowercase UUID for the 'openstax_page' source_type).  Because source_ids are passed to query endpoints as comma-separated values, they cannot contain commas.
     attr_accessor :source_id
 
     # The ID of the container for the source in which the highlight is made.  Varies depending on source_type (e.g. is the lowercase, versionless book UUID for the 'openstax_page' source_type).
@@ -170,6 +170,10 @@ module Api::V0::Bindings
         invalid_properties.push('invalid value for "source_id", source_id cannot be nil.')
       end
 
+      if @source_id !~ Regexp.new(/(?-mix:^[^,]+$)/)
+        invalid_properties.push('invalid value for "source_id", must conform to the pattern /(?-mix:^[^,]+$)/.')
+      end
+
       if @color.nil?
         invalid_properties.push('invalid value for "color", color cannot be nil.')
       end
@@ -200,6 +204,7 @@ module Api::V0::Bindings
       source_type_validator = EnumAttributeValidator.new('String', ['openstax_page'])
       return false unless source_type_validator.valid?(@source_type)
       return false if @source_id.nil?
+      return false if @source_id !~ Regexp.new(/(?-mix:^[^,]+$)/)
       return false if @color.nil?
       return false if @color !~ Regexp.new(/#?[a-f0-9]{6}/)
       return false if @anchor.nil?
@@ -216,6 +221,20 @@ module Api::V0::Bindings
         fail ArgumentError, 'invalid value for "source_type", must be one of #{validator.allowable_values}.'
       end
       @source_type = source_type
+    end
+
+    # Custom attribute writer method with validation
+    # @param [Object] source_id Value to be assigned
+    def source_id=(source_id)
+      if source_id.nil?
+        fail ArgumentError, 'source_id cannot be nil'
+      end
+
+      if source_id !~ Regexp.new(/(?-mix:^[^,]+$)/)
+        fail ArgumentError, 'invalid value for "source_id", must conform to the pattern /(?-mix:^[^,]+$)/.'
+      end
+
+      @source_id = source_id
     end
 
     # Custom attribute writer method with validation

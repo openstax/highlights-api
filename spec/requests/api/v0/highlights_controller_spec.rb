@@ -88,10 +88,10 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           end
         end
 
-        context 'source IDs passed as source_ids[]=entry1&source_ids[]=entry2 in the query parameters' do
+        context 'source IDs passed as comma-separated values in the query parameters' do
           it 'handles them fine' do
             get "/api/v0/highlights?source_type=openstax_page&scope_id=#{scope_1_id}&" \
-                "source_ids[]=#{highlight3.source_id}&source_ids[]=#{highlight2.source_id}&source_ids[]=#{highlight1.source_id}"
+                "source_ids=#{highlight3.source_id},#{highlight2.source_id},#{highlight1.source_id}"
             expect(response).to have_http_status(:ok)
             expect(highlights.map{|hl| hl[:id]}).to eq(
               [highlight3, highlight2, highlight1, highlight5, highlight4].map(&:id)
@@ -253,6 +253,22 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       end
 
       context 'when the request params are invalid' do
+        context 'source_id with comma' do
+          before do
+            valid_inner_attributes.merge!(source_id: "foo,bar")
+            post highlights_path, params: valid_attributes
+          end
+
+          it 'returns status code 422' do
+            expect(response).to have_http_status(422)
+          end
+
+          it 'returns a validation failure message' do
+            expect(response.body)
+              .to match(/must conform to the pattern/)
+          end
+        end
+
         context 'bogus params' do
           before { post highlights_path, params: { something: 'Foobar' } }
 
