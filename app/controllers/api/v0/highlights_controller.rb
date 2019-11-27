@@ -16,7 +16,7 @@ class Api::V0::HighlightsController < Api::V0::BaseController
   end
 
   def index
-    inbound_binding, error = bind(query_parameters, Api::V0::Bindings::GetHighlightsParameters)
+    inbound_binding, error = bind(request.query_parameters, Api::V0::Bindings::GetHighlightsParameters)
     render(json: error, status: error.status_code) and return if error
 
     query_result = inbound_binding.query(user_uuid: current_user_uuid)
@@ -45,15 +45,6 @@ class Api::V0::HighlightsController < Api::V0::BaseController
   def get_highlight
     @highlight = Highlight.find(params[:id])
     raise SecurityTransgression unless @highlight.user_uuid == current_user_uuid
-  end
-
-  def query_parameters
-    request.query_parameters.tap do |parameters|
-      # Some clients (including swagger-codegen clients) submit source IDs as a comma separate
-      # string; our bindings don't know to split them into an array, so split them ahead of
-      # time here.
-      parameters["source_ids"] = parameters["source_ids"].split(',') if parameters["source_ids"].is_a?(String)
-    end
   end
 
 end
