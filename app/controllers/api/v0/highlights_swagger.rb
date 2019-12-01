@@ -218,7 +218,7 @@ class Api::V0::HighlightsSwagger
     end
   end
 
-  swagger_path_and_parameters_model '/highlights' do
+  swagger_path_and_parameters_schema '/highlights' do
     operation :get do
       key :summary, 'Get filtered highlights'
       key :description, <<~DESC
@@ -312,7 +312,7 @@ class Api::V0::HighlightsSwagger
     end
   end
 
-  swagger_path_and_parameters_model '/highlights/summary' do
+  swagger_path_and_parameters_schema '/highlights/summary' do
     operation :get do
       key :summary, 'Get summary of highlights (counts per source, etc)'
       key :description, <<~DESC

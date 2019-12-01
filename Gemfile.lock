@@ -14,8 +14,10 @@ GIT
     openstax_path_prefixer (0.0.1)
       rails (>= 3.0)
 
-PATH
-  remote: /Users/jps/dev/openstax/swagger-rails
+GIT
+  remote: https://github.com/openstax/swagger-rails.git
+  revision: 666d5879cb0388c0d578361d75ba5b0bbcbad48a
+  ref: 666d5879cb0388c0d578361d75ba5b0bbcbad48a
   specs:
     openstax_swagger (0.1.0)
       oj
@@ -136,7 +138,7 @@ GEM
     nio4r (2.5.2)
     nokogiri (1.10.5)
       mini_portile2 (~> 2.4.0)
-    oj (3.9.2)
+    oj (3.10.0)
     oj_mimic_json (1.0.1)
     openstax_healthcheck (0.0.3)
       rails (>= 3.0)
