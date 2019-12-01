@@ -20,7 +20,7 @@ module Api::V0::Bindings
     # Limits summary to the source document container in which the highlights were made.  For openstax_page source_types, this is a versionless book UUID.
     attr_accessor :scope_id
 
-    # Limits summary to this highlight color. Must be of the form /#?[a-f0-9]{6}/.
+    # Limits summary to this highlight color.
     attr_accessor :color
 
     class EnumAttributeValidator
@@ -92,10 +92,6 @@ module Api::V0::Bindings
         invalid_properties.push('invalid value for "source_type", source_type cannot be nil.')
       end
 
-      if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        invalid_properties.push('invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.')
-      end
-
       invalid_properties
     end
 
@@ -105,7 +101,8 @@ module Api::V0::Bindings
       return false if @source_type.nil?
       source_type_validator = EnumAttributeValidator.new('String', ['openstax_page'])
       return false unless source_type_validator.valid?(@source_type)
-      return false if !@color.nil? && @color !~ Regexp.new(/#?[a-f0-9]{6}/)
+      color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
+      return false unless color_validator.valid?(@color)
       true
     end
 
@@ -119,13 +116,13 @@ module Api::V0::Bindings
       @source_type = source_type
     end
 
-    # Custom attribute writer method with validation
-    # @param [Object] color Value to be assigned
+    # Custom attribute writer method checking allowed values (enum).
+    # @param [Object] color Object to be assigned
     def color=(color)
-      if !color.nil? && color !~ Regexp.new(/#?[a-f0-9]{6}/)
-        fail ArgumentError, 'invalid value for "color", must conform to the pattern /#?[a-f0-9]{6}/.'
+      validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
+      unless validator.valid?(color)
+        fail ArgumentError, 'invalid value for "color", must be one of #{validator.allowable_values}.'
       end
-
       @color = color
     end
 

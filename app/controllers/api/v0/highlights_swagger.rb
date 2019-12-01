@@ -353,9 +353,8 @@ class Api::V0::HighlightsSwagger
         key :in, :query
         key :type, :string
         key :required, false
-        key :pattern, ::Highlight::VALID_COLOR.inspect
-        key :description, "Limits summary to this highlight color. Must be of the form " \
-                          "#{::Highlight::VALID_COLOR.inspect}."
+        key :enum, VALID_HIGHLIGHT_COLORS
+        key :description, 'Limits summary to this highlight color.'
       end
       response 200 do
         key :description, 'Success.  Returns the summary.'

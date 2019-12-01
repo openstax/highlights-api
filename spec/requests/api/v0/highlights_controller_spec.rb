@@ -442,7 +442,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
   context 'GET /highlights/summary' do
     let!(:highlight1) { create(:highlight, id: fake_uuid(1), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id) }
     let!(:highlight2) { create(:highlight, id: fake_uuid(2), user_uuid: user_uuid,                       scope_id: scope_1_id) }
-    let!(:highlight3) { create(:highlight, id: fake_uuid(3), user_uuid: user_uuid,                       scope_id: scope_1_id, color: "#ffffff") }
+    let!(:highlight3) { create(:highlight, id: fake_uuid(3), user_uuid: user_uuid,                       scope_id: scope_1_id, color: "red") }
     let!(:highlight4) { create(:highlight, id: fake_uuid(4), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1) }
     let!(:highlight5) { create(:highlight, id: fake_uuid(5), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
     let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_uuid: user_uuid, source_id: source_id, scope_id: SecureRandom.uuid) }
@@ -453,7 +453,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       {
         source_type: 'openstax_page',
         scope_id: scope_id,
-        color: '#000000',
+        color: 'yellow',
       }
     end
 
@@ -466,7 +466,6 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         expect(json_response[:counts_per_source]).to eq({
           "#{source_id}".to_sym => 3,
           highlight2.source_id.to_sym => 1,
-          highlight3.source_id.to_sym => 1,
         })
       end
     end
