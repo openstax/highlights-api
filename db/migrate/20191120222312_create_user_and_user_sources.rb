@@ -12,6 +12,5 @@ class CreateUserAndUserSources < ActiveRecord::Migration[5.2]
     end
 
     rename_column :highlights, :user_uuid, :user_id
-    add_reference :highlights, :users, index: true
   end
 end

@@ -54,7 +54,6 @@ class Api::V0::HighlightsController < Api::V0::BaseController
   def destroy
     service_limits.with_delete_reincrement do
       @highlight.destroy!
-      # @highlight
     end
 
     head :ok

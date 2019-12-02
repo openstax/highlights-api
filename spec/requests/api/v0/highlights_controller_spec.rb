@@ -314,7 +314,9 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
   end
 
   describe 'DELETE /highlights/{id}' do
-    let!(:highlight) { FactoryBot.create(:highlight) }
+    let!(:user) { FactoryBot.create(:user) }
+    let!(:highlight) { FactoryBot.create(:highlight, user: user) }
+    let!(:user_sources) { FactoryBot.create(:user_source, source_id: highlight.source_id, user: user) }
 
     context 'when the user is not logged in' do
       context 'when the highlight does not exist' do
@@ -363,9 +365,9 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           highlight.reload
           expect(highlight.next_highlight_id).not_to be_nil
 
-          expect {
+          expect do
             delete highlights_path(id: other.id)
-          }.to change { Highlight.count }.by(-1)
+          end.to change { Highlight.count }.by(-1)
 
           expect(response).to have_http_status(:ok)
           highlight.reload

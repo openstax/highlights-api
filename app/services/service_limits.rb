@@ -82,7 +82,7 @@ class ServiceLimits
       raise ExceededMaxHighlightsPerUser
     end
 
-    user_source = UserSource.find_or_create_by(users_id: user.id, source_id: new_highlight.source_id)
+    user_source = UserSource.find_or_create_by(user_id: user.id, source_id: new_highlight.source_id)
     if user_source.num_highlights < MAX_HIGHLIGHTS_PER_SOURCE_PER_USER
       user_source.increment_num_highlights(by: 1)
     else
@@ -109,11 +109,10 @@ class ServiceLimits
 
   def reset_max_counts_for_deleted_highlight(highlight)
     user = build_user
-
     user.increment_num_highlights(by: -1)
     user.increment_num_annotation_characters(by: -highlight.annotation.length)
 
-    user_source = UserSource.find_by(users_id: highlight.user.id, source_id: highlight.source_id)
+    user_source = UserSource.find_by(user_id: highlight.user.id, source_id: highlight.source_id)
     user_source.increment_num_highlights(by: -1)
   end
 end

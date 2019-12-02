@@ -48,7 +48,7 @@ RSpec.describe ServiceLimits, type: :service do
           service_limits.with_create_protection do
             create(:highlight, user: user)
           end
-        end.to_not raise_error(ServiceLimits::ExceededMaxHighlightsPerUser)
+        end.not_to raise_error
 
         expect(Highlight.count).to eq 3
       end
@@ -72,7 +72,7 @@ RSpec.describe ServiceLimits, type: :service do
           service_limits.with_create_protection do
             create(:highlight, user: user, annotation: under_10)
           end
-        end.to_not raise_error(ServiceLimits::ExceededMaxAnnotationChars)
+        end.not_to raise_error
 
         expect(Highlight.count).to eq 1
         expect(Highlight.first.annotation).to eq under_10
@@ -103,7 +103,7 @@ RSpec.describe ServiceLimits, type: :service do
     end
 
     context 'limits for max chars per annotation per user' do
-      let!(:another_user) { create(:new_user, num_annotation_characters: over_10.length) }
+      let!(:another_user) { create(:new_user, num_annotation_characters: under_10.length) }
       let!(:user) { create(:new_user) }
 
       let(:under_10) { 'under10' }
@@ -123,7 +123,7 @@ RSpec.describe ServiceLimits, type: :service do
           service_limits.with_create_protection do
             create(:highlight, user: user, annotation: under_10)
           end
-        end.to_not raise_error(ServiceLimits::ExceededMaxAnnotationCharsPerUser)
+        end.not_to raise_error
 
         expect(user.reload.num_annotation_characters).to eq under_10.length
 
@@ -139,11 +139,11 @@ RSpec.describe ServiceLimits, type: :service do
       it 'will hit the service limit exception for the other user' do
         expect do
           service_limits.with_create_protection do
-            create(:highlight, user: another_user, annotation: under_10)
+            create(:highlight, user: another_user, annotation: over_10)
           end
         end.to raise_error(ServiceLimits::ExceededMaxAnnotationCharsPerUser)
 
-        expect(another_user.reload.num_annotation_characters).to eq over_10.length
+        expect(another_user.reload.num_annotation_characters).to eq under_10.length
       end
     end
   end

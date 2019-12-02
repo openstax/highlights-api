@@ -33,13 +33,11 @@ ActiveRecord::Schema.define(version: 2019_11_20_222312) do
     t.float "order_in_source", null: false
     t.uuid "prev_highlight_id"
     t.uuid "next_highlight_id"
-    t.bigint "users_id"
     t.index ["next_highlight_id"], name: "index_highlights_on_next_highlight_id"
     t.index ["prev_highlight_id"], name: "index_highlights_on_prev_highlight_id"
     t.index ["scope_id"], name: "index_highlights_on_scope_id"
     t.index ["source_type"], name: "index_highlights_on_source_type"
     t.index ["user_id"], name: "index_highlights_on_user_id"
-    t.index ["users_id"], name: "index_highlights_on_users_id"
   end
 
   create_table "user_sources", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

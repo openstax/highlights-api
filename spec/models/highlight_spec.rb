@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Highlight, type: :model do
-  let(:highlight) { build(:highlight) }
+  let(:highlight) { create(:highlight) }
   let(:uuid1) { SecureRandom.uuid }
   let(:uuid2) { SecureRandom.uuid }
 
