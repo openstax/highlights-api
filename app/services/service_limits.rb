@@ -49,12 +49,14 @@ class ServiceLimits
     end
   end
 
-  def with_update_protection
+  def with_update_protection(prev_annotation_length:)
     ActiveRecord::Base.transaction do
       yield.tap do |model|
+        raise ActiveRecord::RecordInvalid, 'Block did not yield an active record model' unless model.is_a?(Highlight)
         raise ActiveRecord::RecordInvalid, 'Model errors detected' if model.errors.present?
 
-        track_and_validate_annotation_chars(model)
+        reset_max_for_annotations(user: build_user, by: -prev_annotation_length) if prev_annotation_length.present?
+        track_and_validate_annotation_chars(model) if model.annotation.present?
       end
     end
   end
@@ -101,7 +103,7 @@ class ServiceLimits
     end
 
     if user.num_annotation_characters + note_length < MAX_ANNOTATION_CHARS_PER_USER
-      user.increment_num_annotation_characters(by: note_length)
+      reset_max_for_annotations(user: user, by: note_length)
     else
       raise ExceededMaxAnnotationCharsPerUser
     end
@@ -110,9 +112,13 @@ class ServiceLimits
   def reset_max_counts_for_deleted_highlight(highlight)
     user = build_user
     user.increment_num_highlights(by: -1)
-    user.increment_num_annotation_characters(by: -highlight.annotation.length)
+    reset_max_for_annotations(user: user, by: -highlight.annotation.length)
 
     user_source = UserSource.find_by(user_id: highlight.user.id, source_id: highlight.source_id)
     user_source.increment_num_highlights(by: -1)
+  end
+
+  def reset_max_for_annotations(user:, by:)
+    user.increment_num_annotation_characters(by: by)
   end
 end

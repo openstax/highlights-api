@@ -148,6 +148,46 @@ RSpec.describe ServiceLimits, type: :service do
     end
   end
 
+  describe '.with_update_protection' do
+    subject(:service_limits) { described_class.new(user_id: user.id) }
+
+    context 'limits for max chars per annotation per user' do
+      let!(:user) { create(:new_user, num_annotation_characters: under_10.length) }
+      let!(:highlight) { create(:highlight, user: user, annotation: under_10) }
+
+      let(:under_10) { 'under10' }
+      let(:over_10) { 'a long note over 10 characters' }
+
+      before do
+        @prev = reset_constant(const_name: 'MAX_ANNOTATION_CHARS_PER_USER', value: 10)
+      end
+
+      after do
+        reset_constant(const_name: 'MAX_ANNOTATION_CHARS_PER_USER', value: @prev)
+      end
+
+      it 'will update an annotation up to the max annotation limits' do
+        expect do
+          service_limits.with_update_protection(prev_annotation_length: highlight.annotation.length) do
+            highlight.annotation = over_10
+            highlight.tap(&:save!)
+          end
+        end.to raise_error(ServiceLimits::ExceededMaxAnnotationCharsPerUser)
+
+        expect(user.reload.num_annotation_characters).to eq under_10.length
+
+        expect do
+          service_limits.with_update_protection(prev_annotation_length: highlight.reload.annotation.length) do
+            highlight.annotation = under_10
+            highlight.tap(&:save!)
+          end
+        end.to_not raise_error
+
+        expect(user.reload.num_annotation_characters).to eq under_10.length
+      end
+    end
+  end
+
   def reset_constant(const_name:, value:)
     prev_value = ServiceLimits.const_get(const_name)
     ServiceLimits.send('remove_const', const_name)
