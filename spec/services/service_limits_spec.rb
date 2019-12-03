@@ -8,7 +8,6 @@ RSpec.describe ServiceLimits, type: :service do
       let!(:user) { create(:new_user, num_highlights: 5) }
 
       before do
-        create_list(:highlight, 5, user: user)
         @prev = reset_constant(const_name: 'MAX_HIGHLIGHTS_PER_USER', value: 2)
       end
 
@@ -17,7 +16,8 @@ RSpec.describe ServiceLimits, type: :service do
       end
 
       it 'raises an exception because this would be over max' do
-        expect(Highlight.count).to eq 5
+        expect(user.num_highlights).to eq 5
+        expect(Highlight.count).to eq 0
 
         expect do
           service_limits.with_create_protection do
@@ -25,7 +25,8 @@ RSpec.describe ServiceLimits, type: :service do
           end
         end.to raise_error(ServiceLimits::ExceededMaxHighlightsPerUser)
 
-        expect(Highlight.count).to eq 5
+        expect(Highlight.count).to eq 0
+        expect(user.num_highlights).to eq 5
       end
     end
 
@@ -33,7 +34,6 @@ RSpec.describe ServiceLimits, type: :service do
       let!(:user) { create(:new_user, num_highlights: 2) }
 
       before do
-        create_list(:highlight, 2, user: user)
         @prev_max_hls_per_user = reset_constant(const_name: 'MAX_HIGHLIGHTS_PER_USER', value: 4)
       end
 
@@ -42,7 +42,8 @@ RSpec.describe ServiceLimits, type: :service do
       end
 
       it 'will add the highlight without a service limit exception' do
-        expect(Highlight.count).to eq 2
+        expect(user.reload.num_highlights).to eq 2
+        expect(Highlight.count).to eq 0
 
         expect do
           service_limits.with_create_protection do
@@ -50,7 +51,8 @@ RSpec.describe ServiceLimits, type: :service do
           end
         end.not_to raise_error
 
-        expect(Highlight.count).to eq 3
+        expect(user.reload.num_highlights).to eq 3
+        expect(Highlight.count).to eq 1
       end
     end
 
@@ -146,6 +148,43 @@ RSpec.describe ServiceLimits, type: :service do
         expect(another_user.reload.num_annotation_characters).to eq under_10.length
       end
     end
+
+    context 'over the limits for user source max highlights' do
+      let!(:user) { create(:new_user) }
+      let!(:user_source) { create(:user_source, source_id: source_id, user: user, num_highlights: 1) }
+
+      let(:source_id) { SecureRandom.uuid }
+      let(:highlight1) { create(:highlight, user: user, source_id: source_id) }
+      let(:highlight2) { create(:highlight, prev_highlight_id: highlight1.id, user: user, source_id: source_id) }
+
+      before do
+        @prev = reset_constant(const_name: 'MAX_HIGHLIGHTS_PER_SOURCE_PER_USER', value: 2)
+      end
+
+      after do
+        reset_constant(const_name: 'MAX_HIGHLIGHTS_PER_SOURCE_PER_USER', value: @prev)
+      end
+
+      it 'raises an exception because this would be over max' do
+        expect(user_source.reload.num_highlights).to eq 1
+
+        expect do
+          service_limits.with_create_protection do
+            highlight1
+          end
+        end.to_not raise_error
+
+        expect(user_source.reload.num_highlights).to eq 2
+
+        expect do
+          service_limits.with_create_protection do
+            highlight2
+          end
+        end.to raise_error(ServiceLimits::ExceededMaxHighlightsPerUserPerSource)
+
+        expect(user_source.reload.num_highlights).to eq 2
+      end
+    end
   end
 
   describe '.with_update_protection' do
@@ -184,6 +223,51 @@ RSpec.describe ServiceLimits, type: :service do
         end.to_not raise_error
 
         expect(user.reload.num_annotation_characters).to eq under_10.length
+      end
+    end
+  end
+
+  describe '.with_delete_reincrement' do
+    let!(:user) { create(:new_user, num_highlights: 10, num_annotation_characters: 100) }
+    let!(:user_source) { create(:user_source, user: user, source_id: highlight.source_id, num_highlights: 5 ) }
+    let!(:highlight) { create(:highlight, user: user, annotation: annotation) }
+    let(:annotation) { 'foobar' }
+
+    subject(:service_limits) { described_class.new(user_id: user.id) }
+
+    context 'resets the user annotation max' do
+      it 'will decrement the length of the annotation' do
+        expect(user.reload.num_annotation_characters).to eq 100
+
+        service_limits.with_delete_reincrement do
+          highlight.destroy!
+        end
+
+        expect(user.reload.num_annotation_characters).to eq (100 - annotation.length)
+      end
+    end
+
+    context 'resets the user source num highlights' do
+      it 'will decrement highlight from the user source' do
+        expect(user_source.reload.num_highlights).to eq 5
+
+        service_limits.with_delete_reincrement do
+          highlight.destroy!
+        end
+
+        expect(user_source.reload.num_highlights).to eq 4
+      end
+    end
+
+    context 'resets the user num highlights' do
+      it 'will decrement the user num highlights' do
+        expect(user.reload.num_highlights).to eq 10
+
+        service_limits.with_delete_reincrement do
+          highlight.destroy!
+        end
+
+        expect(user.reload.num_highlights).to eq 9
       end
     end
   end
