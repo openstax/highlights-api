@@ -81,6 +81,16 @@ class Api::V0::HighlightsSwagger
     key :required, [:id]
   end
 
+  swagger_schema :HighlightsSummary do
+    property :counts_per_source do
+      key :type, :object
+      key :description, 'Map of source ID to number of highlights in that source'
+      key :additionalProperties, {
+        'type' => 'integer'
+      }
+    end
+  end
+
   swagger_schema :NewHighlight do
     key :required, [:source_type, :source_id, :anchor, :highlighted_content, :color, :location_strategies]
   end
@@ -208,7 +218,7 @@ class Api::V0::HighlightsSwagger
     end
   end
 
-  swagger_path_and_parameters_model '/highlights' do
+  swagger_path_and_parameters_schema '/highlights' do
     operation :get do
       key :summary, 'Get filtered highlights'
       key :description, <<~DESC
@@ -294,6 +304,62 @@ class Api::V0::HighlightsSwagger
         key :description, 'Success.  Returns the filtered highlights.'
         schema do
           key :'$ref', :Highlights
+        end
+      end
+      extend Api::V0::SwaggerResponses::AuthenticationError
+      extend Api::V0::SwaggerResponses::UnprocessableEntityError
+      extend Api::V0::SwaggerResponses::ServerError
+    end
+  end
+
+  swagger_path_and_parameters_schema '/highlights/summary' do
+    operation :get do
+      key :summary, 'Get summary of highlights (counts per source, etc)'
+      key :description, <<~DESC
+        Get summary of highlights (counts per source, etc) belonging to the calling user.
+
+        Highlights can be filtered thru query parameters:  source_type, scope_id, and color.
+
+        Results are not paginated.
+
+        Example call:
+          /api/v0/highlights/summary?source_type=openstax_page&scope_id=123&color=#ff0000
+      DESC
+      key :operationId, 'getHighlightsSummary'
+      key :produces, [
+        'application/json'
+      ]
+      key :tags, [
+        'Highlights'
+      ]
+      parameter do
+        key :name, :source_type
+        key :in, :query
+        key :type, :string
+        key :required, true
+        key :enum, ['openstax_page']
+        key :description, 'Limits summary to those highlights made in sources of this type.'
+      end
+      parameter do
+        key :name, :scope_id
+        key :in, :query
+        key :type, :string
+        key :required, false
+        key :description, 'Limits summary to the source document container in which the highlights ' \
+                          'were made.  For openstax_page source_types, this is a versionless book UUID.'
+      end
+      parameter do
+        key :name, :color
+        key :in, :query
+        key :type, :string
+        key :required, false
+        key :enum, VALID_HIGHLIGHT_COLORS
+        key :description, 'Limits summary to this highlight color.'
+      end
+      response 200 do
+        key :description, 'Success.  Returns the summary.'
+        schema do
+          key :'$ref', :Summary
         end
       end
       extend Api::V0::SwaggerResponses::AuthenticationError

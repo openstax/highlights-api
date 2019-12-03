@@ -45,7 +45,7 @@ gem 'dotenv-rails'
 
 gem 'will_paginate', '~> 3.1.7', require: false
 
-gem "openstax_swagger", github: 'openstax/swagger-rails', ref: '5d461d131077b257663290f7154fa2b0c5a25eaf'
+gem "openstax_swagger", github: 'openstax/swagger-rails', ref: '9bff4962b31e142debbc62390f1fd3adab3af055'
 
 # Allow requests with a 'highlights' prefix to support use via CloudFront
 gem "openstax_path_prefixer", github: 'openstax/path_prefixer', ref: '0ed5cdba6be65dbf1d07fd7580e2311a2f42cdfd'

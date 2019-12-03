@@ -6,7 +6,9 @@ Rails.application.routes.draw do
       defaults: { format: :json }
     ) do
 
-      resources :highlights, except: :show
+      resources :highlights, except: :show do
+        get :summary, on: :collection
+      end
 
       get :swagger, to: 'swagger#json'
 

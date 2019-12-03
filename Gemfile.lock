@@ -16,8 +16,8 @@ GIT
 
 GIT
   remote: https://github.com/openstax/swagger-rails.git
-  revision: 5d461d131077b257663290f7154fa2b0c5a25eaf
-  ref: 5d461d131077b257663290f7154fa2b0c5a25eaf
+  revision: 9bff4962b31e142debbc62390f1fd3adab3af055
+  ref: 9bff4962b31e142debbc62390f1fd3adab3af055
   specs:
     openstax_swagger (0.1.0)
       oj
@@ -138,7 +138,7 @@ GEM
     nio4r (2.5.2)
     nokogiri (1.10.5)
       mini_portile2 (~> 2.4.0)
-    oj (3.9.2)
+    oj (3.10.0)
     oj_mimic_json (1.0.1)
     openstax_healthcheck (0.0.3)
       rails (>= 3.0)
