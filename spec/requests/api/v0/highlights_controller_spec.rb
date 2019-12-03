@@ -444,7 +444,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     let!(:highlight2) { create(:highlight, id: fake_uuid(2), user_uuid: user_uuid,                       scope_id: scope_1_id) }
     let!(:highlight3) { create(:highlight, id: fake_uuid(3), user_uuid: user_uuid,                       scope_id: scope_1_id, color: "red") }
     let!(:highlight4) { create(:highlight, id: fake_uuid(4), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1) }
-    let!(:highlight5) { create(:highlight, id: fake_uuid(5), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
+    let!(:highlight5) { create(:highlight, id: fake_uuid(5),                       source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
     let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_uuid: user_uuid, source_id: source_id, scope_id: SecureRandom.uuid) }
     let!(:highlight7) { create(:highlight, id: fake_uuid(7)) }
 
@@ -464,7 +464,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         get summary_path, params: query_params
         expect(response).to have_http_status(:ok)
         expect(json_response[:counts_per_source]).to eq({
-          "#{source_id}".to_sym => 3,
+          "#{source_id}".to_sym => 2,
           highlight2.source_id.to_sym => 1,
         })
       end
