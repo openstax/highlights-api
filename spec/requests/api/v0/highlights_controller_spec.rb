@@ -444,12 +444,12 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
   end
 
   context 'GET /highlights/summary' do
-    let!(:highlight1) { create(:highlight, id: fake_uuid(1), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id) }
-    let!(:highlight2) { create(:highlight, id: fake_uuid(2), user_uuid: user_uuid,                       scope_id: scope_1_id) }
-    let!(:highlight3) { create(:highlight, id: fake_uuid(3), user_uuid: user_uuid,                       scope_id: scope_1_id, color: "red") }
-    let!(:highlight4) { create(:highlight, id: fake_uuid(4), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1) }
-    let!(:highlight5) { create(:highlight, id: fake_uuid(5),                       source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
-    let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_uuid: user_uuid, source_id: source_id, scope_id: SecureRandom.uuid) }
+    let!(:highlight1) { create(:highlight, id: fake_uuid(1), user_id: user_id, source_id: source_id, scope_id: scope_1_id) }
+    let!(:highlight2) { create(:highlight, id: fake_uuid(2), user_id: user_id,                       scope_id: scope_1_id) }
+    let!(:highlight3) { create(:highlight, id: fake_uuid(3), user_id: user_id,                       scope_id: scope_1_id, color: 'red') }
+    let!(:highlight4) { create(:highlight, id: fake_uuid(4), user_id: user_id, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1) }
+    let!(:highlight5) { create(:highlight, id: fake_uuid(5),                   source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
+    let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_id: user_id, source_id: source_id, scope_id: SecureRandom.uuid) }
     let!(:highlight7) { create(:highlight, id: fake_uuid(7)) }
 
     let(:scope_id) { highlight1.scope_id }
@@ -462,7 +462,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     end
 
     context 'when a user is logged in' do
-      before { stub_current_user_uuid(user_uuid) }
+      before { stub_current_user_uuid(user_id) }
 
       it 'returns good counts' do
         get summary_path, params: query_params
