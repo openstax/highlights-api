@@ -43,7 +43,9 @@ ActiveRecord::Schema.define(version: 2019_11_20_222312) do
   create_table "user_sources", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id"
     t.string "source_id", null: false
+    t.string "source_type", null: false
     t.integer "num_highlights", default: 0
+    t.index ["user_id", "source_id", "source_type"], name: "index_user_sources_on_user_id_and_source_id_and_source_type", unique: true
     t.index ["user_id"], name: "index_user_sources_on_user_id"
   end
 

@@ -11,25 +11,25 @@ class ServiceLimits
 
   class ExceededMaxHighlightsPerUser < ServiceLimitsError
     def message
-      "Exceeded (#{MAX_HIGHLIGHTS_PER_USER} max highlights per user"
+      "Exceeded max highlights per user of #{MAX_HIGHLIGHTS_PER_USER}"
     end
   end
 
   class ExceededMaxHighlightsPerUserPerSource < ServiceLimitsError
     def message
-      "Exceeded (#{MAX_HIGHLIGHTS_PER_SOURCE_PER_USER} max highlights per user per source"
+      "Exceeded max highlights per user per source of #{MAX_HIGHLIGHTS_PER_SOURCE_PER_USER}"
     end
   end
 
   class ExceededMaxAnnotationCharsPerUser < ServiceLimitsError
     def message
-      "Exceeded (#{MAX_ANNOTATION_CHARS_PER_USER} max annotation chars per user"
+      "Exceeded max annotation chars per user of #{MAX_ANNOTATION_CHARS_PER_USER}"
     end
   end
 
   class ExceededMaxAnnotationChars < ServiceLimitsError
     def message
-      "Exceeded (#{MAX_CHARS_PER_ANNOTATION} max chars per annotation"
+      "Exceeded max chars per annotation of #{MAX_CHARS_PER_ANNOTATION}"
     end
   end
 
@@ -39,9 +39,9 @@ class ServiceLimits
 
   def with_create_protection
     ActiveRecord::Base.transaction do
-      yield(build_user).tap do |model|
-        raise ActiveRecord::RecordInvalid, 'Block did not yield an active record model' unless model.is_a?(Highlight)
-        raise ActiveRecord::RecordInvalid, 'Model errors detected' if model.errors.present?
+      yield(user).tap do |model|
+        raise ArgumentError, 'Block did not yield an active record model' unless model.is_a?(Highlight)
+        raise ActiveRecord::RecordInvalid.new(model) if model.invalid?
 
         track_and_validate_max_highlights(model)
         track_and_validate_annotation_chars(model) if model.annotation.present?
@@ -49,42 +49,45 @@ class ServiceLimits
     end
   end
 
-  def with_update_protection(prev_annotation_length:)
+  def with_update_protection
     ActiveRecord::Base.transaction do
       yield.tap do |model|
-        raise ActiveRecord::RecordInvalid, 'Block did not yield an active record model' unless model.is_a?(Highlight)
-        raise ActiveRecord::RecordInvalid, 'Model errors detected' if model.errors.present?
+        raise ArgumentError, 'Block did not yield an active record model' unless model.is_a?(Highlight)
+        raise ActiveRecord::RecordInvalid.new(model) if model.invalid?
 
-        reset_max_for_annotations(user: build_user, by: -prev_annotation_length) if prev_annotation_length.present?
+        prev_annotation_length = model.annotation_before_last_save.length
+        reset_max_for_annotations(user: user, by: -prev_annotation_length) if prev_annotation_length.present?
         track_and_validate_annotation_chars(model) if model.annotation.present?
       end
     end
   end
 
-  def with_delete_reincrement
+  def with_delete_tracking
     ActiveRecord::Base.transaction do
       yield.tap do |model|
-        reset_max_counts_for_deleted_highlight(model)
+        raise ArgumentError, 'Block did not yield an active record model' unless model.is_a?(Highlight)
+
+        track_counts_for_deleted_highlight(model)
       end
     end
   end
 
   private
 
-  def build_user
+  def user
     @user ||= User.find_or_create_by(id: @user_id)
   end
 
   def track_and_validate_max_highlights(new_highlight)
-    user = build_user
-
     if user.num_highlights < MAX_HIGHLIGHTS_PER_USER
       user.increment_num_highlights(by: 1)
     else
       raise ExceededMaxHighlightsPerUser
     end
 
-    user_source = UserSource.find_or_create_by(user_id: user.id, source_id: new_highlight.source_id)
+    user_source = UserSource.find_or_create_by(user_id: user.id,
+                                               source_type: new_highlight.source_type,
+                                               source_id: new_highlight.source_id)
     if user_source.num_highlights < MAX_HIGHLIGHTS_PER_SOURCE_PER_USER
       user_source.increment_num_highlights(by: 1)
     else
@@ -95,7 +98,6 @@ class ServiceLimits
   def track_and_validate_annotation_chars(new_highlight)
     return unless new_highlight.present?
 
-    user = build_user
     note_length = new_highlight.annotation.length
 
     if note_length > MAX_CHARS_PER_ANNOTATION
@@ -109,8 +111,7 @@ class ServiceLimits
     end
   end
 
-  def reset_max_counts_for_deleted_highlight(highlight)
-    user = build_user
+  def track_counts_for_deleted_highlight(highlight)
     user.increment_num_highlights(by: -1)
     reset_max_for_annotations(user: user, by: -highlight.annotation.length)
 

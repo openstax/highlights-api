@@ -43,7 +43,7 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::HighlightUpdate)
     render(json: error, status: error.status_code) and return if error
 
-    updated_highlight = service_limits.with_update_protection(prev_annotation_length: @highlight.annotation&.length) do
+    updated_highlight = service_limits.with_update_protection do
       inbound_binding.update_model!(@highlight)
     end
 
@@ -52,7 +52,7 @@ class Api::V0::HighlightsController < Api::V0::BaseController
   end
 
   def destroy
-    service_limits.with_delete_reincrement do
+    service_limits.with_delete_tracking do
       @highlight.destroy!
     end
 

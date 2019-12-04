@@ -2,7 +2,17 @@ require 'rails_helper'
 
 RSpec.describe ServiceLimits, type: :service do
   describe '.with_create_protection' do
+    let!(:user) { create(:new_user) }
+
     subject(:service_limits) { described_class.new(user_id: user.id) }
+
+    context 'if the block content is incorrect' do
+      it 'will raise an activerecord exception' do
+        expect do
+          service_limits.with_create_protection { 'foobar' }
+        end.to raise_error(ArgumentError)
+      end
+    end
 
     context 'over the limits for max highlights per user' do
       let!(:user) { create(:new_user, num_highlights: 5) }
@@ -188,7 +198,16 @@ RSpec.describe ServiceLimits, type: :service do
   end
 
   describe '.with_update_protection' do
+    let!(:user) { create(:new_user) }
     subject(:service_limits) { described_class.new(user_id: user.id) }
+
+    context 'if the block content is incorrect' do
+      it 'will raise an activerecord exception' do
+        expect do
+          service_limits.with_create_protection { 'foobar' }
+        end.to raise_error(ArgumentError)
+      end
+    end
 
     context 'limits for max chars per annotation per user' do
       let!(:user) { create(:new_user, num_annotation_characters: under_10.length) }
@@ -207,7 +226,7 @@ RSpec.describe ServiceLimits, type: :service do
 
       it 'will update an annotation up to the max annotation limits' do
         expect do
-          service_limits.with_update_protection(prev_annotation_length: highlight.annotation.length) do
+          service_limits.with_update_protection do
             highlight.annotation = over_10
             highlight.tap(&:save!)
           end
@@ -216,7 +235,7 @@ RSpec.describe ServiceLimits, type: :service do
         expect(user.reload.num_annotation_characters).to eq under_10.length
 
         expect do
-          service_limits.with_update_protection(prev_annotation_length: highlight.reload.annotation.length) do
+          service_limits.with_update_protection do
             highlight.annotation = under_10
             highlight.tap(&:save!)
           end
@@ -227,7 +246,7 @@ RSpec.describe ServiceLimits, type: :service do
     end
   end
 
-  describe '.with_delete_reincrement' do
+  describe '.with_delete_tracking' do
     let!(:user) { create(:new_user, num_highlights: 10, num_annotation_characters: 100) }
     let!(:user_source) { create(:user_source, user: user, source_id: highlight.source_id, num_highlights: 5 ) }
     let!(:highlight) { create(:highlight, user: user, annotation: annotation) }
@@ -235,11 +254,19 @@ RSpec.describe ServiceLimits, type: :service do
 
     subject(:service_limits) { described_class.new(user_id: user.id) }
 
+    context 'if the block content is incorrect' do
+      it 'will raise an activerecord exception' do
+        expect do
+          service_limits.with_create_protection { 'foobar' }
+        end.to raise_error(ArgumentError)
+      end
+    end
+
     context 'resets the user annotation max' do
       it 'will decrement the length of the annotation' do
         expect(user.reload.num_annotation_characters).to eq 100
 
-        service_limits.with_delete_reincrement do
+        service_limits.with_delete_tracking do
           highlight.destroy!
         end
 
@@ -251,7 +278,7 @@ RSpec.describe ServiceLimits, type: :service do
       it 'will decrement highlight from the user source' do
         expect(user_source.reload.num_highlights).to eq 5
 
-        service_limits.with_delete_reincrement do
+        service_limits.with_delete_tracking do
           highlight.destroy!
         end
 
@@ -263,7 +290,7 @@ RSpec.describe ServiceLimits, type: :service do
       it 'will decrement the user num highlights' do
         expect(user.reload.num_highlights).to eq 10
 
-        service_limits.with_delete_reincrement do
+        service_limits.with_delete_tracking do
           highlight.destroy!
         end
 
