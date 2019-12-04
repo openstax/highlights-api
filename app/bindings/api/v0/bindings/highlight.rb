@@ -175,8 +175,32 @@ module Api::V0::Bindings
         invalid_properties.push('invalid value for "id", id cannot be nil.')
       end
 
-      if !@source_id.nil? && @source_id !~ Regexp.new(/(?-mix:^[^,]+$)/)
+      if @source_type.nil?
+        invalid_properties.push('invalid value for "source_type", source_type cannot be nil.')
+      end
+
+      if @source_id.nil?
+        invalid_properties.push('invalid value for "source_id", source_id cannot be nil.')
+      end
+
+      if @source_id !~ Regexp.new(/(?-mix:^[^,]+$)/)
         invalid_properties.push('invalid value for "source_id", must conform to the pattern /(?-mix:^[^,]+$)/.')
+      end
+
+      if @color.nil?
+        invalid_properties.push('invalid value for "color", color cannot be nil.')
+      end
+
+      if @anchor.nil?
+        invalid_properties.push('invalid value for "anchor", anchor cannot be nil.')
+      end
+
+      if @highlighted_content.nil?
+        invalid_properties.push('invalid value for "highlighted_content", highlighted_content cannot be nil.')
+      end
+
+      if @location_strategies.nil?
+        invalid_properties.push('invalid value for "location_strategies", location_strategies cannot be nil.')
       end
 
       invalid_properties
@@ -186,11 +210,17 @@ module Api::V0::Bindings
     # @return true if the model is valid
     def valid?
       return false if @id.nil?
+      return false if @source_type.nil?
       source_type_validator = EnumAttributeValidator.new('String', ['openstax_page'])
       return false unless source_type_validator.valid?(@source_type)
-      return false if !@source_id.nil? && @source_id !~ Regexp.new(/(?-mix:^[^,]+$)/)
+      return false if @source_id.nil?
+      return false if @source_id !~ Regexp.new(/(?-mix:^[^,]+$)/)
+      return false if @color.nil?
       color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
       return false unless color_validator.valid?(@color)
+      return false if @anchor.nil?
+      return false if @highlighted_content.nil?
+      return false if @location_strategies.nil?
       true
     end
 
@@ -207,7 +237,11 @@ module Api::V0::Bindings
     # Custom attribute writer method with validation
     # @param [Object] source_id Value to be assigned
     def source_id=(source_id)
-      if !source_id.nil? && source_id !~ Regexp.new(/(?-mix:^[^,]+$)/)
+      if source_id.nil?
+        fail ArgumentError, 'source_id cannot be nil'
+      end
+
+      if source_id !~ Regexp.new(/(?-mix:^[^,]+$)/)
         fail ArgumentError, 'invalid value for "source_id", must conform to the pattern /(?-mix:^[^,]+$)/.'
       end
 

@@ -77,10 +77,6 @@ class Api::V0::HighlightsSwagger
     end
   end
 
-  swagger_schema :Highlight do
-    key :required, [:id]
-  end
-
   swagger_schema :HighlightsSummary do
     property :counts_per_source do
       key :type, :object
@@ -91,8 +87,16 @@ class Api::V0::HighlightsSwagger
     end
   end
 
+  COMMON_REQUIRED_HIGHLIGHT_FIELDS = [
+    :source_type, :source_id, :anchor, :highlighted_content, :color, :location_strategies
+  ]
+
+  swagger_schema :Highlight do
+    key :required, COMMON_REQUIRED_HIGHLIGHT_FIELDS | [:id]
+  end
+
   swagger_schema :NewHighlight do
-    key :required, [:source_type, :source_id, :anchor, :highlighted_content, :color, :location_strategies]
+    key :required, COMMON_REQUIRED_HIGHLIGHT_FIELDS
   end
 
   add_properties(:Highlight, :NewHighlight) do
@@ -359,7 +363,7 @@ class Api::V0::HighlightsSwagger
       response 200 do
         key :description, 'Success.  Returns the summary.'
         schema do
-          key :'$ref', :Summary
+          key :'$ref', :HighlightsSummary
         end
       end
       extend Api::V0::SwaggerResponses::AuthenticationError
