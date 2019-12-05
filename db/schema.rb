@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_18_173703) do
+ActiveRecord::Schema.define(version: 2019_11_20_222312) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -18,7 +18,7 @@ ActiveRecord::Schema.define(version: 2019_11_18_173703) do
   enable_extension "uuid-ossp"
 
   create_table "highlights", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "user_uuid", null: false
+    t.uuid "user_id", null: false
     t.integer "source_type", default: 0, null: false
     t.string "source_id", null: false
     t.jsonb "source_metadata"
@@ -37,9 +37,24 @@ ActiveRecord::Schema.define(version: 2019_11_18_173703) do
     t.index ["prev_highlight_id"], name: "index_highlights_on_prev_highlight_id"
     t.index ["scope_id"], name: "index_highlights_on_scope_id"
     t.index ["source_type"], name: "index_highlights_on_source_type"
-    t.index ["user_uuid"], name: "index_highlights_on_user_uuid"
+    t.index ["user_id"], name: "index_highlights_on_user_id"
+  end
+
+  create_table "user_sources", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id"
+    t.string "source_id", null: false
+    t.string "source_type", null: false
+    t.integer "num_highlights", default: 0
+    t.index ["user_id", "source_id", "source_type"], name: "index_user_sources_on_user_id_and_source_id_and_source_type", unique: true
+    t.index ["user_id"], name: "index_user_sources_on_user_id"
+  end
+
+  create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.integer "num_annotation_characters", default: 0
+    t.integer "num_highlights", default: 0
   end
 
   add_foreign_key "highlights", "highlights", column: "next_highlight_id"
   add_foreign_key "highlights", "highlights", column: "prev_highlight_id"
+  add_foreign_key "user_sources", "users"
 end

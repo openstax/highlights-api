@@ -3,7 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe Api::V0::HighlightsController, type: :request do
-  let(:user_uuid) { '55783d49-7562-4576-a626-3b877557a21f' }
+  let!(:user) { create(:user_with_sources) }
+
+  let(:user_id) { user.id }
   let(:scope_id) { 'ccf8e44e-05e5-4272-bd0a-aca50171b50f' }
   let(:source_id) { SecureRandom.uuid }
   let(:scope_1_id) { SecureRandom.uuid }
@@ -12,12 +14,12 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
   before { allow(Rails.application.config).to receive(:consider_all_requests_local) { false } }
 
   describe 'GET /highlights' do
-    let!(:highlight1) { create(:highlight, id: fake_uuid(1), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id) }
-    let!(:highlight2) { create(:highlight, id: fake_uuid(2), user_uuid: user_uuid,                       scope_id: scope_1_id) }
-    let!(:highlight3) { create(:highlight, id: fake_uuid(3), user_uuid: user_uuid,                       scope_id: scope_1_id) }
-    let!(:highlight4) { create(:highlight, id: fake_uuid(4), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1) }
-    let!(:highlight5) { create(:highlight, id: fake_uuid(5), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
-    let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_uuid: user_uuid, source_id: source_id, scope_id: SecureRandom.uuid) }
+    let!(:highlight1) { create(:highlight, id: fake_uuid(1), user_id: user_id, source_id: source_id, scope_id: scope_1_id) }
+    let!(:highlight2) { create(:highlight, id: fake_uuid(2), user_id: user_id,                       scope_id: scope_1_id) }
+    let!(:highlight3) { create(:highlight, id: fake_uuid(3), user_id: user_id,                       scope_id: scope_1_id) }
+    let!(:highlight4) { create(:highlight, id: fake_uuid(4), user_id: user_id, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1) }
+    let!(:highlight5) { create(:highlight, id: fake_uuid(5), user_id: user_id, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
+    let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_id: user_id, source_id: source_id, scope_id: SecureRandom.uuid) }
     let!(:highlight7) { create(:highlight, id: fake_uuid(7)) }
 
     let(:scope_id) { highlight1.scope_id }
@@ -40,7 +42,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
 
     context 'when the user is logged in' do
       before do
-        stub_current_user_uuid(user_uuid)
+        stub_current_user_uuid(user_id)
       end
 
       context 'bad pagination values' do
@@ -188,7 +190,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     end
 
     context 'user known' do
-      before(:each) { stub_current_user_uuid(user_uuid) }
+      before(:each) { stub_current_user_uuid(user_id) }
 
       context 'when the request is valid' do
         before do
@@ -206,7 +208,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           end
 
           it 'is owned by the right user' do
-            expect(Highlight.first.user_uuid).to eq user_uuid
+            expect(Highlight.first.user_id).to eq user_id
           end
         end
 
@@ -312,7 +314,9 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
   end
 
   describe 'DELETE /highlights/{id}' do
-    let!(:highlight) { FactoryBot.create(:highlight) }
+    let!(:user) { FactoryBot.create(:user) }
+    let!(:highlight) { FactoryBot.create(:highlight, user: user) }
+    let!(:user_sources) { FactoryBot.create(:user_source, source_id: highlight.source_id, user: user) }
 
     context 'when the user is not logged in' do
       context 'when the highlight does not exist' do
@@ -334,7 +338,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     end
 
     context 'when a logged-in user owns the highlight' do
-      before { stub_current_user_uuid(highlight.user_uuid) }
+      before { stub_current_user_uuid(highlight.user_id) }
 
       it 'is deleted' do
         expect do
@@ -353,7 +357,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
 
       context 'when there are two highlights' do
         let!(:other) do
-          create(:highlight, user_uuid: highlight.user_uuid, source_id: highlight.source_id,
+          create(:highlight, user_id: highlight.user_id, source_id: highlight.source_id,
                  scope_id: highlight.scope_id, prev_highlight: highlight)
         end
 
@@ -361,9 +365,9 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           highlight.reload
           expect(highlight.next_highlight_id).not_to be_nil
 
-          expect {
+          expect do
             delete highlights_path(id: other.id)
-          }.to change { Highlight.count }.by(-1)
+          end.to change { Highlight.count }.by(-1)
 
           expect(response).to have_http_status(:ok)
           highlight.reload
@@ -406,7 +410,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     end
 
     context 'when a logged-in user owns the highlight' do
-      before { stub_current_user_uuid(highlight.user_uuid) }
+      before { stub_current_user_uuid(highlight.user_id) }
 
       it 'can update color' do
         put highlights_path(id: highlight.id), params: { highlight: { color: "red" } }
@@ -440,12 +444,12 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
   end
 
   context 'GET /highlights/summary' do
-    let!(:highlight1) { create(:highlight, id: fake_uuid(1), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id) }
-    let!(:highlight2) { create(:highlight, id: fake_uuid(2), user_uuid: user_uuid,                       scope_id: scope_1_id) }
-    let!(:highlight3) { create(:highlight, id: fake_uuid(3), user_uuid: user_uuid,                       scope_id: scope_1_id, color: "red") }
-    let!(:highlight4) { create(:highlight, id: fake_uuid(4), user_uuid: user_uuid, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1) }
-    let!(:highlight5) { create(:highlight, id: fake_uuid(5),                       source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
-    let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_uuid: user_uuid, source_id: source_id, scope_id: SecureRandom.uuid) }
+    let!(:highlight1) { create(:highlight, id: fake_uuid(1), user_id: user_id, source_id: source_id, scope_id: scope_1_id) }
+    let!(:highlight2) { create(:highlight, id: fake_uuid(2), user_id: user_id,                       scope_id: scope_1_id) }
+    let!(:highlight3) { create(:highlight, id: fake_uuid(3), user_id: user_id,                       scope_id: scope_1_id, color: 'red') }
+    let!(:highlight4) { create(:highlight, id: fake_uuid(4), user_id: user_id, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1) }
+    let!(:highlight5) { create(:highlight, id: fake_uuid(5),                   source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
+    let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_id: user_id, source_id: source_id, scope_id: SecureRandom.uuid) }
     let!(:highlight7) { create(:highlight, id: fake_uuid(7)) }
 
     let(:scope_id) { highlight1.scope_id }
@@ -458,7 +462,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     end
 
     context 'when a user is logged in' do
-      before { stub_current_user_uuid(user_uuid) }
+      before { stub_current_user_uuid(user_id) }
 
       it 'returns good counts' do
         get summary_path, params: query_params

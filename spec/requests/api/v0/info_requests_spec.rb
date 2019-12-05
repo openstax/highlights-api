@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe 'api v0 info requests', type: :request, api: :v0 do
-  let(:user_uuid) { '7307bc10-6923-4687-81df-2db0c3e6b595' }
+  let(:user_id) { '7307bc10-6923-4687-81df-2db0c3e6b595' }
 
   describe '#info' do
     context 'user permitted' do
@@ -30,10 +30,10 @@ RSpec.describe 'api v0 info requests', type: :request, api: :v0 do
       end
 
       context 'admin_uuids set' do
-        let(:admin_uuids) { "#{user_uuid}, b6200d06-4313-4bf3-b9b3-79720498fa94" }
+        let(:admin_uuids) { "#{user_id}, b6200d06-4313-4bf3-b9b3-79720498fa94" }
 
         it 'allows authorized user' do
-          stub_current_user_uuid(user_uuid)
+          stub_current_user_uuid(user_id)
           api_get '/info'
           expect(response).to have_http_status(:ok)
         end

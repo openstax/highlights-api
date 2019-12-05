@@ -10,9 +10,11 @@ class Highlight < ApplicationRecord
 
   VALID_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
+  belongs_to :user
+
   before_validation :normalize_color, :normalize_ids
 
-  validates_presence_of :user_uuid,
+  validates_presence_of :user_id,
                         :source_type,
                         :source_id,
                         :anchor,
@@ -26,7 +28,7 @@ class Highlight < ApplicationRecord
 
   scope :by_source_type, ->(source_type) { where(source_type: source_type) }
   scope :by_color, ->(color) { where(color: color) }
-  scope :by_user, ->(user_id) { where(user_uuid: user_id) }
+  scope :by_user, ->(user_id) { where(user_id: user_id) }
   scope :by_scope_id, ->(scope_id) { where(scope_id: scope_id) }
   scope :by_source_ids, ->(source_ids) { where(source_id: source_ids) }
 

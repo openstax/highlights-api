@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :highlight do
-    user_uuid { SecureRandom.uuid }
+    association :user
     source_type { 'openstax_page' }
     color { Api::V0::HighlightsSwagger::VALID_HIGHLIGHT_COLORS.first }
     anchor { 'fs-id1170572203905' }

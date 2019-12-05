@@ -1,5 +1,9 @@
 require 'simplecov'
-SimpleCov.start 'rails'
+SimpleCov.start 'rails' do
+  add_filter %r{^/app\/bindings/}
+  add_filter { |src| src.filename =~ /swagger/ }
+  add_filter { |src| src.filename =~ /scout/ }
+end
 
 # require 'codecov'
 # SimpleCov.formatter = SimpleCov::Formatter::Codecov
