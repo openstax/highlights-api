@@ -6,7 +6,7 @@ class Api::V0::HighlightsSwagger
   MAX_HIGHLIGHTS_PER_PAGE = 200
   DEFAULT_HIGHLIGHTS_PAGE = 1
 
-  VALID_HIGHLIGHT_COLORS = %w(yellow green blue purple red)
+  VALID_HIGHLIGHT_COLORS = %w(yellow green blue purple pink)
 
   swagger_schema :TextPositionSelector do
     key :required, [:type, :start, :end]

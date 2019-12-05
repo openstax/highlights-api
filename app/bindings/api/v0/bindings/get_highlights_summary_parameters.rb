@@ -101,7 +101,7 @@ module Api::V0::Bindings
       return false if @source_type.nil?
       source_type_validator = EnumAttributeValidator.new('String', ['openstax_page'])
       return false unless source_type_validator.valid?(@source_type)
-      color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
+      color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'pink'])
       return false unless color_validator.valid?(@color)
       true
     end
@@ -119,7 +119,7 @@ module Api::V0::Bindings
     # Custom attribute writer method checking allowed values (enum).
     # @param [Object] color Object to be assigned
     def color=(color)
-      validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
+      validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'pink'])
       unless validator.valid?(color)
         fail ArgumentError, 'invalid value for "color", must be one of #{validator.allowable_values}.'
       end

@@ -85,7 +85,7 @@ module Api::V0::Bindings
     # Check to see if the all the properties in the model are valid
     # @return true if the model is valid
     def valid?
-      color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
+      color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'pink'])
       return false unless color_validator.valid?(@color)
       true
     end
@@ -93,7 +93,7 @@ module Api::V0::Bindings
     # Custom attribute writer method checking allowed values (enum).
     # @param [Object] color Object to be assigned
     def color=(color)
-      validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
+      validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'pink'])
       unless validator.valid?(color)
         fail ArgumentError, 'invalid value for "color", must be one of #{validator.allowable_values}.'
       end

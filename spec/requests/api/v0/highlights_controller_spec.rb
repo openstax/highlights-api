@@ -402,7 +402,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
 
       context 'when the highlight does exist' do
         it 'does not allow update' do
-          put highlights_path(id: highlight.id), params: { highlight: { color: "red" } }
+          put highlights_path(id: highlight.id), params: { highlight: { color: "pink" } }
           expect(highlight.reload.color).to eq "yellow"
           expect(response).to have_http_status(:unauthorized)
         end
@@ -413,8 +413,8 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       before { stub_current_user_uuid(highlight.user_id) }
 
       it 'can update color' do
-        put highlights_path(id: highlight.id), params: { highlight: { color: "red" } }
-        expect(highlight.reload.color).to eq "red"
+        put highlights_path(id: highlight.id), params: { highlight: { color: "pink" } }
+        expect(highlight.reload.color).to eq "pink"
         expect(response).to have_http_status :ok
       end
 
@@ -436,7 +436,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       before { stub_current_user_uuid(SecureRandom.uuid) }
 
       it 'does not allow update' do
-        put highlights_path(id: highlight.id), params: { highlight: { color: "red" } }
+        put highlights_path(id: highlight.id), params: { highlight: { color: "pink" } }
         expect(highlight.reload.color).to eq "yellow"
         expect(response).to have_http_status(:forbidden)
       end
@@ -446,7 +446,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
   context 'GET /highlights/summary' do
     let!(:highlight1) { create(:highlight, id: fake_uuid(1), user_id: user_id, source_id: source_id, scope_id: scope_1_id) }
     let!(:highlight2) { create(:highlight, id: fake_uuid(2), user_id: user_id,                       scope_id: scope_1_id) }
-    let!(:highlight3) { create(:highlight, id: fake_uuid(3), user_id: user_id,                       scope_id: scope_1_id, color: 'red') }
+    let!(:highlight3) { create(:highlight, id: fake_uuid(3), user_id: user_id,                       scope_id: scope_1_id, color: 'pink') }
     let!(:highlight4) { create(:highlight, id: fake_uuid(4), user_id: user_id, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1) }
     let!(:highlight5) { create(:highlight, id: fake_uuid(5),                   source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
     let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_id: user_id, source_id: source_id, scope_id: SecureRandom.uuid) }
