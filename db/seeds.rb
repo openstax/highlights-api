@@ -41,7 +41,7 @@ if Rails.env.development?
 
   Highlight.create!(user_id: 'c967ccb8-97ad-4031-9fe5-7df8af056bfb',
                     source_type: 'openstax_page',
-                    color: 'red',
+                    color: 'pink',
                     source_id: 'e0ebcd05-0fbf-4fc2-a063-9c68d424fc5c',
                     scope_id: 'ccf8e44e-05e5-4272-bd0a-aca50171b50f',
                     anchor: 'fs-id48938221',

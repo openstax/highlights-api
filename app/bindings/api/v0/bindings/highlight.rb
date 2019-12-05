@@ -216,7 +216,7 @@ module Api::V0::Bindings
       return false if @source_id.nil?
       return false if @source_id !~ Regexp.new(/(?-mix:^[^,]+$)/)
       return false if @color.nil?
-      color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
+      color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'pink'])
       return false unless color_validator.valid?(@color)
       return false if @anchor.nil?
       return false if @highlighted_content.nil?
@@ -251,7 +251,7 @@ module Api::V0::Bindings
     # Custom attribute writer method checking allowed values (enum).
     # @param [Object] color Object to be assigned
     def color=(color)
-      validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'red'])
+      validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'pink'])
       unless validator.valid?(color)
         fail ArgumentError, 'invalid value for "color", must be one of #{validator.allowable_values}.'
       end
