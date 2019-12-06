@@ -309,6 +309,14 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
               .to match(/invalid strategy detected/)
           end
         end
+
+        context 'when the highlight annotation is too long' do
+          it '403s' do
+            valid_inner_attributes[:annotation] = "a" * (ServiceLimits::MAX_CHARS_PER_ANNOTATION + 1)
+            post highlights_path, params: valid_attributes
+            expect(response).to have_http_status(403)
+          end
+        end
       end
     end
   end
