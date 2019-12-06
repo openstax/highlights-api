@@ -272,6 +272,16 @@ RSpec.describe ServiceLimits, type: :service do
 
         expect(user.reload.num_annotation_characters).to eq (100 - annotation.length)
       end
+
+      it 'does not make changes when there is no annotation' do
+        highlight.update_attributes(annotation: nil)
+
+        expect{
+          service_limits.with_delete_tracking do
+            highlight.destroy!
+          end
+        }.not_to change{highlight.user.num_annotation_characters}
+      end
     end
 
     context 'resets the user source num highlights' do
