@@ -116,7 +116,10 @@ class ServiceLimits
 
   def track_counts_for_deleted_highlight(highlight)
     user.increment_num_highlights(by: -1)
-    user.increment_num_annotation_characters(by: -highlight.annotation.length)
+
+    if highlight.annotation.present?
+      user.increment_num_annotation_characters(by: -highlight.annotation.length)
+    end
 
     user_source = UserSource.find_by(user_id: highlight.user.id, source_id: highlight.source_id)
     user_source.increment_num_highlights(by: -1)
