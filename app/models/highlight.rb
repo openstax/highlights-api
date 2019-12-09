@@ -48,8 +48,8 @@ class Highlight < ApplicationRecord
 
   protected
 
-  def all_from_scope_and_source
-    Highlight.where(scope_id: scope_id).where(source_id: source_id)
+  def all_mine_from_scope_and_source
+    Highlight.where(user_id: user_id).where(scope_id: scope_id).where(source_id: source_id)
   end
 
   def valid_uuid?(uuid)
@@ -78,7 +78,7 @@ class Highlight < ApplicationRecord
   end
 
   def neighbors_must_only_be_blank_when_no_other_highlights_in_scope_and_source
-    if prev_highlight_id.nil? && next_highlight_id.nil? && all_from_scope_and_source.any?
+    if prev_highlight_id.nil? && next_highlight_id.nil? && all_mine_from_scope_and_source.any?
       errors.add(:base, 'Must specify previous or next highlight because there are other highlights ' \
                         'in this scope and source.')
     end

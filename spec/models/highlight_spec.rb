@@ -4,6 +4,9 @@ RSpec.describe Highlight, type: :model do
   let(:highlight) { create(:highlight) }
   let(:uuid1) { SecureRandom.uuid }
   let(:uuid2) { SecureRandom.uuid }
+  let(:user) { create(:user) }
+  let(:user_id) { user.id }
+  let(:other_user) { create(:user) }
 
   describe 'creates to db ok' do
     let(:valid_uuid) { Highlight::VALID_UUID }
@@ -104,36 +107,42 @@ RSpec.describe Highlight, type: :model do
       end
 
       context 'when there is one highlight on a source' do
-        let!(:hl1) { create(:highlight, source_id: uuid1, scope_id: uuid1) }
+        let!(:hl1) { create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id) }
 
         context 'working in the same scope' do
           it 'complains about making another one without specifying prev or next' do
             expect{
-              create(:highlight, source_id: uuid1, scope_id: uuid1)
+              create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id)
             }.to raise_error(ActiveRecord::RecordInvalid, /Must specify previous or next/)
+          end
+
+          it 'is ok if the highlight is from a different user' do
+            expect{
+              create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: other_user.id)
+            }.not_to raise_error
           end
 
           it 'complains about making one in between when next is wrong' do
             expect{
-              create(:highlight, source_id: uuid1, scope_id: uuid1, next_highlight_id: SecureRandom.uuid)
+              create(:highlight, source_id: uuid1, scope_id: uuid1, next_highlight_id: SecureRandom.uuid, user_id: user_id)
             }.to raise_error(ActiveRecord::RecordInvalid, /is unknown/)
           end
 
           it 'complains about making one in between when prev is wrong' do
             expect{
-              create(:highlight, source_id: uuid1, scope_id: uuid1, prev_highlight_id: SecureRandom.uuid)
+              create(:highlight, source_id: uuid1, scope_id: uuid1, prev_highlight_id: SecureRandom.uuid, user_id: user_id)
             }.to raise_error(ActiveRecord::RecordInvalid, /is unknown/)
           end
 
           it 'works to make one before (at beginning) as long as it specifies the existing as next' do
-            hl3 = create(:highlight, source_id: uuid1, scope_id: uuid1, next_highlight: hl1)
+            hl3 = create(:highlight, source_id: uuid1, scope_id: uuid1, next_highlight: hl1, user_id: user_id)
             expect(hl3.order_in_source).to be < hl1.order_in_source
             hl1.reload
             expect(hl1.prev_highlight_id).to eq hl3.id
           end
 
           it 'works to make one after (at end) as long as it specifies the existing as prev' do
-            hl2 = create(:highlight, source_id: uuid1, scope_id: uuid1, prev_highlight: hl1)
+            hl2 = create(:highlight, source_id: uuid1, scope_id: uuid1, prev_highlight: hl1, user_id: user_id)
             expect(hl2.order_in_source).to be > hl1.order_in_source
             hl1.reload
             expect(hl1.next_highlight_id).to eq hl2.id
