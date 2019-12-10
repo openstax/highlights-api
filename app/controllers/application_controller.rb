@@ -1,13 +1,16 @@
 require 'openstax/auth/strategy_1'
 
 class ApplicationController < ActionController::API
-
   protected
 
   include RescueFromUnlessLocal
 
   def current_user_uuid
     @current_user_uuid ||= begin
+      if Rails.application.secrets[:loadtesting_active] == 'true' && request.headers['HTTP_LOADTEST_CLIENT_UUID']
+        return request.headers['HTTP_LOADTEST_CLIENT_UUID']
+      end
+
       if Rails.env.development? && ENV['STUBBED_USER_UUID']
         ENV['STUBBED_USER_UUID']
       else
@@ -24,5 +27,4 @@ class ApplicationController < ActionController::API
   def render_unauthorized_if_no_current_user
     head :unauthorized if current_user_uuid.nil?
   end
-
 end
