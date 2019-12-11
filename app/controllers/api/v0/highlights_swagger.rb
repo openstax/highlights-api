@@ -278,12 +278,16 @@ class Api::V0::HighlightsSwagger
         end
       end
       parameter do
-        key :name, :color
+        key :name, :colors
         key :in, :query
-        key :type, :string
+        key :type, :array
+        key :collectionFormat, :csv
         key :required, false
-        key :enum, VALID_HIGHLIGHT_COLORS
-        key :description, 'Limits results to this highlight color.'
+        key :description, 'Limits results to these highlight colors.'
+        items do
+          key :type, :string
+          key :enum, VALID_HIGHLIGHT_COLORS
+        end
       end
       parameter do
         key :name, :page
@@ -353,12 +357,16 @@ class Api::V0::HighlightsSwagger
                           'were made.  For openstax_page source_types, this is a versionless book UUID.'
       end
       parameter do
-        key :name, :color
+        key :name, :colors
         key :in, :query
-        key :type, :string
+        key :type, :array
+        key :collectionFormat, :csv
         key :required, false
-        key :enum, VALID_HIGHLIGHT_COLORS
-        key :description, 'Limits summary to this highlight color.'
+        key :description, 'Limits results to these highlight colors.'
+        items do
+          key :type, :string
+          key :enum, VALID_HIGHLIGHT_COLORS
+        end
       end
       response 200 do
         key :description, 'Success.  Returns the summary.'

@@ -20,8 +20,8 @@ module Api::V0::Bindings
     # Limits summary to the source document container in which the highlights were made.  For openstax_page source_types, this is a versionless book UUID.
     attr_accessor :scope_id
 
-    # Limits summary to this highlight color.
-    attr_accessor :color
+    # Limits results to these highlight colors.
+    attr_accessor :colors
 
     class EnumAttributeValidator
       attr_reader :datatype
@@ -50,7 +50,7 @@ module Api::V0::Bindings
       {
         :'source_type' => :'source_type',
         :'scope_id' => :'scope_id',
-        :'color' => :'color'
+        :'colors' => :'colors'
       }
     end
 
@@ -59,7 +59,7 @@ module Api::V0::Bindings
       {
         :'source_type' => :'String',
         :'scope_id' => :'String',
-        :'color' => :'String'
+        :'colors' => :'Array<String>'
       }
     end
 
@@ -79,8 +79,10 @@ module Api::V0::Bindings
         self.scope_id = attributes[:'scope_id']
       end
 
-      if attributes.has_key?(:'color')
-        self.color = attributes[:'color']
+      if attributes.has_key?(:'colors')
+        if (value = attributes[:'colors']).is_a?(Array)
+          self.colors = value
+        end
       end
     end
 
@@ -101,8 +103,6 @@ module Api::V0::Bindings
       return false if @source_type.nil?
       source_type_validator = EnumAttributeValidator.new('String', ['openstax_page'])
       return false unless source_type_validator.valid?(@source_type)
-      color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'pink'])
-      return false unless color_validator.valid?(@color)
       true
     end
 
@@ -116,16 +116,6 @@ module Api::V0::Bindings
       @source_type = source_type
     end
 
-    # Custom attribute writer method checking allowed values (enum).
-    # @param [Object] color Object to be assigned
-    def color=(color)
-      validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'pink'])
-      unless validator.valid?(color)
-        fail ArgumentError, 'invalid value for "color", must be one of #{validator.allowable_values}.'
-      end
-      @color = color
-    end
-
     # Checks equality by comparing each attribute.
     # @param [Object] Object to be compared
     def ==(o)
@@ -133,7 +123,7 @@ module Api::V0::Bindings
       self.class == o.class &&
           source_type == o.source_type &&
           scope_id == o.scope_id &&
-          color == o.color
+          colors == o.colors
     end
 
     # @see the `==` method
@@ -145,7 +135,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [source_type, scope_id, color].hash
+      [source_type, scope_id, colors].hash
     end
 
     # Builds the object from hash

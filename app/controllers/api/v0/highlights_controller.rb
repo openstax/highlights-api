@@ -29,7 +29,7 @@ class Api::V0::HighlightsController < Api::V0::BaseController
   end
 
   def summary
-    inbound_binding, error = bind(request.query_parameters,
+    inbound_binding, error = bind(query_parameters,
                                   Api::V0::Bindings::GetHighlightsSummaryParameters)
     render(json: error, status: error.status_code) and return if error
 
@@ -74,8 +74,9 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     request.query_parameters.tap do |parameters|
       # Swagger-codegen clients can't make the x[]=entry1&x[]=entry2 query parameter array
       # syntax, which means we have to use an alternate serialization of an array.  For
-      # source_ids we use CSV; here we do the comma splitting.
+      # source_ids and colors we use CSV; here we do the comma splitting.
       parameters["source_ids"] = parameters["source_ids"].split(',') if parameters["source_ids"].is_a?(String)
+      parameters["colors"] = parameters["colors"].split(',') if parameters["colors"].is_a?(String)
     end
   end
 

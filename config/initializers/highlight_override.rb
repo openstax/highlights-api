@@ -132,6 +132,37 @@ Api::V0::Bindings::GetHighlightsSummaryParameters.class_exec do
   end
 end
 
+[
+  Api::V0::Bindings::GetHighlightsParameters,
+  Api::V0::Bindings::GetHighlightsSummaryParameters
+].each do |klass|
+  klass.class_exec do
+    def invalid_colors
+      colors.present? ? colors - Api::V0::HighlightsSwagger::VALID_HIGHLIGHT_COLORS : []
+    end
+
+    def valid_colors?
+      invalid_colors.empty?
+    end
+
+    alias_method :old_valid?, :valid?
+    def valid?
+      old_valid? && valid_colors?
+    end
+
+    alias_method :old_list_invalid_properties, :list_invalid_properties
+    def list_invalid_properties
+      invalid_properties = old_list_invalid_properties
+
+      if invalid_colors.any?
+        invalid_properties.push("invalid value in \"colors\": #{invalid_colors.join(',')}")
+      end
+
+      invalid_properties
+    end
+  end
+end
+
 Api::V0::Bindings::HighlightsSummary.class_exec do
   def self.create_from_summary_result(summary_result)
     new(counts_per_source: summary_result)
