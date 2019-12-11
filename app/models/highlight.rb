@@ -28,6 +28,7 @@ class Highlight < ApplicationRecord
 
   scope :by_source_type, ->(source_type) { where(source_type: source_type) }
   scope :by_color, ->(color) { where(color: color) }
+  scope :by_colors, ->(colors) { where(color: colors) }
   scope :by_user, ->(user_id) { where(user_id: user_id) }
   scope :by_scope_id, ->(scope_id) { where(scope_id: scope_id) }
   scope :by_source_ids, ->(source_ids) { where(source_id: source_ids) }

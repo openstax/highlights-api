@@ -14,8 +14,8 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
   before { allow(Rails.application.config).to receive(:consider_all_requests_local) { false } }
 
   describe 'GET /highlights' do
-    let!(:highlight1) { create(:highlight, id: fake_uuid(1), user_id: user_id, source_id: source_id, scope_id: scope_1_id) }
-    let!(:highlight2) { create(:highlight, id: fake_uuid(2), user_id: user_id,                       scope_id: scope_1_id) }
+    let!(:highlight1) { create(:highlight, id: fake_uuid(1), user_id: user_id, source_id: source_id, scope_id: scope_1_id, color: "pink") }
+    let!(:highlight2) { create(:highlight, id: fake_uuid(2), user_id: user_id,                       scope_id: scope_1_id, color: "green") }
     let!(:highlight3) { create(:highlight, id: fake_uuid(3), user_id: user_id,                       scope_id: scope_1_id) }
     let!(:highlight4) { create(:highlight, id: fake_uuid(4), user_id: user_id, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1) }
     let!(:highlight5) { create(:highlight, id: fake_uuid(5), user_id: user_id, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
@@ -27,7 +27,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       {
         source_type: 'openstax_page',
         scope_id: scope_id,
-        color: 'yellow',
+        colors: ['yellow','pink','green'],
       }
     end
 
@@ -101,6 +101,17 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           end
         end
 
+        context 'colors passed as comma-separated values in the query parameters' do
+          it 'handles them fine' do
+            get "/api/v0/highlights?source_type=openstax_page&scope_id=#{scope_1_id}&" \
+                "colors=yellow,pink"
+            expect(response).to have_http_status(:ok)
+            expect(highlights.map{|hl| hl[:id]}).to contain_exactly(
+              *[highlight1, highlight3, highlight4, highlight5].map(&:id)
+            )
+          end
+        end
+
         context 'with paging' do
           it('gets the user\'s highlights in the order of the source IDs and then by order within page and paginates') do
             test_cases = [
@@ -145,6 +156,14 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         it 'returns nada' do
           get highlights_path, params: query_params.merge(source_ids: [])
           expect(highlights).to be_empty
+        end
+      end
+
+      context 'bad color' do
+        it 'errors' do
+          get summary_path, params: query_params.merge(colors: ['yellow','brown'])
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response.body).to match /brown/
         end
       end
 
@@ -465,7 +484,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       {
         source_type: 'openstax_page',
         scope_id: scope_id,
-        color: 'yellow',
+        colors: ['yellow'],
       }
     end
 
@@ -479,6 +498,27 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           "#{source_id}".to_sym => 2,
           highlight2.source_id.to_sym => 1,
         })
+      end
+
+      context 'colors passed as comma-separated values in the query parameters' do
+        it 'handles them fine' do
+          get "/api/v0/highlights/summary?source_type=openstax_page&scope_id=#{scope_1_id}&" \
+              "colors=yellow,pink"
+          expect(response).to have_http_status(:ok)
+          expect(json_response[:counts_per_source]).to eq({
+            "#{source_id}".to_sym => 2,
+            highlight2.source_id.to_sym => 1,
+            highlight3.source_id.to_sym => 1
+          })
+        end
+      end
+
+      context 'bad color' do
+        it 'errors' do
+          get summary_path, params: query_params.merge(colors: ['yellow','brown'])
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response.body).to match /brown/
+        end
       end
     end
 

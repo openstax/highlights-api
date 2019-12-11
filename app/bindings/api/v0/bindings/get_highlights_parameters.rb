@@ -23,8 +23,8 @@ module Api::V0::Bindings
     # One or more source IDs; query results will contain highlights ordered by the order of these source IDs and ordered within each source.  If parameter is an empty array, no results will be returned.  If the parameter is not provided, all highlights under the scope will be returned.
     attr_accessor :source_ids
 
-    # Limits results to this highlight color.
-    attr_accessor :color
+    # Limits results to these highlight colors.
+    attr_accessor :colors
 
     # The page number of paginated results, one-indexed.
     attr_accessor :page
@@ -60,7 +60,7 @@ module Api::V0::Bindings
         :'source_type' => :'source_type',
         :'scope_id' => :'scope_id',
         :'source_ids' => :'source_ids',
-        :'color' => :'color',
+        :'colors' => :'colors',
         :'page' => :'page',
         :'per_page' => :'per_page'
       }
@@ -72,7 +72,7 @@ module Api::V0::Bindings
         :'source_type' => :'String',
         :'scope_id' => :'String',
         :'source_ids' => :'Array<String>',
-        :'color' => :'String',
+        :'colors' => :'Array<String>',
         :'page' => :'Integer',
         :'per_page' => :'Integer'
       }
@@ -100,8 +100,10 @@ module Api::V0::Bindings
         end
       end
 
-      if attributes.has_key?(:'color')
-        self.color = attributes[:'color']
+      if attributes.has_key?(:'colors')
+        if (value = attributes[:'colors']).is_a?(Array)
+          self.colors = value
+        end
       end
 
       if attributes.has_key?(:'page')
@@ -142,8 +144,6 @@ module Api::V0::Bindings
       return false if @source_type.nil?
       source_type_validator = EnumAttributeValidator.new('String', ['openstax_page'])
       return false unless source_type_validator.valid?(@source_type)
-      color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'pink'])
-      return false unless color_validator.valid?(@color)
       return false if !@page.nil? && @page < 1
       return false if !@per_page.nil? && @per_page > 200
       return false if !@per_page.nil? && @per_page < 0
@@ -158,16 +158,6 @@ module Api::V0::Bindings
         fail ArgumentError, 'invalid value for "source_type", must be one of #{validator.allowable_values}.'
       end
       @source_type = source_type
-    end
-
-    # Custom attribute writer method checking allowed values (enum).
-    # @param [Object] color Object to be assigned
-    def color=(color)
-      validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'pink'])
-      unless validator.valid?(color)
-        fail ArgumentError, 'invalid value for "color", must be one of #{validator.allowable_values}.'
-      end
-      @color = color
     end
 
     # Custom attribute writer method with validation
@@ -202,7 +192,7 @@ module Api::V0::Bindings
           source_type == o.source_type &&
           scope_id == o.scope_id &&
           source_ids == o.source_ids &&
-          color == o.color &&
+          colors == o.colors &&
           page == o.page &&
           per_page == o.per_page
     end
@@ -216,7 +206,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [source_type, scope_id, source_ids, color, page, per_page].hash
+      [source_type, scope_id, source_ids, colors, page, per_page].hash
     end
 
     # Builds the object from hash
