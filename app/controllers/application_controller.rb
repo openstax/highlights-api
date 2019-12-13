@@ -7,7 +7,7 @@ class ApplicationController < ActionController::API
 
   def current_user_uuid
     @current_user_uuid ||= begin
-      if Rails.application.secrets[:loadtesting_active] == 'true' && request.headers['HTTP_LOADTEST_CLIENT_UUID']
+      if Rails.application.load_testing? && request.headers['HTTP_LOADTEST_CLIENT_UUID']
         return request.headers['HTTP_LOADTEST_CLIENT_UUID']
       end
 

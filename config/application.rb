@@ -51,6 +51,10 @@ module HighlightsApi
     config.generators do |g|
       g.orm :active_record, primary_key_type: :uuid
     end
+
+    def load_testing?
+      Rails.application.secrets[:loadtesting_active] == 'true'
+    end
   end
 end
 
