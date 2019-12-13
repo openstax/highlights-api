@@ -70,6 +70,8 @@ task :install_secrets, [] do
     }
   })
 
+  secrets[:loadtesting_active] = (/loadtesting/.match?(env_name)).to_s
+
   write_yaml_file("config/secrets.yml", {
     production: secrets
   })
