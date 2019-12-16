@@ -43,7 +43,7 @@ gem "aws-sdk-ssm"
 
 gem 'dotenv-rails'
 
-gem 'will_paginate', '~> 3.1.7', require: false
+gem 'will_paginate', '~> 3.1.7'
 
 gem "openstax_swagger", github: 'openstax/swagger-rails', ref: '9bff4962b31e142debbc62390f1fd3adab3af055'
 

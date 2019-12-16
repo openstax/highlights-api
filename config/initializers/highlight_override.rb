@@ -89,10 +89,11 @@ Api::V0::Bindings::GetHighlightsParameters.class_exec do
       highlights = highlights.public_send("by_#{key}", value) if value.present?
     end
 
-    highlights = highlights.to_a
 
     if source_ids.present?
       # Sort the highlights in Ruby, not Postgres
+      highlights = highlights.to_a
+
       source_id_order = source_ids.each_with_object({}).with_index do |(source_id, hash), index|
         hash[source_id] = index
       end
@@ -100,7 +101,7 @@ Api::V0::Bindings::GetHighlightsParameters.class_exec do
       highlights.sort_by!{ |highlight| [source_id_order[highlight.source_id], highlight.order_in_source] }
     else
       # Have to sort by something for pagination to be sensible, choose created_at
-      highlights.sort_by!(&:created_at)
+      highlights.order(created_at: :desc)
     end
 
     highlights.paginate(
