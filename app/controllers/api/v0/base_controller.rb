@@ -22,6 +22,10 @@ class Api::V0::BaseController < ApplicationController
     render json: binding_error(status_code: 403, messages: [ex.message]), status: 403
   end
 
+  def error_404
+    render json: "Bad Request", status: 404
+  end
+
   protected
 
   def validate_current_user_authorized_as_admin
