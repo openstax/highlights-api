@@ -13,6 +13,16 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
 
   before { allow(Rails.application.config).to receive(:consider_all_requests_local) { false } }
 
+  describe 'GET /highlights/foobar' do
+    context 'bogus url' do
+      it 'handles as a bad request' do
+        get highlights_path(id: 1)
+        expect(response.status).to eq 404
+        expect(response.body).to eq 'Bad Request'
+      end
+    end
+  end
+
   describe 'GET /highlights' do
     let!(:highlight1) { create(:highlight, id: fake_uuid(1), user_id: user_id, source_id: source_id, scope_id: scope_1_id, color: "pink") }
     let!(:highlight2) { create(:highlight, id: fake_uuid(2), user_id: user_id,                       scope_id: scope_1_id, color: "green") }
