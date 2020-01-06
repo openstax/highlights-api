@@ -5,8 +5,8 @@ SimpleCov.start 'rails' do
   add_filter { |src| src.filename =~ /scout/ }
 end
 
-# require 'codecov'
-# SimpleCov.formatter = SimpleCov::Formatter::Codecov
+require 'codecov'
+SimpleCov.formatter = SimpleCov::Formatter::Codecov
 
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
