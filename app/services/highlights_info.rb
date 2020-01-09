@@ -8,6 +8,9 @@ class HighlightsInfo
   def results
     {
       postgres_version: postgres_version,
+      env_name: env_name,
+      accounts_env_name: accounts_env_name,
+      ami_id: ami_id,
       data: {
         total_highlights: total_highlights,
         avg_highlights_per_user: avg_highlights_per_user,
@@ -67,5 +70,17 @@ class HighlightsInfo
 
   def postgres_version
     ActiveRecord::Base.connection.select_value('SELECT version()')
+  end
+
+  def env_name
+    ENV['ENV_NAME'] || 'Not set'
+  end
+
+  def accounts_env_name
+    ENV['ACCOUNTS_ENV_NAME'] || 'Not set'
+  end
+
+  def ami_id
+    ENV['AMI_ID'] || 'Not set'
   end
 end
