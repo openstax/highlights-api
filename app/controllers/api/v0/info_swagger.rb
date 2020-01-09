@@ -36,6 +36,21 @@ class Api::V0::InfoSwagger
       key :readOnly, true
       key :description, "Current version of Postgres"
     end
+    property :env_name do
+      key :type, :string
+      key :readOnly, true
+      key :description, "Name of deployed environment"
+    end
+    property :accounts_env_name do
+      key :type, :string
+      key :readOnly, true
+      key :description, "Accounts environment name"
+    end
+    property :ami_id do
+      key :type, :string
+      key :readOnly, true
+      key :description, "Amazon machine image id"
+    end
     property :data do
       key :'$ref', :InfoData
     end
