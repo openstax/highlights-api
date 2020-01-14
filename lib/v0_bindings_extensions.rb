@@ -131,7 +131,12 @@ Rails.application.config.to_prepare do
         highlights = highlights.public_send("by_#{key}", value) if value.present?
       end
 
-      highlights.group(:source_id).count
+      results = highlights.group(:source_id, :color).count
+
+      results.each_with_object({}) do |((source_id, color), source_color_count), scc|
+        scc[source_id] ||= {}
+        scc[source_id][color] = source_color_count
+      end
     end
   end
 
