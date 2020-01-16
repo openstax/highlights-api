@@ -80,7 +80,7 @@ class Api::V0::HighlightsSwagger
   swagger_schema :HighlightsSummary do
     property :counts_per_source do
       key :type, :object
-      key :description, 'Map of source ID to number of highlights in that source'
+      key :description, 'Map of source ID to number of highlights by color in that source'
       key :additionalProperties, {
         'type' => 'integer'
       }
