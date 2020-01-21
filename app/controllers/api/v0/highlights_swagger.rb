@@ -77,12 +77,38 @@ class Api::V0::HighlightsSwagger
     end
   end
 
+  swagger_schema :ColorCount do
+    key :type, :object
+  end
+  add_properties(:ColorCount) do
+    property :yellow do
+      key :type, :integer
+      key :description, 'The count for yellow'
+    end
+    property :green do
+      key :type, :integer
+      key :description, 'The count for green'
+    end
+    property :blue do
+      key :type, :integer
+      key :description, 'The count for blue'
+    end
+    property :purple do
+      key :type, :integer
+      key :description, 'The count for purple'
+    end
+    property :pink do
+      key :type, :integer
+      key :description, 'The count for pink'
+    end
+  end
+
   swagger_schema :HighlightsSummary do
     property :counts_per_source do
       key :type, :object
       key :description, 'Map of source ID to number of highlights by color in that source'
       key :additionalProperties, {
-        'type' => 'integer'
+        '$ref' => '#/definitions/ColorCount',
       }
     end
   end

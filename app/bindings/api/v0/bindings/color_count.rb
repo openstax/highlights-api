@@ -13,21 +13,41 @@ Swagger Codegen version: 2.4.9
 require 'date'
 
 module Api::V0::Bindings
-  class HighlightsSummary
-    # Map of source ID to number of highlights by color in that source
-    attr_accessor :counts_per_source
+  class ColorCount
+    # The count for yellow
+    attr_accessor :yellow
+
+    # The count for green
+    attr_accessor :green
+
+    # The count for blue
+    attr_accessor :blue
+
+    # The count for purple
+    attr_accessor :purple
+
+    # The count for pink
+    attr_accessor :pink
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
-        :'counts_per_source' => :'counts_per_source'
+        :'yellow' => :'yellow',
+        :'green' => :'green',
+        :'blue' => :'blue',
+        :'purple' => :'purple',
+        :'pink' => :'pink'
       }
     end
 
     # Attribute type mapping.
     def self.swagger_types
       {
-        :'counts_per_source' => :'Hash<String, ColorCount>'
+        :'yellow' => :'Integer',
+        :'green' => :'Integer',
+        :'blue' => :'Integer',
+        :'purple' => :'Integer',
+        :'pink' => :'Integer'
       }
     end
 
@@ -39,10 +59,24 @@ module Api::V0::Bindings
       # convert string to symbol for hash key
       attributes = attributes.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
 
-      if attributes.has_key?(:'counts_per_source')
-        if (value = attributes[:'counts_per_source']).is_a?(Hash)
-          self.counts_per_source = value
-        end
+      if attributes.has_key?(:'yellow')
+        self.yellow = attributes[:'yellow']
+      end
+
+      if attributes.has_key?(:'green')
+        self.green = attributes[:'green']
+      end
+
+      if attributes.has_key?(:'blue')
+        self.blue = attributes[:'blue']
+      end
+
+      if attributes.has_key?(:'purple')
+        self.purple = attributes[:'purple']
+      end
+
+      if attributes.has_key?(:'pink')
+        self.pink = attributes[:'pink']
       end
     end
 
@@ -64,7 +98,11 @@ module Api::V0::Bindings
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
-          counts_per_source == o.counts_per_source
+          yellow == o.yellow &&
+          green == o.green &&
+          blue == o.blue &&
+          purple == o.purple &&
+          pink == o.pink
     end
 
     # @see the `==` method
@@ -76,7 +114,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [counts_per_source].hash
+      [yellow, green, blue, purple, pink].hash
     end
 
     # Builds the object from hash
