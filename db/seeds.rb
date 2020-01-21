@@ -1,7 +1,5 @@
 if Rails.env.development?
-  Highlight.destroy_all
-
-  user = User.create(id: '52f42df8-17f4-4ad2-a702-3d6b8174a4df')
+  user = User.find_or_create_by(id: '52f42df8-17f4-4ad2-a702-3d6b8174a4df')
 
   hl = Highlight.create!(user_id: user.id,
                          source_type: 'openstax_page',
