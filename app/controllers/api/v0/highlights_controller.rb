@@ -11,16 +11,13 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     render(json: error, status: error.status_code) and return if error
 
     source_id = params[:highlight][:source_id]
-    Rails.logger.error("Before advisory lock for create for '#{current_user_uuid}-#{source_id}'")
     Highlight.with_advisory_lock("#{current_user_uuid}#{source_id}") do
-      Rails.logger.error("Inside advisory lock for create for '#{current_user_uuid}-#{source_id}'")
       created_highlight = service_limits.with_create_protection do |user|
         inbound_binding.create_model!(user_id: user.id)
       end
       response_binding = Api::V0::Bindings::Highlight.create_from_model(created_highlight)
       render json: response_binding, status: :created
     end
-    Rails.logger.error("After advisory lock for create for '#{current_user_uuid}-#{source_id}'")
   end
 
   def index
@@ -57,18 +54,13 @@ class Api::V0::HighlightsController < Api::V0::BaseController
   end
 
   def destroy
-    source_id = @highlight.source_id
-    Rails.logger.error("Before advisory lock for delete for user: #{current_user_uuid} source: #{source_id} hl: #{@highlight.id}")
-    Highlight.with_advisory_lock("#{current_user_uuid}#{source_id}") do
-      Rails.logger.error("Entered into advisory lock for delete for '#{current_user_uuid}-#{source_id}'")
-      highlight = Highlight.find(params[:id]) #refetch the highlight inside of the advisory lock
+    Highlight.with_advisory_lock("#{current_user_uuid}#{@highlight.source_id}") do
+      @highlight.reload
       service_limits.with_delete_tracking do
-        Rails.logger.error("Inside and deleting! advisory lock for user: #{current_user_uuid} source: #{source_id} hl: #{@highlight.id}")
-        highlight.destroy!
+        @highlight.destroy!
       end
       head :ok
     end
-    Rails.logger.error("After advisory lock for delete for user: #{current_user_uuid} source: #{source_id} hl: #{@highlight.id}")
   end
 
   private
