@@ -140,6 +140,12 @@ class Highlight < ApplicationRecord
   end
 
   def reconnect_neighbors_around_destroyed_highlight
+    if prev_highlight
+      Rails.logger.error("before_delete hook- inside advisory lock for, updating hl: #{prev_highlight.id} next_highlight_id to #{next_highlight_id}")
+    end
+    if next_highlight
+      Rails.logger.error("before_delete hook- inside advisory lock for, updating hl: #{next_highlight.id} prev_highlight_id to #{prev_highlight_id}")
+    end
     prev_highlight&.update_attributes(next_highlight_id: next_highlight_id)
     next_highlight&.update_attributes(prev_highlight_id: prev_highlight_id)
   end
