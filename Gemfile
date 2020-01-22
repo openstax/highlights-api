@@ -61,6 +61,8 @@ gem 'scout_apm', '~> 3.0.x'
 # CORS
 gem 'rack-cors'
 
+gem 'with_advisory_lock'
+
 group :test do
   # Code Climate integration
   # gem "codeclimate-test-reporter", require: false

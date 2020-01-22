@@ -10,10 +10,11 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::NewHighlight)
     render(json: error, status: error.status_code) and return if error
 
-    created_highlight = service_limits.with_create_protection do |user|
-      inbound_binding.create_model!(user_id: user.id)
+    created_highlight = with_advisory_lock(inbound_binding) do
+      service_limits.with_create_protection do |user|
+        inbound_binding.create_model!(user_id: user.id)
+      end
     end
-
     response_binding = Api::V0::Bindings::Highlight.create_from_model(created_highlight)
     render json: response_binding, status: :created
   end
@@ -46,20 +47,27 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     updated_highlight = service_limits.with_update_protection do
       inbound_binding.update_model!(@highlight)
     end
-
     response_binding = Api::V0::Bindings::Highlight.create_from_model(updated_highlight)
     render json: response_binding, status: :ok
   end
 
   def destroy
-    service_limits.with_delete_tracking do
-      @highlight.destroy!
+    with_advisory_lock(@highlight) do
+      @highlight.reload #need a reload here to make sure the highlight has current next/prev
+      service_limits.with_delete_tracking do
+        @highlight.destroy!
+      end
     end
-
     head :ok
   end
 
   private
+
+  def with_advisory_lock(something_with_source_id)
+    Highlight.with_advisory_lock("#{current_user_uuid}#{something_with_source_id.source_id&.downcase&.strip}") do
+      yield
+    end
+  end
 
   def service_limits
     ServiceLimits.new(user_id: current_user_uuid)
@@ -79,5 +87,4 @@ class Api::V0::HighlightsController < Api::V0::BaseController
       parameters["colors"] = parameters["colors"].split(',') if parameters["colors"].is_a?(String)
     end
   end
-
 end
