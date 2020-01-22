@@ -10,14 +10,13 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::NewHighlight)
     render(json: error, status: error.status_code) and return if error
 
-    source_id = params[:highlight][:source_id]
-    Highlight.with_advisory_lock("#{current_user_uuid}#{source_id}") do
-      created_highlight = service_limits.with_create_protection do |user|
+    created_highlight = with_advisory_lock(inbound_binding) do
+      service_limits.with_create_protection do |user|
         inbound_binding.create_model!(user_id: user.id)
       end
-      response_binding = Api::V0::Bindings::Highlight.create_from_model(created_highlight)
-      render json: response_binding, status: :created
     end
+    response_binding = Api::V0::Bindings::Highlight.create_from_model(created_highlight)
+    render json: response_binding, status: :created
   end
 
   def index
@@ -45,25 +44,30 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::HighlightUpdate)
     render(json: error, status: error.status_code) and return if error
 
-    highlight = Highlight.find(params[:id]) #refetch the highlight inside of the advisory lock
-    service_limits.with_update_protection do
-      inbound_binding.update_model!(highlight)
+    updated_highlight = service_limits.with_update_protection do
+      inbound_binding.update_model!(@highlight)
     end
     response_binding = Api::V0::Bindings::Highlight.create_from_model(updated_highlight)
     render json: response_binding, status: :ok
   end
 
   def destroy
-    Highlight.with_advisory_lock("#{current_user_uuid}#{@highlight.source_id}") do
-      @highlight.reload
+    with_advisory_lock(@highlight) do
+      @highlight.reload #need a reload here to make sure the highlight has current next/prev
       service_limits.with_delete_tracking do
         @highlight.destroy!
       end
-      head :ok
     end
+    head :ok
   end
 
   private
+
+  def with_advisory_lock(something_with_source_id)
+    Highlight.with_advisory_lock("#{current_user_uuid}#{something_with_source_id.source_id&.downcase&.strip}") do
+      yield
+    end
+  end
 
   def service_limits
     ServiceLimits.new(user_id: current_user_uuid)
