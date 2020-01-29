@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/openstax/auth-rails.git
-  revision: cf67dfb30d763fc7b10b558ac7e8fac10e7120bf
-  ref: cf67dfb30d763fc
+  revision: ad97844046c023d320815c42d50d350d1bb49ddf
+  branch: sb/763-strategy2-asym-decode
   specs:
     openstax_auth (0.1.0)
       activesupport
