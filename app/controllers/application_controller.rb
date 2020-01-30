@@ -1,4 +1,4 @@
-require 'openstax/auth/strategy_1'
+require 'openstax/auth/strategy_2'
 
 class ApplicationController < ActionController::API
   def error_404
