@@ -10,7 +10,8 @@ RSpec.describe ApplicationController, type: :controller do
   context '#current_user_uuid' do
     context 'there is an SSO cookie' do
       before(:each) do
-        # This cookie was generated using localhost Accounts with dev default 'secrets'
+        # These values (secrets.yml test) copied from development environment accounts.
+        # This cookie was generated from these secrets. These are not used in real deployments.
         allow_any_instance_of(ActionController::TestRequest).to receive(:cookies) {
           {
             'oxa_dev' =>
