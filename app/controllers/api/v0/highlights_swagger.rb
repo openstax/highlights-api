@@ -3,7 +3,7 @@ class Api::V0::HighlightsSwagger
   include OpenStax::Swagger::SwaggerBlocksExtensions
 
   DEFAULT_HIGHLIGHTS_PER_PAGE = 15
-  MAX_HIGHLIGHTS_PER_PAGE = 200
+  MAX_HIGHLIGHTS_PER_PAGE = 750
   DEFAULT_HIGHLIGHTS_PAGE = 1
 
   VALID_HIGHLIGHT_COLORS = %w(yellow green blue purple pink)
