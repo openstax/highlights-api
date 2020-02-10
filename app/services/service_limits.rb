@@ -3,8 +3,8 @@
 # This class is the guard check for the HighlightsController CRUD actions
 class ServiceLimits
   # Use way huge limits in load testing so we still do the checks but do not hit limits
-  MAX_HIGHLIGHTS_PER_SOURCE_PER_USER = !Rails.application.load_testing? ? 300      : 300_000_000
-  MAX_HIGHLIGHTS_PER_USER            = !Rails.application.load_testing? ? 20_000   : 20_000_000_000
+  MAX_HIGHLIGHTS_PER_SOURCE_PER_USER = !Rails.application.load_testing? ? 750      : 750_000_000
+  MAX_HIGHLIGHTS_PER_USER            = !Rails.application.load_testing? ? 40_000   : 40_000_000_000
   MAX_ANNOTATION_CHARS_PER_USER      = !Rails.application.load_testing? ? 300_000  : 300_000_000_000
   MAX_CHARS_PER_ANNOTATION           = !Rails.application.load_testing? ? 1_000    : 1_000_000_000
 
