@@ -1,10 +1,11 @@
 GIT
   remote: https://github.com/openstax/auth-rails.git
-  revision: 1e4268f422bfa2562de3a8e57b6471cbb09f86ea
-  ref: 1e4268f422bfa2562de3a8e57b6471cbb09f86ea
+  revision: ed2d7da86ca226b93376955b9474c4cf115c611f
+  ref: ed2d7da86ca226b93376955b9474c4cf115c611f
   specs:
     openstax_auth (0.1.0)
       activesupport
+      json-jwt
 
 GIT
   remote: https://github.com/openstax/path_prefixer.git
@@ -69,6 +70,7 @@ GEM
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
+    aes_key_wrap (1.0.1)
     arel (9.0.0)
     ast (2.4.0)
     aws-eventstream (1.0.3)
@@ -83,6 +85,7 @@ GEM
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.1.0)
       aws-eventstream (~> 1.0, >= 1.0.2)
+    bindata (2.4.4)
     bootsnap (1.4.5)
       msgpack (~> 1.0)
     builder (3.2.3)
@@ -111,11 +114,15 @@ GEM
     ffi (1.11.1)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
-    i18n (1.6.0)
+    i18n (1.8.2)
       concurrent-ruby (~> 1.0)
     jaro_winkler (1.5.2)
     jmespath (1.4.0)
     json (2.2.0)
+    json-jwt (1.11.0)
+      activesupport (>= 4.2)
+      aes_key_wrap
+      bindata
     listen (3.1.5)
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
@@ -136,7 +143,7 @@ GEM
     mimemagic (0.3.3)
     mini_mime (1.0.2)
     mini_portile2 (2.4.0)
-    minitest (5.12.0)
+    minitest (5.14.0)
     msgpack (1.3.1)
     multipart-post (2.1.1)
     nio4r (2.5.2)
@@ -243,7 +250,7 @@ GEM
     swagger-blocks (3.0.0)
     thor (0.20.3)
     thread_safe (0.3.6)
-    tzinfo (1.2.5)
+    tzinfo (1.2.6)
       thread_safe (~> 0.1)
     unicode-display_width (1.5.0)
     url (0.3.2)
@@ -297,4 +304,4 @@ RUBY VERSION
    ruby 2.6.5p114
 
 BUNDLED WITH
-   2.0.2
+   2.1.4

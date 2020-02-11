@@ -10,21 +10,29 @@ RSpec.describe ApplicationController, type: :controller do
   context '#current_user_uuid' do
     context 'there is an SSO cookie' do
       before(:each) do
-        # This cookie was generated using localhost Accounts with dev default 'secrets'
+        # These values (secrets.yml test) copied from development environment accounts.
+        # This cookie was generated from these secrets. These are not used in real deployments.
         allow_any_instance_of(ActionController::TestRequest).to receive(:cookies) {
-          { 'ox' => 'eEkxbm4zQ1kzaG9oWnFFVCs1amV0ajRxYlBXc0NScDFueTFPU1FqSDRtZ3ZlcWFQbVk2SEx6UGtQY' \
-                    'VcvMld5aWhYL05TVDJOV3Zjb2x3ZHlkNUdCck5hdGw0bk0vSW0xTFQwdjRlTE1Vcnk0NmNqQWdEbU' \
-                    'V5YmE2dkdWdk9UNk1tc3pEdWFMc3Bob0NvWk5QMXhGNUt6U3A1SmhhOGVsajlnN1l0a1dFZlhFQnd' \
-                    'vYk4wd0wyQTljZ3haMnk5S0EwaXA4SkNQRDRpUUhLK1crTXA0clNhcWp1bUhCajdjUExEdEVYSVVS' \
-                    'TWsrN2t2ek9XcEVqVURQeXkxZndLNHFSUlNPRVQ5T3kzZ3MwRWNrbmRhOVY4a29DdXlEWkc4L3V5S' \
-                    '0JmVi9jTWk1b1NjUmsvNXN1VG80b0UvNU90ZGUxcnJMV0xIay9MZ1FrWkJYZGw0U2UzM093PT0tLW' \
-                    'RiNDU3Unc3MTJPZDQxSzlLQVM0aEE9PQ==--3684c383b8b6d2b073f8f31fe3a58a583fed74bf' }
+          {
+            'oxa_dev' =>
+              "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..tD56OCg6Un6gzkTy.eQAZrea_ORzHiFvg3rmEjxjmRXlqhXIfOYA55RQP9T" \
+              "uum2S7d-KqFQiNEVHvdOAz8Jt1UULezUllc1bJ42j7IiBlakUm8VlOIhS6n0XtobmuQkIV7nd_0_DNTn2uvmLC70Z9pGtgUOFm3q" \
+              "XtQa5DczQTuoTQ56-_M9uewyIYtj_B0H0bfjDNvsj92hf54K8o486B97qnvfGIkb7jXRUk3q6Aa_NtNIqbmCR9Tac29H9rn7CAcV" \
+              "TG2vzG-kfUwpxrA9A-LlkX4SX1LKzsD3TVQe-05Xv9cQdf8zArdeE_9KJGAdbRlM-DVK3ul2YBTy4z92uxY4cA7vtNsANb1ByNn7" \
+              "K5zEa4Mnb1OcxhhrPKTTkyVWtt4-w8GhmZl48kBoeQTWEEXtRlksabKe5RhHu3-i3dXvbWBp6ALXjEkAoKC-BDDjCUt_IOErp_g0" \
+              "G1CnD3aRU--lqvm2IJnKq1sncTd8qtFTm91MRPzg94O0-OHk7NohktEz3DtJjKeH0EdW98d_mon8OAf4xJDtXrADE-VxAMPhNzoF" \
+              "s6o2k4t3BJpIvUj9AGuAx46vkk7B0TeIAXFy8dhq6n5vvFdYnoih1BM47DnOv5DZtABlvQv5xJTfyN23jb-QDKG-AZ--zjtamtkT" \
+              "r_7GASXqbQy2xEw2QA0yQCUS6JhnRRCcrC913CU8uPtjMbzWoxkCZjCyxQkX1fcVddU9e3pmay9LZ4zZolVCOwWUp1TuEgYwSweN" \
+              "pR4WiwGiWelMhHSZ3QYKjJpGyIkzCSkn7ZQRLLTe0joU43figYs790TPx4waUfwi5r3AED6OSkfxTBsjgOR9DY6083CpCZ4N7lea" \
+              "XhsfepgwjiwzVw5TB4YGRg275AE4lZhdKf1lgS7OSk1S7NeMkv88ZDHnVIVAd0wiR9PZf36Ni48CArfC4btn6DT7cQURQOnQTQyi" \
+              "K-WvFfkEMdWX7_Z-GRG9CCnVIT3CBBZnvoIcCaUbVmXRqv0cFJmvfsmGsA.FJxz84tw7BCYCrwYeqLpdQ" \
+          }
         }
       end
 
       it 'reads the SSO cookie for it' do
         get :index
-        expect(response.body).to eq 'f0cb40a7-d644-41ed-ba93-9fccfad72ffd'
+        expect(response.body).to eq '1b2dc73a-a792-462b-9b0f-59bd22bac26d'
       end
     end
   end

@@ -1,4 +1,4 @@
-require 'openstax/auth/strategy_1'
+require 'openstax/auth/strategy_2'
 
 class ApplicationController < ActionController::API
   def error_404
@@ -23,7 +23,7 @@ class ApplicationController < ActionController::API
                             "the #{Rails.env} environment.")
         end
 
-        OpenStax::Auth::Strategy1.user_uuid(request)
+        OpenStax::Auth::Strategy2.user_uuid(request)
       end
     end
   end

@@ -50,7 +50,7 @@ gem "openstax_swagger", github: 'openstax/swagger-rails', ref: '9bff4962b31e142d
 # Allow requests with a 'highlights' prefix to support use via CloudFront
 gem "openstax_path_prefixer", github: 'openstax/path_prefixer', ref: '0ed5cdba6be65dbf1d07fd7580e2311a2f42cdfd'
 
-gem "openstax_auth", github: 'openstax/auth-rails', ref: '1e4268f422bfa2562de3a8e57b6471cbb09f86ea'
+gem "openstax_auth", github: 'openstax/auth-rails', ref: 'ed2d7da86ca226b93376955b9474c4cf115c611f'
 
 # Exception reporting
 gem 'sentry-raven'
