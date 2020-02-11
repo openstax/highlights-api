@@ -1,10 +1,11 @@
 GIT
   remote: https://github.com/openstax/auth-rails.git
-  revision: 1e4268f422bfa2562de3a8e57b6471cbb09f86ea
-  ref: 1e4268f422bfa2562de3a8e57b6471cbb09f86ea
+  revision: ed2d7da86ca226b93376955b9474c4cf115c611f
+  ref: ed2d7da86ca226b93376955b9474c4cf115c611f
   specs:
     openstax_auth (0.1.0)
       activesupport
+      json-jwt
 
 GIT
   remote: https://github.com/openstax/path_prefixer.git
@@ -69,6 +70,7 @@ GEM
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
+    aes_key_wrap (1.0.1)
     arel (9.0.0)
     ast (2.4.0)
     aws-eventstream (1.0.3)
@@ -83,6 +85,7 @@ GEM
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.1.0)
       aws-eventstream (~> 1.0, >= 1.0.2)
+    bindata (2.4.4)
     bootsnap (1.4.5)
       msgpack (~> 1.0)
     builder (3.2.3)
@@ -116,6 +119,10 @@ GEM
     jaro_winkler (1.5.2)
     jmespath (1.4.0)
     json (2.2.0)
+    json-jwt (1.11.0)
+      activesupport (>= 4.2)
+      aes_key_wrap
+      bindata
     listen (3.1.5)
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
