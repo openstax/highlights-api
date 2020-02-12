@@ -14,11 +14,12 @@ class HighlightsInfo
       data: {
         total_highlights: total_highlights,
         total_users: total_users,
-        avg_highlights_per_user: avg_highlights_per_user,
-        num_users_with_highlights: num_users_with_highlights,
-        max_num_highlights_any_user: max_num_highlights_any_user,
         total_notes: total_notes,
-        avg_note_length: avg_note_length
+        avg_highlights_per_user: avg_highlights_per_user,
+        avg_note_length: avg_note_length,
+        num_users_with_highlights: num_users_with_highlights,
+        num_users_with_notes: num_users_with_notes,
+        max_num_highlights_any_user: max_num_highlights_any_user
       }
     }
   end
@@ -47,6 +48,10 @@ class HighlightsInfo
 
   def num_users_with_highlights
     Highlight.distinct.pluck(:user_id).count
+  end
+
+  def num_users_with_notes
+    Highlight.where.not(annotation: nil).distinct.pluck(:user_id).count
   end
 
   def max_num_highlights_any_user

@@ -20,17 +20,20 @@ module Api::V0::Bindings
     # The total number of users
     attr_accessor :total_users
 
-    # The average number of highlights per user
-    attr_accessor :avg_highlights_per_user
+    # The total number of notes/annotations
+    attr_accessor :total_notes
 
     # The number of users with highlights
     attr_accessor :num_users_with_highlights
 
+    # The number of users with notes
+    attr_accessor :num_users_with_notes
+
     # The max number of highlights used by any one user
     attr_accessor :max_num_highlights_any_user
 
-    # The total number of notes/annotations
-    attr_accessor :total_notes
+    # The average number of highlights per user
+    attr_accessor :avg_highlights_per_user
 
     # The average length (chars) of a note
     attr_accessor :avg_note_length
@@ -40,10 +43,11 @@ module Api::V0::Bindings
       {
         :'total_highlights' => :'total_highlights',
         :'total_users' => :'total_users',
-        :'avg_highlights_per_user' => :'avg_highlights_per_user',
-        :'num_users_with_highlights' => :'num_users_with_highlights',
-        :'max_num_highlights_any_user' => :'max_num_highlights_any_user',
         :'total_notes' => :'total_notes',
+        :'num_users_with_highlights' => :'num_users_with_highlights',
+        :'num_users_with_notes' => :'num_users_with_notes',
+        :'max_num_highlights_any_user' => :'max_num_highlights_any_user',
+        :'avg_highlights_per_user' => :'avg_highlights_per_user',
         :'avg_note_length' => :'avg_note_length'
       }
     end
@@ -53,10 +57,11 @@ module Api::V0::Bindings
       {
         :'total_highlights' => :'Integer',
         :'total_users' => :'Integer',
-        :'avg_highlights_per_user' => :'Integer',
-        :'num_users_with_highlights' => :'Integer',
-        :'max_num_highlights_any_user' => :'Integer',
         :'total_notes' => :'Integer',
+        :'num_users_with_highlights' => :'Integer',
+        :'num_users_with_notes' => :'Integer',
+        :'max_num_highlights_any_user' => :'Integer',
+        :'avg_highlights_per_user' => :'Integer',
         :'avg_note_length' => :'Integer'
       }
     end
@@ -77,20 +82,24 @@ module Api::V0::Bindings
         self.total_users = attributes[:'total_users']
       end
 
-      if attributes.has_key?(:'avg_highlights_per_user')
-        self.avg_highlights_per_user = attributes[:'avg_highlights_per_user']
+      if attributes.has_key?(:'total_notes')
+        self.total_notes = attributes[:'total_notes']
       end
 
       if attributes.has_key?(:'num_users_with_highlights')
         self.num_users_with_highlights = attributes[:'num_users_with_highlights']
       end
 
+      if attributes.has_key?(:'num_users_with_notes')
+        self.num_users_with_notes = attributes[:'num_users_with_notes']
+      end
+
       if attributes.has_key?(:'max_num_highlights_any_user')
         self.max_num_highlights_any_user = attributes[:'max_num_highlights_any_user']
       end
 
-      if attributes.has_key?(:'total_notes')
-        self.total_notes = attributes[:'total_notes']
+      if attributes.has_key?(:'avg_highlights_per_user')
+        self.avg_highlights_per_user = attributes[:'avg_highlights_per_user']
       end
 
       if attributes.has_key?(:'avg_note_length')
@@ -118,10 +127,11 @@ module Api::V0::Bindings
       self.class == o.class &&
           total_highlights == o.total_highlights &&
           total_users == o.total_users &&
-          avg_highlights_per_user == o.avg_highlights_per_user &&
-          num_users_with_highlights == o.num_users_with_highlights &&
-          max_num_highlights_any_user == o.max_num_highlights_any_user &&
           total_notes == o.total_notes &&
+          num_users_with_highlights == o.num_users_with_highlights &&
+          num_users_with_notes == o.num_users_with_notes &&
+          max_num_highlights_any_user == o.max_num_highlights_any_user &&
+          avg_highlights_per_user == o.avg_highlights_per_user &&
           avg_note_length == o.avg_note_length
     end
 
@@ -134,7 +144,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [total_highlights, total_users, avg_highlights_per_user, num_users_with_highlights, max_num_highlights_any_user, total_notes, avg_note_length].hash
+      [total_highlights, total_users, total_notes, num_users_with_highlights, num_users_with_notes, max_num_highlights_any_user, avg_highlights_per_user, avg_note_length].hash
     end
 
     # Builds the object from hash
