@@ -127,8 +127,8 @@ module Api::V0::Bindings
         invalid_properties.push('invalid value for "page", must be greater than or equal to 1.')
       end
 
-      if !@per_page.nil? && @per_page > 200
-        invalid_properties.push('invalid value for "per_page", must be smaller than or equal to 200.')
+      if !@per_page.nil? && @per_page > 750
+        invalid_properties.push('invalid value for "per_page", must be smaller than or equal to 750.')
       end
 
       if !@per_page.nil? && @per_page < 0
@@ -145,7 +145,7 @@ module Api::V0::Bindings
       source_type_validator = EnumAttributeValidator.new('String', ['openstax_page'])
       return false unless source_type_validator.valid?(@source_type)
       return false if !@page.nil? && @page < 1
-      return false if !@per_page.nil? && @per_page > 200
+      return false if !@per_page.nil? && @per_page > 750
       return false if !@per_page.nil? && @per_page < 0
       true
     end
@@ -173,8 +173,8 @@ module Api::V0::Bindings
     # Custom attribute writer method with validation
     # @param [Object] per_page Value to be assigned
     def per_page=(per_page)
-      if !per_page.nil? && per_page > 200
-        fail ArgumentError, 'invalid value for "per_page", must be smaller than or equal to 200.'
+      if !per_page.nil? && per_page > 750
+        fail ArgumentError, 'invalid value for "per_page", must be smaller than or equal to 750.'
       end
 
       if !per_page.nil? && per_page < 0

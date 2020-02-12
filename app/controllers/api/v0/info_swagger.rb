@@ -7,9 +7,17 @@ class Api::V0::InfoSwagger
       key :type, :integer
       key :description, "The total number of highlights"
     end
+    property :total_users do
+      key :type, :integer
+      key :description, "The total number of users"
+    end
     property :avg_highlights_per_user do
       key :type, :integer
       key :description, "The average number of highlights per user"
+    end
+    property :num_users_with_highlights do
+      key :type, :integer
+      key :description, "The number of users with highlights"
     end
     property :max_num_highlights_any_user do
       key :type, :integer

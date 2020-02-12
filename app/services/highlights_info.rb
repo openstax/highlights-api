@@ -13,7 +13,9 @@ class HighlightsInfo
       ami_id: ami_id,
       data: {
         total_highlights: total_highlights,
+        total_users: total_users,
         avg_highlights_per_user: avg_highlights_per_user,
+        num_users_with_highlights: num_users_with_highlights,
         max_num_highlights_any_user: max_num_highlights_any_user,
         total_notes: total_notes,
         avg_note_length: avg_note_length
@@ -23,6 +25,10 @@ class HighlightsInfo
 
   def total_highlights
     Highlight.count
+  end
+
+  def total_users
+    User.count
   end
 
   def avg_highlights_per_user
@@ -37,6 +43,10 @@ class HighlightsInfo
     SQL
 
     ActiveRecord::Base.connection.select_value(query).to_i
+  end
+
+  def num_users_with_highlights
+    Highlight.distinct.pluck(:user_id).count
   end
 
   def max_num_highlights_any_user
