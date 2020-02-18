@@ -27,6 +27,10 @@ class Api::V0::InfoSwagger
       key :type, :integer
       key :description, "The max number of highlights used by any one user"
     end
+    property :max_note_length do
+      key :type, :integer
+      key :description, "The max length (chars) of a note for any user"
+    end
     property :avg_highlights_per_user do
       key :type, :integer
       key :description, "The average number of highlights per user"

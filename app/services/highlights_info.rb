@@ -17,6 +17,7 @@ class HighlightsInfo
         total_notes: total_notes,
         avg_highlights_per_user: avg_highlights_per_user,
         avg_note_length: avg_note_length,
+        max_note_length: max_note_length,
         num_users_with_highlights: num_users_with_highlights,
         num_users_with_notes: num_users_with_notes,
         max_num_highlights_any_user: max_num_highlights_any_user
@@ -76,6 +77,17 @@ class HighlightsInfo
     query = <<-SQL
       SELECT
        AVG(pg_column_size(annotation))
+      FROM highlights
+      WHERE annotation IS NOT NULL
+    SQL
+
+    ActiveRecord::Base.connection.select_value(query).to_i
+  end
+
+  def max_note_length
+    query = <<-SQL
+      SELECT
+       MAX(pg_column_size(annotation))
       FROM highlights
       WHERE annotation IS NOT NULL
     SQL

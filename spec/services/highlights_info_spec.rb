@@ -39,5 +39,9 @@ RSpec.describe HighlightsInfo, type: :service do
     it 'returns the correct average note length' do
       expect(info_results[:data][:avg_note_length]).to eq 13
     end
+
+    it 'returns the correct max note length' do
+      expect(info_results[:data][:max_note_length]).to eq 18
+    end
   end
 end

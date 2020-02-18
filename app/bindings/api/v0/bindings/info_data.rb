@@ -32,6 +32,9 @@ module Api::V0::Bindings
     # The max number of highlights used by any one user
     attr_accessor :max_num_highlights_any_user
 
+    # The max length (chars) of a note for any user
+    attr_accessor :max_note_length
+
     # The average number of highlights per user
     attr_accessor :avg_highlights_per_user
 
@@ -47,6 +50,7 @@ module Api::V0::Bindings
         :'num_users_with_highlights' => :'num_users_with_highlights',
         :'num_users_with_notes' => :'num_users_with_notes',
         :'max_num_highlights_any_user' => :'max_num_highlights_any_user',
+        :'max_note_length' => :'max_note_length',
         :'avg_highlights_per_user' => :'avg_highlights_per_user',
         :'avg_note_length' => :'avg_note_length'
       }
@@ -61,6 +65,7 @@ module Api::V0::Bindings
         :'num_users_with_highlights' => :'Integer',
         :'num_users_with_notes' => :'Integer',
         :'max_num_highlights_any_user' => :'Integer',
+        :'max_note_length' => :'Integer',
         :'avg_highlights_per_user' => :'Integer',
         :'avg_note_length' => :'Integer'
       }
@@ -98,6 +103,10 @@ module Api::V0::Bindings
         self.max_num_highlights_any_user = attributes[:'max_num_highlights_any_user']
       end
 
+      if attributes.has_key?(:'max_note_length')
+        self.max_note_length = attributes[:'max_note_length']
+      end
+
       if attributes.has_key?(:'avg_highlights_per_user')
         self.avg_highlights_per_user = attributes[:'avg_highlights_per_user']
       end
@@ -131,6 +140,7 @@ module Api::V0::Bindings
           num_users_with_highlights == o.num_users_with_highlights &&
           num_users_with_notes == o.num_users_with_notes &&
           max_num_highlights_any_user == o.max_num_highlights_any_user &&
+          max_note_length == o.max_note_length &&
           avg_highlights_per_user == o.avg_highlights_per_user &&
           avg_note_length == o.avg_note_length
     end
@@ -144,7 +154,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [total_highlights, total_users, total_notes, num_users_with_highlights, num_users_with_notes, max_num_highlights_any_user, avg_highlights_per_user, avg_note_length].hash
+      [total_highlights, total_users, total_notes, num_users_with_highlights, num_users_with_notes, max_num_highlights_any_user, max_note_length, avg_highlights_per_user, avg_note_length].hash
     end
 
     # Builds the object from hash
