@@ -1,7 +1,7 @@
 =begin
 #OpenStax Highlights API
 
-#The highlights API for OpenStax.  Requests to this API should include `application/json` in the `Accept` header.  The desired API version is specified in the request URL, e.g. `[domain]/highlights/api/v0/highlights`. While the API does support a default version, that version will change over time and therefore should not be used in production code! 
+#The highlights API for OpenStax.  Requests to this API should include `application/json` in the `Accept` header.  The desired API version is specified in the request URL, e.g. `[domain]/highlights/api/v0/highlights`. While the API does support a default version, that version will change over time and therefore should not be used in production code!
 
 OpenAPI spec version: 0.1.0
 
@@ -127,8 +127,8 @@ module Api::V0::Bindings
         invalid_properties.push('invalid value for "page", must be greater than or equal to 1.')
       end
 
-      if !@per_page.nil? && @per_page > 200
-        invalid_properties.push('invalid value for "per_page", must be smaller than or equal to 200.')
+      if !@per_page.nil? && @per_page > 750
+        invalid_properties.push('invalid value for "per_page", must be smaller than or equal to 750.')
       end
 
       if !@per_page.nil? && @per_page < 0
@@ -145,7 +145,7 @@ module Api::V0::Bindings
       source_type_validator = EnumAttributeValidator.new('String', ['openstax_page'])
       return false unless source_type_validator.valid?(@source_type)
       return false if !@page.nil? && @page < 1
-      return false if !@per_page.nil? && @per_page > 200
+      return false if !@per_page.nil? && @per_page > 750
       return false if !@per_page.nil? && @per_page < 0
       true
     end
@@ -173,8 +173,8 @@ module Api::V0::Bindings
     # Custom attribute writer method with validation
     # @param [Object] per_page Value to be assigned
     def per_page=(per_page)
-      if !per_page.nil? && per_page > 200
-        fail ArgumentError, 'invalid value for "per_page", must be smaller than or equal to 200.'
+      if !per_page.nil? && per_page > 750
+        fail ArgumentError, 'invalid value for "per_page", must be smaller than or equal to 750.'
       end
 
       if !per_page.nil? && per_page < 0
@@ -189,12 +189,12 @@ module Api::V0::Bindings
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
-          source_type == o.source_type &&
-          scope_id == o.scope_id &&
-          source_ids == o.source_ids &&
-          colors == o.colors &&
-          page == o.page &&
-          per_page == o.per_page
+        source_type == o.source_type &&
+        scope_id == o.scope_id &&
+        source_ids == o.source_ids &&
+        colors == o.colors &&
+        page == o.page &&
+        per_page == o.per_page
     end
 
     # @see the `==` method
