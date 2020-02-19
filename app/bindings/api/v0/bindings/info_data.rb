@@ -14,60 +14,70 @@ require 'date'
 
 module Api::V0::Bindings
   class InfoData
-    # The total number of highlights
-    attr_accessor :total_highlights
-
-    # The total number of users
-    attr_accessor :total_users
-
     # The total number of notes/annotations
     attr_accessor :total_notes
-
-    # The number of users with highlights
-    attr_accessor :num_users_with_highlights
 
     # The number of users with notes
     attr_accessor :num_users_with_notes
 
-    # The max number of highlights used by any one user
-    attr_accessor :max_num_highlights_any_user
+    # The average length (chars) of a note
+    attr_accessor :avg_note_length
+
+    # The median length (chars) of a note
+    attr_accessor :median_note_length
 
     # The max length (chars) of a note for any user
     attr_accessor :max_note_length
 
+    # The total number of highlights
+    attr_accessor :total_highlights
+
+    # The number of users with highlights
+    attr_accessor :num_users_with_highlights
+
     # The average number of highlights per user
     attr_accessor :avg_highlights_per_user
 
-    # The average length (chars) of a note
-    attr_accessor :avg_note_length
+    # The median number of highlights per user
+    attr_accessor :median_highlights_per_user
+
+    # The max number of highlights used by any one user
+    attr_accessor :max_num_highlights_any_user
+
+    # The total number of users
+    attr_accessor :total_users
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
-        :'total_highlights' => :'total_highlights',
-        :'total_users' => :'total_users',
         :'total_notes' => :'total_notes',
-        :'num_users_with_highlights' => :'num_users_with_highlights',
         :'num_users_with_notes' => :'num_users_with_notes',
-        :'max_num_highlights_any_user' => :'max_num_highlights_any_user',
+        :'avg_note_length' => :'avg_note_length',
+        :'median_note_length' => :'median_note_length',
         :'max_note_length' => :'max_note_length',
+        :'total_highlights' => :'total_highlights',
+        :'num_users_with_highlights' => :'num_users_with_highlights',
         :'avg_highlights_per_user' => :'avg_highlights_per_user',
-        :'avg_note_length' => :'avg_note_length'
+        :'median_highlights_per_user' => :'median_highlights_per_user',
+        :'max_num_highlights_any_user' => :'max_num_highlights_any_user',
+        :'total_users' => :'total_users'
       }
     end
 
     # Attribute type mapping.
     def self.swagger_types
       {
-        :'total_highlights' => :'Integer',
-        :'total_users' => :'Integer',
         :'total_notes' => :'Integer',
-        :'num_users_with_highlights' => :'Integer',
         :'num_users_with_notes' => :'Integer',
-        :'max_num_highlights_any_user' => :'Integer',
+        :'avg_note_length' => :'Integer',
+        :'median_note_length' => :'Integer',
         :'max_note_length' => :'Integer',
+        :'total_highlights' => :'Integer',
+        :'num_users_with_highlights' => :'Integer',
         :'avg_highlights_per_user' => :'Integer',
-        :'avg_note_length' => :'Integer'
+        :'median_highlights_per_user' => :'Integer',
+        :'max_num_highlights_any_user' => :'Integer',
+        :'total_users' => :'Integer'
       }
     end
 
@@ -79,40 +89,48 @@ module Api::V0::Bindings
       # convert string to symbol for hash key
       attributes = attributes.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
 
-      if attributes.has_key?(:'total_highlights')
-        self.total_highlights = attributes[:'total_highlights']
-      end
-
-      if attributes.has_key?(:'total_users')
-        self.total_users = attributes[:'total_users']
-      end
-
       if attributes.has_key?(:'total_notes')
         self.total_notes = attributes[:'total_notes']
-      end
-
-      if attributes.has_key?(:'num_users_with_highlights')
-        self.num_users_with_highlights = attributes[:'num_users_with_highlights']
       end
 
       if attributes.has_key?(:'num_users_with_notes')
         self.num_users_with_notes = attributes[:'num_users_with_notes']
       end
 
-      if attributes.has_key?(:'max_num_highlights_any_user')
-        self.max_num_highlights_any_user = attributes[:'max_num_highlights_any_user']
+      if attributes.has_key?(:'avg_note_length')
+        self.avg_note_length = attributes[:'avg_note_length']
+      end
+
+      if attributes.has_key?(:'median_note_length')
+        self.median_note_length = attributes[:'median_note_length']
       end
 
       if attributes.has_key?(:'max_note_length')
         self.max_note_length = attributes[:'max_note_length']
       end
 
+      if attributes.has_key?(:'total_highlights')
+        self.total_highlights = attributes[:'total_highlights']
+      end
+
+      if attributes.has_key?(:'num_users_with_highlights')
+        self.num_users_with_highlights = attributes[:'num_users_with_highlights']
+      end
+
       if attributes.has_key?(:'avg_highlights_per_user')
         self.avg_highlights_per_user = attributes[:'avg_highlights_per_user']
       end
 
-      if attributes.has_key?(:'avg_note_length')
-        self.avg_note_length = attributes[:'avg_note_length']
+      if attributes.has_key?(:'median_highlights_per_user')
+        self.median_highlights_per_user = attributes[:'median_highlights_per_user']
+      end
+
+      if attributes.has_key?(:'max_num_highlights_any_user')
+        self.max_num_highlights_any_user = attributes[:'max_num_highlights_any_user']
+      end
+
+      if attributes.has_key?(:'total_users')
+        self.total_users = attributes[:'total_users']
       end
     end
 
@@ -134,15 +152,17 @@ module Api::V0::Bindings
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
-          total_highlights == o.total_highlights &&
-          total_users == o.total_users &&
           total_notes == o.total_notes &&
-          num_users_with_highlights == o.num_users_with_highlights &&
           num_users_with_notes == o.num_users_with_notes &&
-          max_num_highlights_any_user == o.max_num_highlights_any_user &&
+          avg_note_length == o.avg_note_length &&
+          median_note_length == o.median_note_length &&
           max_note_length == o.max_note_length &&
+          total_highlights == o.total_highlights &&
+          num_users_with_highlights == o.num_users_with_highlights &&
           avg_highlights_per_user == o.avg_highlights_per_user &&
-          avg_note_length == o.avg_note_length
+          median_highlights_per_user == o.median_highlights_per_user &&
+          max_num_highlights_any_user == o.max_num_highlights_any_user &&
+          total_users == o.total_users
     end
 
     # @see the `==` method
@@ -154,7 +174,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [total_highlights, total_users, total_notes, num_users_with_highlights, num_users_with_notes, max_num_highlights_any_user, max_note_length, avg_highlights_per_user, avg_note_length].hash
+      [total_notes, num_users_with_notes, avg_note_length, median_note_length, max_note_length, total_highlights, num_users_with_highlights, avg_highlights_per_user, median_highlights_per_user, max_num_highlights_any_user, total_users].hash
     end
 
     # Builds the object from hash
