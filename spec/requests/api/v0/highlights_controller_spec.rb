@@ -57,7 +57,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
 
       context 'bad pagination values' do
         it 'complains when per_page is too high' do
-          get highlights_path, params: query_params.merge(per_page: 300)
+          get highlights_path, params: query_params.merge(per_page: 900)
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response.body).to match(/must be smaller than or equal to 200/)
         end

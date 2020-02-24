@@ -3,25 +3,49 @@ class Api::V0::InfoSwagger
   include OpenStax::Swagger::SwaggerBlocksExtensions
 
   swagger_schema :InfoData do
+    property :total_notes do
+      key :type, :integer
+      key :description, "The total number of notes/annotations"
+    end
+    property :num_users_with_notes do
+      key :type, :integer
+      key :description, "The number of users with notes"
+    end
+    property :avg_note_length do
+      key :type, :integer
+      key :description, "The average length (chars) of a note"
+    end
+    property :median_note_length do
+      key :type, :integer
+      key :description, "The median length (chars) of a note"
+    end
+    property :max_note_length do
+      key :type, :integer
+      key :description, "The max length (chars) of a note for any user"
+    end
     property :total_highlights do
       key :type, :integer
       key :description, "The total number of highlights"
+    end
+    property :num_users_with_highlights do
+      key :type, :integer
+      key :description, "The number of users with highlights"
     end
     property :avg_highlights_per_user do
       key :type, :integer
       key :description, "The average number of highlights per user"
     end
+    property :median_highlights_per_user do
+      key :type, :integer
+      key :description, "The median number of highlights per user"
+    end
     property :max_num_highlights_any_user do
       key :type, :integer
       key :description, "The max number of highlights used by any one user"
     end
-    property :total_notes do
+    property :total_users do
       key :type, :integer
-      key :description, "The total number of notes/annotations"
-    end
-    property :avg_note_length do
-      key :type, :integer
-      key :description, "The average length (chars) of a note"
+      key :description, "The total number of users"
     end
   end
 
