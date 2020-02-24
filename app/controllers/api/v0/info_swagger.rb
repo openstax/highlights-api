@@ -75,6 +75,11 @@ class Api::V0::InfoSwagger
       key :readOnly, true
       key :description, "Amazon machine image id"
     end
+    property :git_sha do
+      key :type, :string
+      key :readOnly, true
+      key :description, "Git sha"
+    end
     property :data do
       key :'$ref', :InfoData
     end
