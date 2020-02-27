@@ -43,6 +43,10 @@ class Api::V0::InfoSwagger
       key :type, :integer
       key :description, "The max number of highlights used by any one user"
     end
+    property :num_users_gt_200_highlights_per_page do
+      key :type, :integer
+      key :description, "The number of users that have greater than 200 highlights on any page"
+    end
     property :total_users do
       key :type, :integer
       key :description, "The total number of users"
