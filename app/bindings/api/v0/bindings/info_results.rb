@@ -29,6 +29,9 @@ module Api::V0::Bindings
     # Amazon machine image id
     attr_accessor :ami_id
 
+    # Git sha
+    attr_accessor :git_sha
+
     attr_accessor :data
 
     # Attribute mapping from ruby-style variable name to JSON key.
@@ -39,6 +42,7 @@ module Api::V0::Bindings
         :'env_name' => :'env_name',
         :'accounts_env_name' => :'accounts_env_name',
         :'ami_id' => :'ami_id',
+        :'git_sha' => :'git_sha',
         :'data' => :'data'
       }
     end
@@ -51,6 +55,7 @@ module Api::V0::Bindings
         :'env_name' => :'String',
         :'accounts_env_name' => :'String',
         :'ami_id' => :'String',
+        :'git_sha' => :'String',
         :'data' => :'InfoData'
       }
     end
@@ -83,6 +88,10 @@ module Api::V0::Bindings
         self.ami_id = attributes[:'ami_id']
       end
 
+      if attributes.has_key?(:'git_sha')
+        self.git_sha = attributes[:'git_sha']
+      end
+
       if attributes.has_key?(:'data')
         self.data = attributes[:'data']
       end
@@ -111,6 +120,7 @@ module Api::V0::Bindings
           env_name == o.env_name &&
           accounts_env_name == o.accounts_env_name &&
           ami_id == o.ami_id &&
+          git_sha == o.git_sha &&
           data == o.data
     end
 
@@ -123,7 +133,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [overall_took_ms, postgres_version, env_name, accounts_env_name, ami_id, data].hash
+      [overall_took_ms, postgres_version, env_name, accounts_env_name, ami_id, git_sha, data].hash
     end
 
     # Builds the object from hash

@@ -11,6 +11,7 @@ class HighlightsInfo
       env_name: env_name,
       accounts_env_name: accounts_env_name,
       ami_id: ami_id,
+      git_sha: git_sha,
       data: {
         total_highlights: total_highlights,
         total_users: total_users,
@@ -141,5 +142,9 @@ class HighlightsInfo
 
   def ami_id
     ENV['AMI_ID'] || 'Not set'
+  end
+
+  def git_sha
+    `git show --pretty=%H -q`&.chomp || 'Not set'
   end
 end
