@@ -1,5 +1,7 @@
 class HighlightsInfo
   GREATER_THAN_200 = 200
+  GREATER_THAN_10 = 10
+  GREATER_THAN_50 = 50
 
   def call
     results
@@ -24,6 +26,8 @@ class HighlightsInfo
         max_note_length: max_note_length,
         num_users_with_highlights: num_users_with_highlights,
         num_users_gt_200_highlights_per_page: num_users_gt_200_highlights_per_page,
+        num_users_gt_10_highlights: num_users_gt_10_highlights,
+        num_users_gt_50_highlights: num_users_gt_50_highlights,
         num_users_with_notes: num_users_with_notes,
         max_num_highlights_any_user: max_num_highlights_any_user
       }
@@ -97,8 +101,31 @@ class HighlightsInfo
         ( SELECT
             COUNT(*)
           FROM highlights
-          GROUP BY source_id 
+          GROUP BY user_id, source_id 
             HAVING COUNT(*) > #{GREATER_THAN_200}) temp_table
+    SQL
+
+    ActiveRecord::Base.connection.select_value(query)
+  end
+
+  def num_users_gt_10_highlights
+    num_users_gt_highlights(than: GREATER_THAN_10)
+  end
+
+  def num_users_gt_50_highlights
+    num_users_gt_highlights(than: GREATER_THAN_50)
+  end
+
+  def num_users_gt_highlights(than:)
+    query = <<-SQL
+      SELECT
+        count(*)
+      FROM
+        ( SELECT
+            COUNT(*)
+          FROM highlights
+          GROUP BY user_id 
+            HAVING COUNT(*) > #{than}) temp_table
     SQL
 
     ActiveRecord::Base.connection.select_value(query)

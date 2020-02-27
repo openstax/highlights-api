@@ -47,6 +47,14 @@ class Api::V0::InfoSwagger
       key :type, :integer
       key :description, "The number of users that have greater than 200 highlights on any page"
     end
+    property :num_users_gt_10_highlights do
+      key :type, :integer
+      key :description, "The number of users that have greater than 10 highlights"
+    end
+    property :num_users_gt_50_highlights do
+      key :type, :integer
+      key :description, "The number of users that have greater than 50 highlights"
+    end
     property :total_users do
       key :type, :integer
       key :description, "The total number of users"
