@@ -44,6 +44,15 @@ module Api::V0::Bindings
     # The max number of highlights used by any one user
     attr_accessor :max_num_highlights_any_user
 
+    # The number of users that have greater than 200 highlights on any page
+    attr_accessor :num_users_gt_200_highlights_per_page
+
+    # The number of users that have greater than 10 highlights
+    attr_accessor :num_users_gt_10_highlights
+
+    # The number of users that have greater than 50 highlights
+    attr_accessor :num_users_gt_50_highlights
+
     # The total number of users
     attr_accessor :total_users
 
@@ -60,6 +69,9 @@ module Api::V0::Bindings
         :'avg_highlights_per_user' => :'avg_highlights_per_user',
         :'median_highlights_per_user' => :'median_highlights_per_user',
         :'max_num_highlights_any_user' => :'max_num_highlights_any_user',
+        :'num_users_gt_200_highlights_per_page' => :'num_users_gt_200_highlights_per_page',
+        :'num_users_gt_10_highlights' => :'num_users_gt_10_highlights',
+        :'num_users_gt_50_highlights' => :'num_users_gt_50_highlights',
         :'total_users' => :'total_users'
       }
     end
@@ -77,6 +89,9 @@ module Api::V0::Bindings
         :'avg_highlights_per_user' => :'Integer',
         :'median_highlights_per_user' => :'Integer',
         :'max_num_highlights_any_user' => :'Integer',
+        :'num_users_gt_200_highlights_per_page' => :'Integer',
+        :'num_users_gt_10_highlights' => :'Integer',
+        :'num_users_gt_50_highlights' => :'Integer',
         :'total_users' => :'Integer'
       }
     end
@@ -129,6 +144,18 @@ module Api::V0::Bindings
         self.max_num_highlights_any_user = attributes[:'max_num_highlights_any_user']
       end
 
+      if attributes.has_key?(:'num_users_gt_200_highlights_per_page')
+        self.num_users_gt_200_highlights_per_page = attributes[:'num_users_gt_200_highlights_per_page']
+      end
+
+      if attributes.has_key?(:'num_users_gt_10_highlights')
+        self.num_users_gt_10_highlights = attributes[:'num_users_gt_10_highlights']
+      end
+
+      if attributes.has_key?(:'num_users_gt_50_highlights')
+        self.num_users_gt_50_highlights = attributes[:'num_users_gt_50_highlights']
+      end
+
       if attributes.has_key?(:'total_users')
         self.total_users = attributes[:'total_users']
       end
@@ -162,6 +189,9 @@ module Api::V0::Bindings
           avg_highlights_per_user == o.avg_highlights_per_user &&
           median_highlights_per_user == o.median_highlights_per_user &&
           max_num_highlights_any_user == o.max_num_highlights_any_user &&
+          num_users_gt_200_highlights_per_page == o.num_users_gt_200_highlights_per_page &&
+          num_users_gt_10_highlights == o.num_users_gt_10_highlights &&
+          num_users_gt_50_highlights == o.num_users_gt_50_highlights &&
           total_users == o.total_users
     end
 
@@ -174,7 +204,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [total_notes, num_users_with_notes, avg_note_length, median_note_length, max_note_length, total_highlights, num_users_with_highlights, avg_highlights_per_user, median_highlights_per_user, max_num_highlights_any_user, total_users].hash
+      [total_notes, num_users_with_notes, avg_note_length, median_note_length, max_note_length, total_highlights, num_users_with_highlights, avg_highlights_per_user, median_highlights_per_user, max_num_highlights_any_user, num_users_gt_200_highlights_per_page, num_users_gt_10_highlights, num_users_gt_50_highlights, total_users].hash
     end
 
     # Builds the object from hash
