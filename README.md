@@ -42,18 +42,16 @@ Run `rake write_swagger_json` to write Swagger JSON files to `tmp/swagger` for e
 Run the tests with `rspec` or `rake`.
 
 ## to back up the database manually
-open an ssh tunnel to the rds instance through the dmz and an api server
+open an ssh tunnel to the rds instance through the dmz and an api server (this will continue running in the foreground logged into the api instance, this is handy for checking the db credentials)
 ```
 ssh -L 5432:localhost:9999 -t yourbastionuser@bastion2.cnx.org sudo -u rundeck ssh -L 9999:rds-dns-goes-here:5432 ubuntu@api-ec2-isntance-dns-or-ip -i ~rundeck/.ssh/openstax-sandbox-kp.pem
 ```
-then do pg_dump
+then (from a separate shell locally) do pg_dump
 ```
 pg_dump -h localhost -U highlights -O highlights > highlights.sql
 ```
 
-then close your ssh tunnel and open a new one to your target environment (same command, different hosts)
-
-then restore 
+to restore to a different host close your ssh tunnel and open a new one to your target environment (same command, different hosts), then restore 
 ```
 psql -h localhost -U highlights -f highlights.sql 
 ```
