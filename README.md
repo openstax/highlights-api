@@ -8,8 +8,11 @@ The API interface to highlights within OpenStax
 
 This app creates, updates, and deletes highlights from Postgres
 
-## Running on Localhost
 
+## Running on Localhost
+<details>
+<summary>show</summary>
+  
 ### Configuration
 
 copy the secrets.yml.example to secrets.yml
@@ -28,8 +31,12 @@ Run `rake write_swagger_json` to write Swagger JSON files to `tmp/swagger` for e
 
 Run the tests with `rspec` or `rake`.
 
+</details>
+
 ## Using Docker Development Environment
 
+<details>
+<summary>show</summary>
 Start the environment by running
 
 ```
@@ -45,6 +52,8 @@ Run the tests with
 ```
 docker-compose run api rake spec
 ```
+
+</details>
 
 ## Swagger, Clients, and Bindings
 
