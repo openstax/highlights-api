@@ -1,0 +1,45 @@
+version: "3.7"
+services:
+  api:
+    build: .
+    networks:
+      - highlights
+    ports:
+      - "4004:4004"
+    command: bash -c "rake about && bin/rails server -b '0.0.0.0' -p 4004"
+    environment:
+      - DB_HOST=postgres
+      - DB_USER=highlights
+      - DB_PASS=highlights
+      - DB_NAME=highlights_development
+      - TEST_DB_HOST=postgres_test
+      - TEST_DB_NAME=highlights_test
+      - TEST_DB_USER=highlights
+      - TEST_DB_PASS=highlights
+    volumes:
+      - .:/code
+      - /code/tmp
+      - /code/log
+  postgres:
+    image: "postgres:9.5"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - highlights
+    environment:
+      - POSTGRES_USER=highlights
+      - POSTGRES_PASSWORD=highlights
+      - POSTGRES_DB=highlights_development
+  postgres_test:
+    image: "postgres:9.5"
+    networks:
+      - highlights
+    environment:
+      - POSTGRES_USER=highlights
+      - POSTGRES_PASSWORD=highlights
+      - POSTGRES_DB=highlights_test
+
+networks:
+  highlights:
+volumes:
+  pgdata:

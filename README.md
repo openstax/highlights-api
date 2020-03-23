@@ -8,13 +8,52 @@ The API interface to highlights within OpenStax
 
 This app creates, updates, and deletes highlights from Postgres
 
-## Configuration
 
-## Setup
+## Running on Localhost
+<details>
+<summary>show</summary>
+  
+### Configuration
+
+copy the secrets.yml.example to secrets.yml
+
+### Setup
 
 ```
 $> bundle install
 ```
+
+### Generating files with the Swagger JSON
+
+Run `rake write_swagger_json` to write Swagger JSON files to `tmp/swagger` for each major API version.
+
+### Tests
+
+Run the tests with `rspec` or `rake`.
+
+</details>
+
+## Using Docker Development Environment
+
+<details>
+<summary>show</summary>
+Start the environment by running
+
+```
+docker-compose up
+```
+
+once this completes, leave it running and you can access the api locally. eg: at the url http://localhost:4004/highlights/api/v0/info
+
+### Test
+
+Run the tests with
+
+```
+docker-compose run api rake spec
+```
+
+</details>
 
 ## Swagger, Clients, and Bindings
 
@@ -33,13 +72,6 @@ A rake script is provided to generate client libraries.  Call
 `rake openstax_swagger:generate_client[0,ruby]` will generate the Ruby client for the latest version 0 API.  This
 will generate code in the baseline, so if you don't want it committed move it elsewhere.
 
-### Generating files with the Swagger JSON
-
-Run `rake write_swagger_json` to write Swagger JSON files to `tmp/swagger` for each major API version.
-
-## Tests
-
-Run the tests with `rspec` or `rake`.
 
 ## to back up the database manually
 open an ssh tunnel to the rds instance through the dmz and an api server (this will continue running in the foreground logged into the api instance, this is handy for checking the db credentials)
@@ -51,9 +83,9 @@ then (from a separate shell locally) do pg_dump
 pg_dump -h localhost -U highlights -O highlights > highlights.sql
 ```
 
-to restore to a different host close your ssh tunnel and open a new one to your target environment (same command, different hosts), then restore 
+to restore to a different host close your ssh tunnel and open a new one to your target environment (same command, different hosts), then restore
 ```
-psql -h localhost -U highlights -f highlights.sql 
+psql -h localhost -U highlights -f highlights.sql
 ```
 
 ## Contributing
