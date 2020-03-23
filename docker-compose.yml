@@ -10,7 +10,7 @@ services:
     environment:
       - DB_HOST=postgres
       - DB_USER=highlights
-      - DB_PASSWORD=highlihgts
+      - DB_PASS=highlights
       - DB_NAME=highlights_development
       - TEST_DB_HOST=postgres_test
       - TEST_DB_NAME=highlights_test
