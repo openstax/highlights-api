@@ -14,6 +14,8 @@ services:
       - DB_NAME=highlights_development
       - TEST_DB_HOST=postgres_test
       - TEST_DB_NAME=highlights_test
+      - TEST_DB_USER=highlights
+      - TEST_DB_PASS=highlights
     volumes:
       - .:/code
       - /code/tmp

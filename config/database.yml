@@ -64,5 +64,7 @@ test:
   <<: *default
   host: <%= ENV['TEST_DB_HOST'] || 'localhost' %>
   database: <%= ENV['TEST_DB_NAME'] || 'highlights_test' %>
+  username: <%= ENV['TEST_DB_USER'] || 'postgres' %>
+  password: <%= ENV['TEST_DB_PASS'] || '' %>
 
 # production secrets are set during deployment
