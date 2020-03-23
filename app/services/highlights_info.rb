@@ -3,35 +3,40 @@ class HighlightsInfo
   GREATER_THAN_10 = 10
   GREATER_THAN_50 = 50
 
-  def call
-    results
+  def basic
+    {
+      env_name: env_name,
+      accounts_env_name: accounts_env_name,
+      ami_id: ami_id,
+      git_sha: git_sha
+    }
+  end
+
+  def extended
+    basic.merge({
+      postgres_version: postgres_version,
+      data: data
+    })
   end
 
   private
 
-  def results
+  def data
     {
-      postgres_version: postgres_version,
-      env_name: env_name,
-      accounts_env_name: accounts_env_name,
-      ami_id: ami_id,
-      git_sha: git_sha,
-      data: {
-        total_highlights: total_highlights,
-        total_users: total_users,
-        total_notes: total_notes,
-        avg_highlights_per_user: avg_highlights_per_user,
-        median_highlights_per_user: median_highlights_per_user,
-        avg_note_length: avg_note_length,
-        median_note_length: median_note_length,
-        max_note_length: max_note_length,
-        num_users_with_highlights: num_users_with_highlights,
-        num_users_gt_200_highlights_per_page: num_users_gt_200_highlights_per_page,
-        num_users_gt_10_highlights: num_users_gt_10_highlights,
-        num_users_gt_50_highlights: num_users_gt_50_highlights,
-        num_users_with_notes: num_users_with_notes,
-        max_num_highlights_any_user: max_num_highlights_any_user
-      }
+      total_highlights: total_highlights,
+      total_users: total_users,
+      total_notes: total_notes,
+      avg_highlights_per_user: avg_highlights_per_user,
+      median_highlights_per_user: median_highlights_per_user,
+      avg_note_length: avg_note_length,
+      median_note_length: median_note_length,
+      max_note_length: max_note_length,
+      num_users_with_highlights: num_users_with_highlights,
+      num_users_gt_200_highlights_per_page: num_users_gt_200_highlights_per_page,
+      num_users_gt_10_highlights: num_users_gt_10_highlights,
+      num_users_gt_50_highlights: num_users_gt_50_highlights,
+      num_users_with_notes: num_users_with_notes,
+      max_num_highlights_any_user: max_num_highlights_any_user
     }
   end
 

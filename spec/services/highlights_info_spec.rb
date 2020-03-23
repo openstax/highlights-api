@@ -15,7 +15,7 @@ RSpec.describe HighlightsInfo, type: :service do
   let!(:highlight8) { create(:highlight, user_id: yet_another_user.id, annotation: "there were many cows eating all the grass") }
 
   describe '#call' do
-    let(:info_results) { subject.call }
+    let(:info_results) { subject.extended }
 
     before do
       @prev_200 = reset_constant(const_name: 'GREATER_THAN_200', value: 3)

@@ -23,9 +23,13 @@ RSpec.describe 'api v0 info requests', type: :request, api: :v0 do
       context 'admin_uuids not set' do
         let(:admin_uuids) { nil }
 
-        it 'yields a unauthorized' do
+        it 'returns info' do
           api_get '/info'
-          expect(response).to have_http_status(:unauthorized)
+          expect(response).to have_http_status(:ok)
+
+          json = json_response
+          expect(json).not_to have_key(:data)
+          expect(json).to have_key(:git_sha)
         end
       end
 
@@ -36,12 +40,18 @@ RSpec.describe 'api v0 info requests', type: :request, api: :v0 do
           stub_current_user_uuid(user_id)
           api_get '/info'
           expect(response).to have_http_status(:ok)
+
+          json = json_response
+          expect(json).to have_key(:data)
         end
 
         it 'disallows unauthorized user' do
           stub_current_user_uuid('foobar')
           api_get '/info'
-          expect(response).to have_http_status(:unauthorized)
+          expect(response).to have_http_status(:ok)
+
+          json = json_response
+          expect(json).not_to have_key(:data)
         end
       end
     end

@@ -1,11 +1,11 @@
 class Api::V0::InfoController < Api::V0::BaseController
-  before_action :validate_current_user_authorized_as_admin
-
   # See Api::V0::InfoSwagger for documentation
 
   def info
     started_at = Time.now
-    info_data = HighlightsInfo.new.call
+    info_data = current_user_authorized_as_admin? ?
+      HighlightsInfo.new.extended :
+      HighlightsInfo.new.basic
 
     response = Api::V0::Bindings::InfoResults.new.build_from_hash(info_data.with_indifferent_access)
 
