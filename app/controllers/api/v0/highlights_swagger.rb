@@ -7,6 +7,7 @@ class Api::V0::HighlightsSwagger
   DEFAULT_HIGHLIGHTS_PAGE = 1
 
   VALID_HIGHLIGHT_COLORS = %w(yellow green blue purple pink)
+  VALID_SETS = %w(user:me curated:openstax)
 
   swagger_schema :TextPositionSelector do
     key :required, [:type, :start, :end]
@@ -289,6 +290,18 @@ class Api::V0::HighlightsSwagger
                           'the order of the results will not be meaningful.'
       end
       parameter do
+        key :name, :sets
+        key :in, :query
+        key :type, :array
+        key :collectionFormat, :csv
+        key :required, false
+        key :description, 'One or more sets to load data from; default is "user:me"'
+        items do
+          key :type, :string
+          key :enum, VALID_SETS
+        end
+      end
+      parameter do
         key :name, :source_ids
         key :in, :query
         key :type, :array
@@ -381,6 +394,18 @@ class Api::V0::HighlightsSwagger
         key :required, false
         key :description, 'Limits summary to the source document container in which the highlights ' \
                           'were made.  For openstax_page source_types, this is a versionless book UUID.'
+      end
+      parameter do
+        key :name, :sets
+        key :in, :query
+        key :type, :array
+        key :collectionFormat, :csv
+        key :required, false
+        key :description, 'One or more sets to load data from; default is "user:me"'
+        items do
+          key :type, :string
+          key :enum, VALID_SETS
+        end
       end
       parameter do
         key :name, :colors
