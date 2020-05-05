@@ -10,12 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_20_222312) do
+ActiveRecord::Schema.define(version: 2020_05_05_135519) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
+
+  create_table "curator_scopes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "curator_id", null: false
+    t.uuid "scope_id", null: false
+    t.index ["curator_id"], name: "index_curator_scopes_on_curator_id"
+    t.index ["scope_id"], name: "index_curator_scopes_on_scope_id"
+  end
 
   create_table "highlights", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false
