@@ -83,24 +83,7 @@ Rails.application.config.to_prepare do
 
   Api::V0::Bindings::GetHighlightsParameters.class_exec do
     def query(user_id:)
-      users = []
-
-      if sets.blank? or sets.include?('user:me')
-        users.push(user_id)
-      end
-      if  sets.to_a.include?('curated:openstax') and scope_id.present?
-        curator_scope = CuratorScope.find_by(:scope_id => scope_id)
-        users.push(curator_scope.curator_id) unless curator_scope.nil?
-      end
-
-      highlights = ::Highlight.by_user(users)
-
-      # The submitted GetHighlight properties create automatic chaining via
-      # the by_X scopes on the Highlight model.
-      to_hash.except(:page, :per_page, :sets).each do |key, value|
-        highlights = highlights.public_send("by_#{key}", value) if value.present?
-      end
-
+      highlights = get_highlights(user_id)
 
       if source_ids.present?
         # Sort the highlights in Ruby, not Postgres
@@ -133,25 +116,7 @@ Rails.application.config.to_prepare do
 
   Api::V0::Bindings::GetHighlightsSummaryParameters.class_exec do
     def summarize(user_uuid:)
-      users = []
-
-      if sets.blank? or sets.include?('user:me')
-        users.push(user_uuid)
-      end
-      if  sets.to_a.include?('curated:openstax') and scope_id.present?
-        curator_scope = CuratorScope.find_by(:scope_id => scope_id)
-        users.push(curator_scope.curator_id) unless curator_scope.nil?
-      end
-
-      highlights = ::Highlight.by_user(users)
-
-      # The submitted GetHighlight properties create automatic chaining via
-      # the by_X scopes on the Highlight model.
-      to_hash.except(:sets).each do |key, value|
-        highlights = highlights.public_send("by_#{key}", value) if value.present?
-      end
-
-      results = highlights.group(:source_id, :color).count
+      results = get_highlights(user_uuid).group(:source_id, :color).count
 
       results.each_with_object({}) do |((source_id, color), source_color_count), scc|
         scc[source_id] ||= {}
@@ -165,6 +130,38 @@ Rails.application.config.to_prepare do
     Api::V0::Bindings::GetHighlightsSummaryParameters
   ].each do |klass|
     klass.class_exec do
+
+      def get_highlights(user_id)
+        filters = to_hash.except(:page, :per_page, :sets)
+        filters[:user] = []
+
+        if (sets.blank? or sets.include?('user:me')) and user_id.present?
+          filters[:user].push(user_id)
+        end
+
+        if sets.present? and sets.include?('curated:openstax') and scope_id.present?
+          curator_scope = CuratorScope.find_by(scope_id: scope_id)
+          filters[:user].push(curator_scope.curator_id) unless curator_scope.nil?
+        end
+
+        # if there is no curator, or user is logged out, its possible to not
+        # have this filter, and if we don't handle it specially all highlights
+        # will be returned
+        if filters[:user].empty?
+          return ::Highlight.none
+        end
+
+        results = ::Highlight
+
+        # The submitted GetHighlight properties create automatic chaining via
+        # the by_X scopes on the Highlight model.
+        filters.each do |key, value|
+          results = results.public_send("by_#{key}", value) if value.present?
+        end
+
+        results
+      end
+
       def invalid_colors
         colors.present? ? colors - Api::V0::HighlightsSwagger::VALID_HIGHLIGHT_COLORS : []
       end

@@ -21,7 +21,7 @@ ActiveRecord::Schema.define(version: 2020_05_05_135519) do
     t.uuid "curator_id", null: false
     t.uuid "scope_id", null: false
     t.index ["curator_id"], name: "index_curator_scopes_on_curator_id"
-    t.index ["scope_id"], name: "index_curator_scopes_on_scope_id"
+    t.index ["scope_id"], name: "index_curator_scopes_on_scope_id", unique: true
   end
 
   create_table "highlights", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
