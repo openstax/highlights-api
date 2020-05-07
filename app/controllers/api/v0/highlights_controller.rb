@@ -85,6 +85,7 @@ class Api::V0::HighlightsController < Api::V0::BaseController
       # source_ids and colors we use CSV; here we do the comma splitting.
       parameters["source_ids"] = parameters["source_ids"].split(',') if parameters["source_ids"].is_a?(String)
       parameters["colors"] = parameters["colors"].split(',') if parameters["colors"].is_a?(String)
+      parameters["sets"] = parameters["sets"].split(',') if parameters["sets"].is_a?(String)
     end
   end
 end

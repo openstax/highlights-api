@@ -10,6 +10,9 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
   let(:source_id) { SecureRandom.uuid }
   let(:scope_1_id) { SecureRandom.uuid }
   let(:uuid1) { SecureRandom.uuid }
+  
+  let!(:curator) { create(:user) }
+  let!(:curator_scope) { create(:curator_scope, curator_id: curator.id, scope_id: scope_1_id) }
 
   before { allow(Rails.application.config).to receive(:consider_all_requests_local) { false } }
 
@@ -31,6 +34,9 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     let!(:highlight5) { create(:highlight, id: fake_uuid(5), user_id: user_id, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
     let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_id: user_id, source_id: source_id, scope_id: SecureRandom.uuid) }
     let!(:highlight7) { create(:highlight, id: fake_uuid(7)) }
+    
+    let!(:highlight8) { create(:highlight, id: fake_uuid(8), user_id: curator_scope.curator_id, source_id: source_id, scope_id: scope_1_id) }
+    let!(:highlight9) { create(:highlight, id: fake_uuid(9), user_id: curator_scope.curator_id, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight8) }
 
     let(:scope_id) { highlight1.scope_id }
     let(:query_params) do
@@ -182,6 +188,18 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           query_params.delete(:scope_id)
           get highlights_path, params: query_params.merge(source_ids: [highlight1.source_id])
           expect(highlights.size).to eq 4
+        end
+      end
+      
+      context 'handles sets' do
+        it 'returns curated results' do
+          get highlights_path, params: query_params.merge(source_ids: [source_id], scope_id: scope_1_id, sets: ['user:me', 'curated:openstax'])
+          expect(highlights.size).to eq 5
+        end
+        
+        it 'returns only curated results' do
+          get highlights_path, params: query_params.merge(source_ids: [source_id], scope_id: scope_1_id, sets: ['curated:openstax'])
+          expect(highlights.size).to eq 2
         end
       end
     end
@@ -488,6 +506,9 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     let!(:highlight5) { create(:highlight, id: fake_uuid(5),                   source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
     let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_id: user_id, source_id: source_id, scope_id: SecureRandom.uuid) }
     let!(:highlight7) { create(:highlight, id: fake_uuid(7)) }
+    
+    let!(:highlight8) { create(:highlight, id: fake_uuid(8), user_id: curator_scope.curator_id, source_id: source_id, scope_id: scope_1_id) }
+    let!(:highlight9) { create(:highlight, id: fake_uuid(9), user_id: curator_scope.curator_id, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight8) }
 
     let(:scope_id) { highlight1.scope_id }
     let(:query_params) do
@@ -507,6 +528,26 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         expect(json_response[:counts_per_source]).to eq({
           "#{source_id}".to_sym => { yellow: 1 },
            highlight2.source_id.to_sym => { yellow: 1 },
+        })
+      end
+
+      it 'counts curated too when requested' do
+        get "/api/v0/highlights/summary?source_type=openstax_page&scope_id=#{scope_1_id}&" \
+            "sets=user:me,curated:openstax"
+        expect(response).to have_http_status(:ok)
+        expect(json_response[:counts_per_source]).to eq({
+          "#{source_id}".to_sym => { yellow: 3, green: 1 },
+          highlight2.source_id.to_sym => { yellow: 1},
+          highlight3.source_id.to_sym => { pink: 1}
+        })
+      end
+      
+      it 'counts only curated when requested' do
+        get "/api/v0/highlights/summary?source_type=openstax_page&scope_id=#{scope_1_id}&" \
+            "sets=curated:openstax"
+        expect(response).to have_http_status(:ok)
+        expect(json_response[:counts_per_source]).to eq({
+          "#{source_id}".to_sym => { yellow: 2 },
         })
       end
 

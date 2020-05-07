@@ -83,14 +83,7 @@ Rails.application.config.to_prepare do
 
   Api::V0::Bindings::GetHighlightsParameters.class_exec do
     def query(user_id:)
-      highlights = ::Highlight.by_user(user_id)
-
-      # The submitted GetHighlight properties create automatic chaining via
-      # the by_X scopes on the Highlight model.
-      to_hash.except(:page, :per_page).each do |key, value|
-        highlights = highlights.public_send("by_#{key}", value) if value.present?
-      end
-
+      highlights = get_highlights(user_id)
 
       if source_ids.present?
         # Sort the highlights in Ruby, not Postgres
@@ -123,15 +116,7 @@ Rails.application.config.to_prepare do
 
   Api::V0::Bindings::GetHighlightsSummaryParameters.class_exec do
     def summarize(user_uuid:)
-      highlights = ::Highlight.by_user(user_uuid)
-
-      # The submitted GetHighlight properties create automatic chaining via
-      # the by_X scopes on the Highlight model.
-      to_hash.each do |key, value|
-        highlights = highlights.public_send("by_#{key}", value) if value.present?
-      end
-
-      results = highlights.group(:source_id, :color).count
+      results = get_highlights(user_uuid).group(:source_id, :color).count
 
       results.each_with_object({}) do |((source_id, color), source_color_count), scc|
         scc[source_id] ||= {}
@@ -145,6 +130,38 @@ Rails.application.config.to_prepare do
     Api::V0::Bindings::GetHighlightsSummaryParameters
   ].each do |klass|
     klass.class_exec do
+
+      def get_highlights(user_id)
+        filters = to_hash.except(:page, :per_page, :sets)
+        filters[:user] = []
+
+        if (sets.blank? || sets.include?('user:me')) && user_id.present?
+          filters[:user].push(user_id)
+        end
+
+        if sets.present? && sets.include?('curated:openstax') && scope_id.present?
+          curator_scope = CuratorScope.find_by(scope_id: scope_id)
+          filters[:user].push(curator_scope.curator_id) unless curator_scope.nil?
+        end
+
+        # if there is no curator, or user is logged out, its possible to not
+        # have this filter, and if we don't handle it specially all highlights
+        # will be returned
+        if filters[:user].empty?
+          return ::Highlight.none
+        end
+
+        results = ::Highlight
+
+        # The submitted GetHighlight properties create automatic chaining via
+        # the by_X scopes on the Highlight model.
+        filters.each do |key, value|
+          results = results.public_send("by_#{key}", value) if value.present?
+        end
+
+        results
+      end
+
       def invalid_colors
         colors.present? ? colors - Api::V0::HighlightsSwagger::VALID_HIGHLIGHT_COLORS : []
       end
@@ -153,9 +170,17 @@ Rails.application.config.to_prepare do
         invalid_colors.empty?
       end
 
+      def invalid_sets
+        sets.present? ? sets - Api::V0::HighlightsSwagger::VALID_SETS : []
+      end
+
+      def valid_sets?
+        invalid_sets.empty?
+      end
+
       alias_method :old_valid?, :valid?
       def valid?
-        old_valid? && valid_colors?
+        old_valid? && valid_colors? && valid_sets?
       end
 
       alias_method :old_list_invalid_properties, :list_invalid_properties
@@ -164,6 +189,9 @@ Rails.application.config.to_prepare do
 
         if invalid_colors.any?
           invalid_properties.push("invalid value in \"colors\": #{invalid_colors.join(',')}")
+        end
+        if invalid_sets.any?
+          invalid_properties.push("invalid value in \"sets\": #{invalid_sets.join(',')}")
         end
 
         invalid_properties
