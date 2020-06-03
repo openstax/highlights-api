@@ -140,7 +140,7 @@ Rails.application.config.to_prepare do
         end
         
         if (sets.blank? || sets.include?('user:me')) && !user_id.present?
-          raise NotAuthorized::Error
+          raise NotAuthorized
         end
 
         if sets.present? && sets.include?('curated:openstax') && scope_id.present?
