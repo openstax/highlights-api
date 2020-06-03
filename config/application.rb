@@ -18,12 +18,17 @@ require "action_controller/railtie"
 # require "sprockets/railtie"
 # require "rails/test_unit/railtie"
 
+require_relative "../lib/not_authorized"
+
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
 module HighlightsApi
   class Application < Rails::Application
+
+
+    config.middleware.use NotAuthorized::Middleware
 
     config.middleware.insert_before 0, Rack::Cors do
       allow do

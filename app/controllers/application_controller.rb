@@ -4,11 +4,8 @@ class ApplicationController < ActionController::API
   def error_404
     render json: "Bad Request", status: 404
   end
-
-  NotAuthorized = Class.new(StandardError)
-
-  rescue_from ApplicationController::NotAuthorized do |exception|
-    puts "am i even in here"
+  
+  def error_401
     head :unauthorized
   end
 
@@ -36,6 +33,6 @@ class ApplicationController < ActionController::API
   end
 
   def render_unauthorized_if_no_current_user
-    head :unauthorized if current_user_uuid.nil?
+    error_401 if current_user_uuid.nil?
   end
 end
