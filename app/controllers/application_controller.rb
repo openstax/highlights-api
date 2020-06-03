@@ -5,6 +5,13 @@ class ApplicationController < ActionController::API
     render json: "Bad Request", status: 404
   end
 
+  NotAuthorized = Class.new(StandardError)
+
+  rescue_from ApplicationController::NotAuthorized do |exception|
+    puts "am i even in here"
+    head :unauthorized
+  end
+
   protected
 
   include RescueFromUnlessLocal

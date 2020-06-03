@@ -2,7 +2,7 @@
 #
 # See Api::V0::HighlightsSwagger for documentation
 class Api::V0::HighlightsController < Api::V0::BaseController
-  before_action :render_unauthorized_if_no_current_user
+  before_action :render_unauthorized_if_no_current_user, except: [:index, :summary]
 
   before_action :set_highlight, only: [:update, :destroy]
 
