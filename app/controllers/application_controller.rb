@@ -9,10 +9,6 @@ class ApplicationController < ActionController::API
     head :unauthorized
   end
 
-  rescue_from NotAuthorized do
-    error_401
-  end
-
   protected
 
   include RescueFromUnlessLocal

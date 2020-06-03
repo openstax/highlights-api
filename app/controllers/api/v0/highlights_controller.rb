@@ -6,6 +6,8 @@ class Api::V0::HighlightsController < Api::V0::BaseController
 
   before_action :set_highlight, only: [:update, :destroy]
 
+  rescue_from NotAuthorized, with: :error_401
+
   def create
     inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::NewHighlight)
     render(json: error, status: error.status_code) and return if error
