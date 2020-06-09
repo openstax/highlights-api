@@ -138,6 +138,10 @@ Rails.application.config.to_prepare do
         if (sets.blank? || sets.include?('user:me')) && user_id.present?
           filters[:user].push(user_id)
         end
+        
+        if (sets.blank? || sets.include?('user:me')) && !user_id.present?
+          raise NotAuthorized
+        end
 
         if sets.present? && sets.include?('curated:openstax') && scope_id.present?
           curator_scope = CuratorScope.find_by(scope_id: scope_id)

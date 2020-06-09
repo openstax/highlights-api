@@ -6,6 +6,10 @@ class Api::V0::BaseController < ApplicationController
     render json: binding_error(status_code: 500, messages: [ex.message]), status: 500
   end
 
+  rescue_from NotAuthorized do |ex|
+    head :unauthorized
+  end
+
   rescue_from_unless_local ActiveRecord::RecordNotFound do |ex|
     head :not_found
   end

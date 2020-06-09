@@ -54,6 +54,11 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           expect(response).to have_http_status(:unauthorized)
         end
       end
+      
+      it('public sets can still be queried') do
+        get highlights_path, params: query_params.merge(source_ids: [source_id], scope_id: scope_1_id, sets: ['curated:openstax'])
+        expect(response).to have_http_status(:ok)
+      end
     end
 
     context 'when the user is logged in' do
@@ -577,6 +582,11 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
       it 'does not give a summary' do
         get summary_path, params: query_params
         expect(response).to have_http_status(:unauthorized)
+      end
+      
+      it('public sets can still be queried') do
+        get summary_path, params: query_params.merge(scope_id: scope_1_id, sets: ['curated:openstax'])
+        expect(response).to have_http_status(:ok)
       end
     end
   end
