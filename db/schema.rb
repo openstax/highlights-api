@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_05_135519) do
+ActiveRecord::Schema.define(version: 2020_06_22_170535) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -44,6 +44,7 @@ ActiveRecord::Schema.define(version: 2020_05_05_135519) do
     t.index ["prev_highlight_id"], name: "index_highlights_on_prev_highlight_id"
     t.index ["scope_id"], name: "index_highlights_on_scope_id"
     t.index ["source_type"], name: "index_highlights_on_source_type"
+    t.index ["user_id", "source_id"], name: "index_highlights_on_user_id_and_source_id"
     t.index ["user_id"], name: "index_highlights_on_user_id"
   end
 
