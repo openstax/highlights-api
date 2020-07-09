@@ -45,7 +45,7 @@ class ServiceLimits
         raise ActiveRecord::RecordInvalid.new(model) if model.invalid?
 
         track_and_validate_max_highlights(model)
-        track_and_validate_annotation_chars(model) if model.annotation.present?
+        track_and_validate_annotation_chars(model) if model.annotation.is_a?(String)
       end
     end
   end
@@ -56,7 +56,7 @@ class ServiceLimits
         raise ArgumentError, 'Block did not yield an active record model' unless model.is_a?(Highlight)
         raise ActiveRecord::RecordInvalid.new(model) if model.invalid?
 
-        track_and_validate_annotation_chars(model) if model.annotation.present?
+        track_and_validate_annotation_chars(model) if model.annotation.is_a?(String)
       end
     end
   end
@@ -118,7 +118,7 @@ class ServiceLimits
   def track_counts_for_deleted_highlight(highlight)
     user.increment_num_highlights(by: -1)
 
-    if highlight.annotation.present?
+    if highlight.annotation.is_a?(String)
       user.increment_num_annotation_characters(by: -highlight.annotation.length)
     end
 
