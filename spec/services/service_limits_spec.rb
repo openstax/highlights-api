@@ -243,6 +243,19 @@ RSpec.describe ServiceLimits, type: :service do
 
         expect(user.reload.num_annotation_characters).to eq under_10.length
       end
+
+      it 'will update when annotation is set to empty string' do
+        expect(user.num_annotation_characters).not_to eq 0
+
+        expect do
+          service_limits.with_update_protection do
+            highlight.annotation = ""
+            highlight.tap(&:save!)
+          end
+        end.to_not raise_error
+
+        expect(user.reload.num_annotation_characters).to eq 0
+      end
     end
   end
 
