@@ -486,8 +486,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         end
 
         it 'can be set back to empty' do
-          put highlights_path(id: highlight.id), params: { highlight: { annotation: 'note' } }
-          expect(highlight.reload.annotation).to eq 'note'
+          expect(highlight.annotation.present?).to eq true
           put highlights_path(id: highlight.id), params: { highlight: { annotation: '' } }
           expect(highlight.reload.annotation).to eq ''
           expect(response).to have_http_status :ok
