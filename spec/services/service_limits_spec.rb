@@ -218,7 +218,7 @@ RSpec.describe ServiceLimits, type: :service do
       it 'will update when annotation is set to empty string' do
         expect do
           service_limits.with_update_protection do
-            highlight.annotation = ""
+            highlight.annotation = ''
             highlight.tap(&:save!)
           end
         end.to_not raise_error
@@ -227,16 +227,14 @@ RSpec.describe ServiceLimits, type: :service do
       end
 
       it 'counts whitespace only annotations' do
-        whitespace_annotation = " \n"
-
         expect do
           service_limits.with_update_protection do
-            highlight.annotation = whitespace_annotation
+            highlight.annotation = " \n"
             highlight.tap(&:save!)
           end
         end.to_not raise_error
 
-        expect(user.reload.num_annotation_characters).to eq whitespace_annotation.length
+        expect(user.reload.num_annotation_characters).to eq 2
       end
     end
 
