@@ -209,6 +209,35 @@ RSpec.describe ServiceLimits, type: :service do
       end
     end
 
+    context 'whitespace annotations' do
+      let!(:user) { create(:new_user, num_annotation_characters: user_annotation.length ) }
+      let!(:highlight) { create(:highlight, user: user, annotation: user_annotation) }
+
+      let(:user_annotation) { 'annotation' }
+
+      it 'will update when annotation is set to empty string' do
+        expect do
+          service_limits.with_update_protection do
+            highlight.annotation = ''
+            highlight.tap(&:save!)
+          end
+        end.to_not raise_error
+
+        expect(user.reload.num_annotation_characters).to eq 0
+      end
+
+      it 'counts whitespace only annotations' do
+        expect do
+          service_limits.with_update_protection do
+            highlight.annotation = " \n"
+            highlight.tap(&:save!)
+          end
+        end.to_not raise_error
+
+        expect(user.reload.num_annotation_characters).to eq 2
+      end
+    end
+
     context 'limits for max chars per annotation per user' do
       let!(:user) { create(:new_user, num_annotation_characters: under_10.length) }
       let!(:highlight) { create(:highlight, user: user, annotation: under_10) }

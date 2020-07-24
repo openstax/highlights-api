@@ -478,10 +478,19 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         expect(response).to have_http_status :ok
       end
 
-      it 'can update annotation' do
-        put highlights_path(id: highlight.id), params: { highlight: { annotation: 'oh yeah' } }
-        expect(highlight.reload.annotation).to eq 'oh yeah'
-        expect(response).to have_http_status :ok
+      context 'when updating annotation' do
+        it 'updates with given string' do
+          put highlights_path(id: highlight.id), params: { highlight: { annotation: 'oh yeah' } }
+          expect(highlight.reload.annotation).to eq 'oh yeah'
+          expect(response).to have_http_status :ok
+        end
+
+        it 'can be set back to empty' do
+          expect(highlight.annotation.present?).to eq true
+          put highlights_path(id: highlight.id), params: { highlight: { annotation: '' } }
+          expect(highlight.reload.annotation).to eq ''
+          expect(response).to have_http_status :ok
+        end
       end
 
       context 'when the highlight does not exist' do
