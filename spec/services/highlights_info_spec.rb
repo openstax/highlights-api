@@ -66,7 +66,7 @@ RSpec.describe HighlightsInfo, type: :service do
     end
 
     it 'returns the correct num users greater than 200 (stubbed as 3) highlights per page' do
-      expect(info_results[:data][:num_users_gt_200_highlights_per_page]).to eq 1
+      expect(info_results[:data][:num_users_gt_200_highlights_per_page]).to eq -1
     end
 
     it 'returns the correct num users greater than 10 (stubbed as 1) highlights' do
