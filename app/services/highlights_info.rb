@@ -100,18 +100,20 @@ class HighlightsInfo
   end
 
   def num_users_gt_200_highlights_per_page
-    query = <<-SQL
-      SELECT
-        count(*)
-      FROM
-        ( SELECT
-            COUNT(*)
-          FROM highlights
-          GROUP BY user_id, source_id 
-            HAVING COUNT(*) > #{GREATER_THAN_200}) temp_table
-    SQL
-
-    ActiveRecord::Base.connection.select_value(query)
+    # Commenting out until performance can be improved
+    # query = <<-SQL
+    #   SELECT
+    #     count(*)
+    #   FROM
+    #     ( SELECT
+    #         COUNT(*)
+    #       FROM highlights
+    #       GROUP BY user_id, source_id
+    #         HAVING COUNT(*) > #{GREATER_THAN_200}) temp_table
+    # SQL
+    #
+    # ActiveRecord::Base.connection.select_value(query)
+    -1
   end
 
   def num_users_gt_10_highlights
