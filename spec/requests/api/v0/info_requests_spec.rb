@@ -4,15 +4,6 @@ RSpec.describe 'api v0 info requests', type: :request, api: :v0 do
   let(:user_id) { '7307bc10-6923-4687-81df-2db0c3e6b595' }
 
   describe '#info' do
-    context 'user permitted' do
-      it 'returns info' do
-        api_get '/info'
-        expect(response).to have_http_status(:ok)
-
-        json = json_response
-        expect(json).to have_key(:postgres_version)
-      end
-    end
 
     context 'user not permitted' do
       before do

@@ -28,12 +28,15 @@ class Api::V0::BaseController < ApplicationController
 
   protected
 
+  def validate_not_production
+    head :unauthorized if Utilities.production_deployment?
+  end
+
   def validate_current_user_authorized_as_admin
     head :unauthorized unless current_user_authorized_as_admin?
   end
 
   def current_user_authorized_as_admin?
-    return true unless Utilities.production_deployment?
     return false if Rails.application.secrets.admin_uuids.blank?
 
     allowed_uuids = Rails.application.secrets.admin_uuids.split(',').map(&:strip)
