@@ -28,6 +28,10 @@ class Api::V0::BaseController < ApplicationController
 
   protected
 
+  def validate_not_production
+    head :unauthorized if Utilities.production_deployment?
+  end
+
   def validate_current_user_authorized_as_admin
     head :unauthorized unless current_user_authorized_as_admin?
   end
