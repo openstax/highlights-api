@@ -2,9 +2,10 @@
 #
 # See Api::V0::HighlightsSwagger for documentation
 class Api::V0::HighlightsController < Api::V0::BaseController
-  before_action :render_unauthorized_if_no_current_user, except: [:index, :summary]
+  before_action :render_unauthorized_if_no_current_user, except: [:index, :summary, :show]
 
-  before_action :set_highlight, only: [:update, :destroy]
+  before_action :set_highlight, only: [:update, :destroy, :show]
+  before_action :validate_highlight_belongs_to_requesting_user, only: [:update, :destroy]
 
   def create
     inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::NewHighlight)
@@ -62,8 +63,11 @@ class Api::V0::HighlightsController < Api::V0::BaseController
   end
 
   def show
-    @highlight = Highlight.find(params[:id])
+    inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::HighlightUpdate)
+    render(json: error, status: error.status_code) and return if error
 
+    response_binding = Api::V0::Bindings::Highlight.strip_user_data(@highlight)
+    render json: response_binding, status: :ok
   end
 
   private
@@ -80,6 +84,9 @@ class Api::V0::HighlightsController < Api::V0::BaseController
 
   def set_highlight
     @highlight = Highlight.find(params[:id])
+  end
+
+  def validate_highlight_belongs_to_requesting_user
     raise SecurityTransgression unless @highlight.user_id == current_user_uuid
   end
 

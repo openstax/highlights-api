@@ -63,6 +63,12 @@ Rails.application.config.to_prepare do
     end
   end
 
+  Api::V0::Bindings::Highlight.class_exec do
+    def self.strip_user_data(model)
+      model
+    end
+  end
+
   Api::V0::Bindings::Highlights.class_exec do
     def self.create_from_query_result(query_result)
       highlights_bindings = query_result.map do |highlight|
