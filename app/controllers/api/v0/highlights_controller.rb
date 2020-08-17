@@ -61,6 +61,11 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     head :ok
   end
 
+  def show
+    @highlight = Highlight.find(params[:id])
+
+  end
+
   private
 
   def with_advisory_lock(something_with_source_id)
