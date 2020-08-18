@@ -433,8 +433,8 @@ class Api::V0::HighlightsSwagger
 
   swagger_path '/highlights/{id}' do
     operation :get do
-      key :summary, 'Get a highlight without user data'
-      key :description, 'Get a highlight without the associated user_id and annotation' \
+      key :summary, 'Get a highlight without an annotation.'
+      key :description, 'Get a highlight without an annotation. ' \
                         'Can be accessed by anyone.'
       key :operationId, 'getHighlight'
       key :produces, [

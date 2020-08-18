@@ -63,9 +63,6 @@ class Api::V0::HighlightsController < Api::V0::BaseController
   end
 
   def show
-    inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::HighlightUpdate)
-    render(json: error, status: error.status_code) and return if error
-
     response_binding = Api::V0::Bindings::Highlight.strip_user_data(@highlight)
     render json: response_binding, status: :ok
   end

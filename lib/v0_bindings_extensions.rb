@@ -61,11 +61,9 @@ Rails.application.config.to_prepare do
     def self.create_from_model(model)
       new(model.attributes)
     end
-  end
 
-  Api::V0::Bindings::Highlight.class_exec do
     def self.strip_user_data(model)
-      model
+      create_from_model(model).to_hash.except(:annotation)
     end
   end
 
