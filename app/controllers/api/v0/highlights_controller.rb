@@ -63,7 +63,7 @@ class Api::V0::HighlightsController < Api::V0::BaseController
   end
 
   def show
-    response_binding = Api::V0::Bindings::Highlight.strip_user_data(@highlight)
+    response_binding = Api::V0::Bindings::Highlight.create_without_user_data(@highlight)
     render json: response_binding, status: :ok
   end
 

@@ -62,8 +62,8 @@ Rails.application.config.to_prepare do
       new(model.attributes)
     end
 
-    def self.strip_user_data(model)
-      create_from_model(model).to_hash.except(:annotation)
+    def self.create_without_user_data(model)
+      new(model.attributes.except('annotation'))
     end
   end
 
