@@ -211,7 +211,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     end
 
     context 'when an user is logged in' do
-      before(:each) { stub_current_user_uuid(user_id) }
+      before(:each) { stub_current_user_uuid(SecureRandom.uuid) }
 
       it('returns highlight data without an annotation') do
         get highlights_path(id: highlight.id)
