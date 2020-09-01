@@ -433,8 +433,8 @@ class Api::V0::HighlightsSwagger
 
   swagger_path '/highlights/{id}' do
     operation :get do
-      key :summary, 'Get a highlight without an annotation.'
-      key :description, 'Get a highlight without an annotation.'
+      key :summary, 'Get a highlight without its annotation data.'
+      key :description, 'Get a highlight without its annotation data.'
       key :operationId, 'getHighlight'
       key :produces, [
         'application/json'
