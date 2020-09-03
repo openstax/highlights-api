@@ -6,7 +6,7 @@ Rails.application.routes.draw do
       defaults: { format: :json }
     ) do
 
-      resources :highlights, except: :show do
+      resources :highlights do
         get :summary, on: :collection
       end
 

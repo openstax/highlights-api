@@ -432,6 +432,36 @@ class Api::V0::HighlightsSwagger
   end
 
   swagger_path '/highlights/{id}' do
+    operation :get do
+      key :summary, 'Get a highlight without its annotation data.'
+      key :description, 'Get a highlight without its annotation data.'
+      key :operationId, 'getHighlight'
+      key :produces, [
+        'application/json'
+      ]
+      key :tags, [
+        'Highlights'
+      ]
+      parameter do
+        key :name, :id
+        key :in, :path
+        key :description, 'ID of the highlight to find.'
+        key :required, true
+        key :type, :string
+        key :format, 'uuid'
+      end
+      response 200 do
+        key :description, 'Success. Returns the queried highlight.'
+        schema do
+          key :'$ref', :Highlight
+        end
+      end
+      extend Api::V0::SwaggerResponses::UnprocessableEntityError
+      extend Api::V0::SwaggerResponses::ServerError
+    end
+  end
+
+  swagger_path '/highlights/{id}' do
     operation :put do
       key :summary, 'Update a highlight'
       key :description, 'Update a highlight'

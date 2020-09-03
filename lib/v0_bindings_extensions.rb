@@ -61,6 +61,10 @@ Rails.application.config.to_prepare do
     def self.create_from_model(model)
       new(model.attributes)
     end
+
+    def self.create_without_user_data(model)
+      new(model.attributes.except('annotation'))
+    end
   end
 
   Api::V0::Bindings::Highlights.class_exec do

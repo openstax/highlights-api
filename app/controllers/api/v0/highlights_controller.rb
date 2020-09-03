@@ -4,7 +4,8 @@
 class Api::V0::HighlightsController < Api::V0::BaseController
   before_action :render_unauthorized_if_no_current_user, except: [:index, :summary]
 
-  before_action :set_highlight, only: [:update, :destroy]
+  before_action :set_highlight, only: [:update, :destroy, :show]
+  before_action :validate_highlight_belongs_to_requesting_user, only: [:update, :destroy]
 
   def create
     inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::NewHighlight)
@@ -61,6 +62,11 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     head :ok
   end
 
+  def show
+    response_binding = Api::V0::Bindings::Highlight.create_without_user_data(@highlight)
+    render json: response_binding, status: :ok
+  end
+
   private
 
   def with_advisory_lock(something_with_source_id)
@@ -75,6 +81,9 @@ class Api::V0::HighlightsController < Api::V0::BaseController
 
   def set_highlight
     @highlight = Highlight.find(params[:id])
+  end
+
+  def validate_highlight_belongs_to_requesting_user
     raise SecurityTransgression unless @highlight.user_id == current_user_uuid
   end
 
