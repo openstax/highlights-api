@@ -36,6 +36,10 @@ module HighlightsApi
 
     config.eager_load_paths << Rails.root.join('lib')
 
+    # disable the ip spoofing check to allow use of the x-forward-for
+    # see https://github.com/rails/rails/blob/6-0-stable/actionpack/lib/action_dispatch/middleware/remote_ip.rb#L118-L149
+    config.action_dispatch.ip_spoofing_check = false
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded after loading
