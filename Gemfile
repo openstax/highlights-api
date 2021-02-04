@@ -63,6 +63,10 @@ gem 'rack-cors'
 
 gem 'with_advisory_lock'
 
+# Run async jobs on a cron schedule
+gem 'whenever'
+gem 'sucker_punch', '~> 2.0'
+
 group :test do
   # Code Climate integration
   # gem "codeclimate-test-reporter", require: false
