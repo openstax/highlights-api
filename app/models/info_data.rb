@@ -1,2 +1,0 @@
-class InfoData < ApplicationRecord
-end

@@ -48,7 +48,8 @@ ActiveRecord::Schema.define(version: 2021_02_04_220428) do
     t.index ["user_id"], name: "index_highlights_on_user_id"
   end
 
-  create_table "info_data", force: :cascade do |t|
+  create_table "precalculateds", force: :cascade do |t|
+    t.string "data_type", default: "info"
     t.json "data"
   end
 

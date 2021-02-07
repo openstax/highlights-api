@@ -2,6 +2,6 @@ class InfoJob
   include SuckerPunch::Job
 
   def perform(event)
-    InfoData.new.call
+    InfoStore.new.call
   end
 end
