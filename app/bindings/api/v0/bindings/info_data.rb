@@ -56,6 +56,12 @@ module Api::V0::Bindings
     # The total number of users
     attr_accessor :total_users
 
+    # The precalculated start time
+    attr_accessor :gen_started_at
+
+    # The precalculated end time
+    attr_accessor :gen_ended_at
+
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
@@ -72,7 +78,9 @@ module Api::V0::Bindings
         :'num_users_gt_200_highlights_per_page' => :'num_users_gt_200_highlights_per_page',
         :'num_users_gt_10_highlights' => :'num_users_gt_10_highlights',
         :'num_users_gt_50_highlights' => :'num_users_gt_50_highlights',
-        :'total_users' => :'total_users'
+        :'total_users' => :'total_users',
+        :'gen_started_at' => :'gen_started_at',
+        :'gen_ended_at' => :'gen_ended_at'
       }
     end
 
@@ -92,7 +100,9 @@ module Api::V0::Bindings
         :'num_users_gt_200_highlights_per_page' => :'Integer',
         :'num_users_gt_10_highlights' => :'Integer',
         :'num_users_gt_50_highlights' => :'Integer',
-        :'total_users' => :'Integer'
+        :'total_users' => :'Integer',
+        :'gen_started_at' => :'String',
+        :'gen_ended_at' => :'String'
       }
     end
 
@@ -159,6 +169,14 @@ module Api::V0::Bindings
       if attributes.has_key?(:'total_users')
         self.total_users = attributes[:'total_users']
       end
+
+      if attributes.has_key?(:'gen_started_at')
+        self.gen_started_at = attributes[:'gen_started_at']
+      end
+
+      if attributes.has_key?(:'gen_ended_at')
+        self.gen_ended_at = attributes[:'gen_ended_at']
+      end
     end
 
     # Show invalid properties with the reasons. Usually used together with valid?
@@ -192,7 +210,9 @@ module Api::V0::Bindings
           num_users_gt_200_highlights_per_page == o.num_users_gt_200_highlights_per_page &&
           num_users_gt_10_highlights == o.num_users_gt_10_highlights &&
           num_users_gt_50_highlights == o.num_users_gt_50_highlights &&
-          total_users == o.total_users
+          total_users == o.total_users &&
+          gen_started_at == o.gen_started_at &&
+          gen_ended_at == o.gen_ended_at
     end
 
     # @see the `==` method
@@ -204,7 +224,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [total_notes, num_users_with_notes, avg_note_length, median_note_length, max_note_length, total_highlights, num_users_with_highlights, avg_highlights_per_user, median_highlights_per_user, max_num_highlights_any_user, num_users_gt_200_highlights_per_page, num_users_gt_10_highlights, num_users_gt_50_highlights, total_users].hash
+      [total_notes, num_users_with_notes, avg_note_length, median_note_length, max_note_length, total_highlights, num_users_with_highlights, avg_highlights_per_user, median_highlights_per_user, max_num_highlights_any_user, num_users_gt_200_highlights_per_page, num_users_gt_10_highlights, num_users_gt_50_highlights, total_users, gen_started_at, gen_ended_at].hash
     end
 
     # Builds the object from hash
@@ -214,7 +234,7 @@ module Api::V0::Bindings
       return nil unless attributes.is_a?(Hash)
       self.class.swagger_types.each_pair do |key, type|
         if type =~ /\AArray<(.*)>/i
-          # check to ensure the input is an array given that the attribute
+          # check to ensure the input is an array given that the the attribute
           # is documented as an array but the input is not
           if attributes[self.class.attribute_map[key]].is_a?(Array)
             self.send("#{key}=", attributes[self.class.attribute_map[key]].map { |v| _deserialize($1, v) })
@@ -310,6 +330,5 @@ module Api::V0::Bindings
         value
       end
     end
-
   end
 end

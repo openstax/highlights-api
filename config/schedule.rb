@@ -23,6 +23,6 @@ end
 
 # Run every day at 6am central time
 every :day, at: local('6:00 am') do
-  runner 'InfoJob.perform'
+  runner "InfoJob.new.perform('precalulated')"
 end
 

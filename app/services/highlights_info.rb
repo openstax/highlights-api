@@ -21,23 +21,28 @@ class HighlightsInfo
 
   private
 
-  DATA_FIELDS = [:total_highlights,
-                 :total_users,
-                 :total_notes,
-                 :avg_highlights_per_user,
-                 :median_highlights_per_user,
-                 :avg_note_length,
-                 :median_note_length,
-                 :max_note_length,
-                 :num_users_with_highlights,
-                 :num_users_gt_200_highlights_per_page,
-                 :num_users_gt_10_highlights,
-                 :num_users_gt_50_highlights,
-                 :num_users_with_notes,
-                 :max_num_highlights_any_user]
+  DATA_FIELDS =
+    [
+      :total_highlights,
+      :total_users,
+      :total_notes,
+      :avg_highlights_per_user,
+      :median_highlights_per_user,
+      :avg_note_length,
+      :median_note_length,
+      :max_note_length,
+      :num_users_with_highlights,
+      :num_users_gt_200_highlights_per_page,
+      :num_users_gt_10_highlights,
+      :num_users_gt_50_highlights,
+      :num_users_with_notes,
+      :max_num_highlights_any_user,
+      :gen_started_at,
+      :gen_ended_at
+  ]
 
   def data
-    info_data = Precalculate.info.first&.info_data
+    info_data = Precalculated.info.first&.data&.with_indifferent_access
 
     Hash[DATA_FIELDS.collect { |field| [field, info_data ? info_data[field] : -1 ] }]
   end
