@@ -90,7 +90,6 @@ GEM
       msgpack (~> 1.0)
     builder (3.2.3)
     byebug (11.0.1)
-    chronic (0.10.2)
     codecov (0.2.9)
       json
       simplecov
@@ -263,8 +262,6 @@ GEM
     websocket-driver (0.7.1)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    whenever (1.0.0)
-      chronic (>= 0.6.3)
     will_paginate (3.1.8)
     with_advisory_lock (4.6.0)
       activerecord (>= 4.2)
@@ -303,7 +300,6 @@ DEPENDENCIES
   sucker_punch (~> 2.0)
   tzinfo-data
   versionist
-  whenever
   will_paginate (~> 3.1.7)
   with_advisory_lock
 
