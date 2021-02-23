@@ -37,7 +37,6 @@ class Api::V0::BaseController < ApplicationController
   end
 
   def current_user_authorized_as_admin?
-    return true
     return false if Rails.application.secrets.admin_uuids.blank?
 
     allowed_uuids = Rails.application.secrets.admin_uuids.split(',').map(&:strip)
