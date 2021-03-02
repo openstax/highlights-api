@@ -247,6 +247,8 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
+    sucker_punch (2.1.2)
+      concurrent-ruby (~> 1.0)
     swagger-blocks (3.0.0)
     thor (0.20.3)
     thread_safe (0.3.6)
@@ -295,6 +297,7 @@ DEPENDENCIES
   simplecov
   spring
   spring-watcher-listen (~> 2.0.0)
+  sucker_punch (~> 2.0)
   tzinfo-data
   versionist
   will_paginate (~> 3.1.7)

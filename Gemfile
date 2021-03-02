@@ -63,6 +63,8 @@ gem 'rack-cors'
 
 gem 'with_advisory_lock'
 
+gem 'sucker_punch', '~> 2.0'
+
 group :test do
   # Code Climate integration
   # gem "codeclimate-test-reporter", require: false

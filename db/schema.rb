@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_06_22_170535) do
+ActiveRecord::Schema.define(version: 2021_02_04_220428) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -46,6 +46,11 @@ ActiveRecord::Schema.define(version: 2020_06_22_170535) do
     t.index ["source_type"], name: "index_highlights_on_source_type"
     t.index ["user_id", "source_id"], name: "index_highlights_on_user_id_and_source_id"
     t.index ["user_id"], name: "index_highlights_on_user_id"
+  end
+
+  create_table "precalculateds", force: :cascade do |t|
+    t.string "data_type", default: "info"
+    t.json "data"
   end
 
   create_table "user_sources", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

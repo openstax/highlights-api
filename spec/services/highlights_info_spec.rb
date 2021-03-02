@@ -21,12 +21,14 @@ RSpec.describe HighlightsInfo, type: :service do
       @prev_200 = reset_constant(const_name: 'GREATER_THAN_200', value: 3)
       @prev_10 = reset_constant(const_name: 'GREATER_THAN_10', value: 1)
       @prev_50 = reset_constant(const_name: 'GREATER_THAN_50', value: 2)
+      InfoJob.new.perform('precalulated')
     end
 
     after do
       reset_constant(const_name: 'GREATER_THAN_200', value: @prev_200)
       reset_constant(const_name: 'GREATER_THAN_10', value: @prev_10)
       reset_constant(const_name: 'GREATER_THAN_50', value: @prev_50)
+      Precalculated.delete_all
     end
 
     it 'returns the correct number of total highlights' do
@@ -66,7 +68,7 @@ RSpec.describe HighlightsInfo, type: :service do
     end
 
     it 'returns the correct num users greater than 200 (stubbed as 3) highlights per page' do
-      expect(info_results[:data][:num_users_gt_200_highlights_per_page]).to eq -1
+      expect(info_results[:data][:num_users_gt_200_highlights_per_page]).to eq 1
     end
 
     it 'returns the correct num users greater than 10 (stubbed as 1) highlights' do
@@ -79,9 +81,9 @@ RSpec.describe HighlightsInfo, type: :service do
   end
 
   def reset_constant(const_name:, value:)
-    prev_value = HighlightsInfo.const_get(const_name)
-    HighlightsInfo.send('remove_const', const_name)
-    HighlightsInfo.const_set(const_name, value)
+    prev_value = InfoStore.const_get(const_name)
+    InfoStore.send('remove_const', const_name)
+    InfoStore.const_set(const_name, value)
     prev_value
   end
 end

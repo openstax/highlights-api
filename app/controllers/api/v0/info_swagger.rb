@@ -59,6 +59,14 @@ class Api::V0::InfoSwagger
       key :type, :integer
       key :description, "The total number of users"
     end
+    property :gen_started_at do
+      key :type, :string
+      key :description, "The precalculated start time"
+    end
+    property :gen_ended_at do
+      key :type, :string
+      key :description, "The precalculated end time"
+    end
   end
 
   swagger_schema :InfoResults do
