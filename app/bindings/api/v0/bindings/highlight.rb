@@ -35,6 +35,7 @@ module Api::V0::Bindings
     # The ID of the highlight immediately after this highlight.  May be null if there are no following highlights in this source.
     attr_accessor :next_highlight_id
 
+    # The name of the highlight color.  Corresponding RGB values for different states (e.g. focused, passive) are maintained in the client.
     attr_accessor :color
 
     # The anchor of the highlight.
@@ -103,7 +104,7 @@ module Api::V0::Bindings
         :'scope_id' => :'String',
         :'prev_highlight_id' => :'String',
         :'next_highlight_id' => :'String',
-        :'color' => :'Color',
+        :'color' => :'String',
         :'anchor' => :'String',
         :'highlighted_content' => :'String',
         :'annotation' => :'String',
@@ -224,6 +225,8 @@ module Api::V0::Bindings
       return false if @source_id.nil?
       return false if @source_id !~ Regexp.new(/(?-mix:^[^,]+$)/)
       return false if @color.nil?
+      color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'pink'])
+      return false unless color_validator.valid?(@color)
       return false if @anchor.nil?
       return false if @highlighted_content.nil?
       return false if @location_strategies.nil?
@@ -252,6 +255,16 @@ module Api::V0::Bindings
       end
 
       @source_id = source_id
+    end
+
+    # Custom attribute writer method checking allowed values (enum).
+    # @param [Object] color Object to be assigned
+    def color=(color)
+      validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'pink'])
+      unless validator.valid?(color)
+        fail ArgumentError, 'invalid value for "color", must be one of #{validator.allowable_values}.'
+      end
+      @color = color
     end
 
     # Checks equality by comparing each attribute.

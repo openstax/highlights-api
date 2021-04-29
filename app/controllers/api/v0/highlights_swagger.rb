@@ -114,14 +114,6 @@ class Api::V0::HighlightsSwagger
     end
   end
 
-  swagger_schema :Color do
-    key :type, :string
-    key :enum, VALID_HIGHLIGHT_COLORS
-    key :description, 'The name of the highlight color.  Corresponding RGB values for ' \
-                      'different states (e.g. focused, passive) are maintained in the ' \
-                      'client.'
-  end
-
   COMMON_REQUIRED_HIGHLIGHT_FIELDS = [
     :id, :source_type, :source_id, :anchor, :highlighted_content, :color, :location_strategies
   ]
@@ -177,7 +169,11 @@ class Api::V0::HighlightsSwagger
                         'null if there are no following highlights in this source.'
     end
     property :color do
-      key :'$ref', :Color
+      key :type, :string
+      key :enum, VALID_HIGHLIGHT_COLORS
+      key :description, 'The name of the highlight color.  Corresponding RGB values for ' \
+                        'different states (e.g. focused, passive) are maintained in the ' \
+                        'client.'
     end
     property :anchor do
       key :type, :string
@@ -213,7 +209,11 @@ class Api::V0::HighlightsSwagger
 
   swagger_schema :HighlightUpdate do
     property :color do
-      key :'$ref', :Color
+      key :type, :string
+      key :enum, VALID_HIGHLIGHT_COLORS
+      key :description, 'The new name of the highlight color.  Corresponding RGB values for ' \
+                        'different states (e.g. focused, passive) are maintained in the ' \
+                        'client.'
     end
     property :annotation do
       key :type, :string
