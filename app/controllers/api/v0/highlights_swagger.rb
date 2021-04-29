@@ -115,11 +115,11 @@ class Api::V0::HighlightsSwagger
   end
 
   COMMON_REQUIRED_HIGHLIGHT_FIELDS = [
-    :source_type, :source_id, :anchor, :highlighted_content, :color, :location_strategies
+    :id, :source_type, :source_id, :anchor, :highlighted_content, :color, :location_strategies
   ]
 
   swagger_schema :Highlight do
-    key :required, COMMON_REQUIRED_HIGHLIGHT_FIELDS | [:id]
+    key :required, COMMON_REQUIRED_HIGHLIGHT_FIELDS
   end
 
   swagger_schema :NewHighlight do
@@ -145,6 +145,10 @@ class Api::V0::HighlightsSwagger
                         'the \'openstax_page\' source_type).  Because source_ids are passed ' \
                         'to query endpoints as comma-separated values, they cannot contain ' \
                         'commas.'
+    end
+    property :source_metadata do
+      key :type, :object
+      key :description, 'Source metadata, eg: {book_version: 14.3}'
     end
     property :scope_id do
       key :type, :string

@@ -231,6 +231,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
 
     let(:valid_inner_attributes) do
       {
+        id: fake_uuid(1),
         source_id: source_id,
         anchor: 'foo anchor',
         highlighted_content: 'foo content',
@@ -279,14 +280,14 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         context 'when there is one existing highlight' do
           # Lots more invalid data tests in the model spec
           it '422s when the new highlight does not specify prev or next' do
-            post highlights_path, params: valid_attributes
+            post highlights_path, params: valid_attributes.deep_merge(highlight: {id: fake_uuid(2)})
             expect(response).to have_http_status(:unprocessable_entity)
             expect(response.body).to match(/Must specify previous or next highlight/)
           end
 
           it 'puts the new highlight after the first one when set a prev highlight' do
             valid_inner_attributes.merge!(prev_highlight_id: @hl1_id)
-            post highlights_path, params: valid_attributes
+            post highlights_path, params: valid_attributes.deep_merge(highlight: {id: fake_uuid(2)})
             expect(response).to have_http_status(:created)
             expect(json_response[:order_in_source]).to be > 0
             expect(json_response[:prev_highlight_id]).to eq @hl1_id
@@ -296,7 +297,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
 
           it 'puts the new highlight before the first one when set a next highlight' do
             valid_inner_attributes.merge!(next_highlight_id: @hl1_id)
-            post highlights_path, params: valid_attributes
+            post highlights_path, params: valid_attributes.deep_merge(highlight: {id: fake_uuid(2)})
             expect(response).to have_http_status(:created)
             expect(json_response[:order_in_source]).to be < 0
           end

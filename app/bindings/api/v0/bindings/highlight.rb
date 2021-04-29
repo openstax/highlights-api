@@ -23,6 +23,9 @@ module Api::V0::Bindings
     # The ID of the source document in which the highlight is made.  Has source_type-specific constraints (e.g. all lowercase UUID for the 'openstax_page' source_type).  Because source_ids are passed to query endpoints as comma-separated values, they cannot contain commas.
     attr_accessor :source_id
 
+    # Source metadata, eg: {book_version: 14.3}
+    attr_accessor :source_metadata
+
     # The ID of the container for the source in which the highlight is made.  Varies depending on source_type (e.g. is the lowercase, versionless book UUID for the 'openstax_page' source_type).
     attr_accessor :scope_id
 
@@ -78,6 +81,7 @@ module Api::V0::Bindings
         :'id' => :'id',
         :'source_type' => :'source_type',
         :'source_id' => :'source_id',
+        :'source_metadata' => :'source_metadata',
         :'scope_id' => :'scope_id',
         :'prev_highlight_id' => :'prev_highlight_id',
         :'next_highlight_id' => :'next_highlight_id',
@@ -96,6 +100,7 @@ module Api::V0::Bindings
         :'id' => :'String',
         :'source_type' => :'String',
         :'source_id' => :'String',
+        :'source_metadata' => :'Object',
         :'scope_id' => :'String',
         :'prev_highlight_id' => :'String',
         :'next_highlight_id' => :'String',
@@ -126,6 +131,10 @@ module Api::V0::Bindings
 
       if attributes.has_key?(:'source_id')
         self.source_id = attributes[:'source_id']
+      end
+
+      if attributes.has_key?(:'source_metadata')
+        self.source_metadata = attributes[:'source_metadata']
       end
 
       if attributes.has_key?(:'scope_id')
@@ -266,6 +275,7 @@ module Api::V0::Bindings
           id == o.id &&
           source_type == o.source_type &&
           source_id == o.source_id &&
+          source_metadata == o.source_metadata &&
           scope_id == o.scope_id &&
           prev_highlight_id == o.prev_highlight_id &&
           next_highlight_id == o.next_highlight_id &&
@@ -286,7 +296,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [id, source_type, source_id, scope_id, prev_highlight_id, next_highlight_id, color, anchor, highlighted_content, annotation, location_strategies, order_in_source].hash
+      [id, source_type, source_id, source_metadata, scope_id, prev_highlight_id, next_highlight_id, color, anchor, highlighted_content, annotation, location_strategies, order_in_source].hash
     end
 
     # Builds the object from hash
