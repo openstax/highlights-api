@@ -114,12 +114,20 @@ class Api::V0::HighlightsSwagger
     end
   end
 
+  swagger_schema :Color do
+    key :type, :string
+    key :enum, VALID_HIGHLIGHT_COLORS
+    key :description, 'The name of the highlight color.  Corresponding RGB values for ' \
+                      'different states (e.g. focused, passive) are maintained in the ' \
+                      'client.'
+  end
+
   COMMON_REQUIRED_HIGHLIGHT_FIELDS = [
-    :source_type, :source_id, :anchor, :highlighted_content, :color, :location_strategies
+    :id, :source_type, :source_id, :anchor, :highlighted_content, :color, :location_strategies
   ]
 
   swagger_schema :Highlight do
-    key :required, COMMON_REQUIRED_HIGHLIGHT_FIELDS | [:id]
+    key :required, COMMON_REQUIRED_HIGHLIGHT_FIELDS
   end
 
   swagger_schema :NewHighlight do
@@ -146,6 +154,10 @@ class Api::V0::HighlightsSwagger
                         'to query endpoints as comma-separated values, they cannot contain ' \
                         'commas.'
     end
+    property :source_metadata do
+      key :type, :object
+      key :description, 'Source metadata, eg: {book_version: 14.3}'
+    end
     property :scope_id do
       key :type, :string
       key :description, 'The ID of the container for the source in which the highlight is made.  ' \
@@ -165,11 +177,7 @@ class Api::V0::HighlightsSwagger
                         'null if there are no following highlights in this source.'
     end
     property :color do
-      key :type, :string
-      key :enum, VALID_HIGHLIGHT_COLORS
-      key :description, 'The name of the highlight color.  Corresponding RGB values for ' \
-                        'different states (e.g. focused, passive) are maintained in the ' \
-                        'client.'
+      key :'$ref', :Color
     end
     property :anchor do
       key :type, :string
@@ -205,11 +213,7 @@ class Api::V0::HighlightsSwagger
 
   swagger_schema :HighlightUpdate do
     property :color do
-      key :type, :string
-      key :enum, VALID_HIGHLIGHT_COLORS
-      key :description, 'The new name of the highlight color.  Corresponding RGB values for ' \
-                        'different states (e.g. focused, passive) are maintained in the ' \
-                        'client.'
+      key :'$ref', :Color
     end
     property :annotation do
       key :type, :string

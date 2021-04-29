@@ -23,6 +23,9 @@ module Api::V0::Bindings
     # The ID of the source document in which the highlight is made.  Has source_type-specific constraints (e.g. all lowercase UUID for the 'openstax_page' source_type).  Because source_ids are passed to query endpoints as comma-separated values, they cannot contain commas.
     attr_accessor :source_id
 
+    # Source metadata, eg: {book_version: 14.3}
+    attr_accessor :source_metadata
+
     # The ID of the container for the source in which the highlight is made.  Varies depending on source_type (e.g. is the lowercase, versionless book UUID for the 'openstax_page' source_type).
     attr_accessor :scope_id
 
@@ -32,7 +35,6 @@ module Api::V0::Bindings
     # The ID of the highlight immediately after this highlight.  May be null if there are no following highlights in this source.
     attr_accessor :next_highlight_id
 
-    # The name of the highlight color.  Corresponding RGB values for different states (e.g. focused, passive) are maintained in the client.
     attr_accessor :color
 
     # The anchor of the highlight.
@@ -78,6 +80,7 @@ module Api::V0::Bindings
         :'id' => :'id',
         :'source_type' => :'source_type',
         :'source_id' => :'source_id',
+        :'source_metadata' => :'source_metadata',
         :'scope_id' => :'scope_id',
         :'prev_highlight_id' => :'prev_highlight_id',
         :'next_highlight_id' => :'next_highlight_id',
@@ -96,10 +99,11 @@ module Api::V0::Bindings
         :'id' => :'String',
         :'source_type' => :'String',
         :'source_id' => :'String',
+        :'source_metadata' => :'Object',
         :'scope_id' => :'String',
         :'prev_highlight_id' => :'String',
         :'next_highlight_id' => :'String',
-        :'color' => :'String',
+        :'color' => :'Color',
         :'anchor' => :'String',
         :'highlighted_content' => :'String',
         :'annotation' => :'String',
@@ -126,6 +130,10 @@ module Api::V0::Bindings
 
       if attributes.has_key?(:'source_id')
         self.source_id = attributes[:'source_id']
+      end
+
+      if attributes.has_key?(:'source_metadata')
+        self.source_metadata = attributes[:'source_metadata']
       end
 
       if attributes.has_key?(:'scope_id')
@@ -216,8 +224,6 @@ module Api::V0::Bindings
       return false if @source_id.nil?
       return false if @source_id !~ Regexp.new(/(?-mix:^[^,]+$)/)
       return false if @color.nil?
-      color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'pink'])
-      return false unless color_validator.valid?(@color)
       return false if @anchor.nil?
       return false if @highlighted_content.nil?
       return false if @location_strategies.nil?
@@ -248,16 +254,6 @@ module Api::V0::Bindings
       @source_id = source_id
     end
 
-    # Custom attribute writer method checking allowed values (enum).
-    # @param [Object] color Object to be assigned
-    def color=(color)
-      validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'pink'])
-      unless validator.valid?(color)
-        fail ArgumentError, 'invalid value for "color", must be one of #{validator.allowable_values}.'
-      end
-      @color = color
-    end
-
     # Checks equality by comparing each attribute.
     # @param [Object] Object to be compared
     def ==(o)
@@ -266,6 +262,7 @@ module Api::V0::Bindings
           id == o.id &&
           source_type == o.source_type &&
           source_id == o.source_id &&
+          source_metadata == o.source_metadata &&
           scope_id == o.scope_id &&
           prev_highlight_id == o.prev_highlight_id &&
           next_highlight_id == o.next_highlight_id &&
@@ -286,7 +283,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [id, source_type, source_id, scope_id, prev_highlight_id, next_highlight_id, color, anchor, highlighted_content, annotation, location_strategies, order_in_source].hash
+      [id, source_type, source_id, source_metadata, scope_id, prev_highlight_id, next_highlight_id, color, anchor, highlighted_content, annotation, location_strategies, order_in_source].hash
     end
 
     # Builds the object from hash

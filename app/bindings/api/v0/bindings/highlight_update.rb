@@ -14,33 +14,10 @@ require 'date'
 
 module Api::V0::Bindings
   class HighlightUpdate
-    # The new name of the highlight color.  Corresponding RGB values for different states (e.g. focused, passive) are maintained in the client.
     attr_accessor :color
 
     # The new note for the highlight (replaces existing note).
     attr_accessor :annotation
-
-    class EnumAttributeValidator
-      attr_reader :datatype
-      attr_reader :allowable_values
-
-      def initialize(datatype, allowable_values)
-        @allowable_values = allowable_values.map do |value|
-          case datatype.to_s
-          when /Integer/i
-            value.to_i
-          when /Float/i
-            value.to_f
-          else
-            value
-          end
-        end
-      end
-
-      def valid?(value)
-        !value || allowable_values.include?(value)
-      end
-    end
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
@@ -53,7 +30,7 @@ module Api::V0::Bindings
     # Attribute type mapping.
     def self.swagger_types
       {
-        :'color' => :'String',
+        :'color' => :'Color',
         :'annotation' => :'String'
       }
     end
@@ -85,19 +62,7 @@ module Api::V0::Bindings
     # Check to see if the all the properties in the model are valid
     # @return true if the model is valid
     def valid?
-      color_validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'pink'])
-      return false unless color_validator.valid?(@color)
       true
-    end
-
-    # Custom attribute writer method checking allowed values (enum).
-    # @param [Object] color Object to be assigned
-    def color=(color)
-      validator = EnumAttributeValidator.new('String', ['yellow', 'green', 'blue', 'purple', 'pink'])
-      unless validator.valid?(color)
-        fail ArgumentError, 'invalid value for "color", must be one of #{validator.allowable_values}.'
-      end
-      @color = color
     end
 
     # Checks equality by comparing each attribute.

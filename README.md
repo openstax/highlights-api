@@ -12,7 +12,7 @@ This app creates, updates, and deletes highlights from Postgres
 ## Running on Localhost
 <details>
 <summary>show</summary>
-  
+
 ### Configuration
 
 copy the secrets.yml.example to secrets.yml
