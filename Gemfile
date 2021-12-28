@@ -52,6 +52,10 @@ gem "openstax_path_prefixer", github: 'openstax/path_prefixer', ref: '0ed5cdba6b
 
 gem "openstax_auth", github: 'openstax/auth-rails', ref: 'ed2d7da86ca226b93376955b9474c4cf115c611f'
 
+gem 'openstax_content'
+gem 'addressable'
+gem 'nokogiri'
+
 # Exception reporting
 gem 'sentry-raven'
 

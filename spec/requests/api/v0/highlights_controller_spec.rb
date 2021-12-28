@@ -10,7 +10,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
   let(:source_id) { SecureRandom.uuid }
   let(:scope_1_id) { SecureRandom.uuid }
   let(:uuid1) { SecureRandom.uuid }
-  
+
   let!(:curator) { create(:user) }
   let!(:curator_scope) { create(:curator_scope, curator_id: curator.id, scope_id: scope_1_id) }
 
@@ -24,7 +24,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     let!(:highlight5) { create(:highlight, id: fake_uuid(5), user_id: user_id, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
     let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_id: user_id, source_id: source_id, scope_id: SecureRandom.uuid) }
     let!(:highlight7) { create(:highlight, id: fake_uuid(7)) }
-    
+
     let!(:highlight8) { create(:highlight, id: fake_uuid(8), user_id: curator_scope.curator_id, source_id: source_id, scope_id: scope_1_id) }
     let!(:highlight9) { create(:highlight, id: fake_uuid(9), user_id: curator_scope.curator_id, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight8) }
 
@@ -44,7 +44,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           expect(response).to have_http_status(:unauthorized)
         end
       end
-      
+
       it('public sets can still be queried') do
         get highlights_path, params: query_params.merge(source_ids: [source_id], scope_id: scope_1_id, sets: ['curated:openstax'])
         expect(response).to have_http_status(:ok)
@@ -185,13 +185,13 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           expect(highlights.size).to eq 4
         end
       end
-      
+
       context 'handles sets' do
         it 'returns curated results' do
           get highlights_path, params: query_params.merge(source_ids: [source_id], scope_id: scope_1_id, sets: ['user:me', 'curated:openstax'])
           expect(highlights.size).to eq 5
         end
-        
+
         it 'returns only curated results' do
           get highlights_path, params: query_params.merge(source_ids: [source_id], scope_id: scope_1_id, sets: ['curated:openstax'])
           expect(highlights.size).to eq 2
@@ -240,7 +240,8 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         color: 'yellow',
         location_strategies: [type: 'TextPositionSelector',
                               start: 12,
-                              end: 10]
+                              end: 10],
+        content_path: [0]
       }
     end
 
@@ -261,6 +262,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         before do
           post highlights_path, params: valid_attributes
           @hl1_id = json_response[:id]
+          @hl1_anchor = json_response[:anchor]
         end
 
         context 'when there are no highlights yet' do
@@ -278,11 +280,10 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         end
 
         context 'when there is one existing highlight' do
-          # Lots more invalid data tests in the model spec
-          it '422s when the new highlight does not specify prev or next' do
+          it 'automatically places the new highlight when not specifying prev or next' do
             post highlights_path, params: valid_attributes.deep_merge(highlight: {id: fake_uuid(2)})
-            expect(response).to have_http_status(:unprocessable_entity)
-            expect(response.body).to match(/Must specify previous or next highlight/)
+            expect(response).to have_http_status(:created)
+            expect(response.body).not_to match(/Must specify previous or next highlight/)
           end
 
           it 'puts the new highlight after the first one when set a prev highlight' do
@@ -298,6 +299,19 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           it 'puts the new highlight before the first one when set a next highlight' do
             valid_inner_attributes.merge!(next_highlight_id: @hl1_id)
             post highlights_path, params: valid_attributes.deep_merge(highlight: {id: fake_uuid(2)})
+            expect(response).to have_http_status(:created)
+            expect(json_response[:order_in_source]).to be < 0
+          end
+
+          it 'uses source_metadata to place the new highlight in the correct order' do
+            content = { "content" => "<!DOCTYPE html><html><body><p id='banchor'></p><p id='#{@hl1_anchor}'></p></body></html>" }
+            allow_any_instance_of(PageContent).to receive(:archive_fetch).and_return(content)
+
+            source_metadata = { bookUuid: 'anyid', bookVersion: '1.0', pageUuid: 'anyid' }
+            highlight_params = { id: fake_uuid(3), anchor: 'banchor', source_metadata: source_metadata }
+
+            post highlights_path, params: valid_attributes.deep_merge(highlight: highlight_params)
+
             expect(response).to have_http_status(:created)
             expect(json_response[:order_in_source]).to be < 0
           end
@@ -533,7 +547,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     let!(:highlight5) { create(:highlight, id: fake_uuid(5),                   source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight1, next_highlight: highlight4) }
     let!(:highlight6) { create(:highlight, id: fake_uuid(6), user_id: user_id, source_id: source_id, scope_id: SecureRandom.uuid) }
     let!(:highlight7) { create(:highlight, id: fake_uuid(7)) }
-    
+
     let!(:highlight8) { create(:highlight, id: fake_uuid(8), user_id: curator_scope.curator_id, source_id: source_id, scope_id: scope_1_id) }
     let!(:highlight9) { create(:highlight, id: fake_uuid(9), user_id: curator_scope.curator_id, source_id: source_id, scope_id: scope_1_id, prev_highlight: highlight8) }
 
@@ -568,7 +582,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           highlight3.source_id.to_sym => { pink: 1}
         })
       end
-      
+
       it 'counts only curated when requested' do
         get "/api/v0/highlights/summary?source_type=openstax_page&scope_id=#{scope_1_id}&" \
             "sets=curated:openstax"
@@ -605,7 +619,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         get summary_path, params: query_params
         expect(response).to have_http_status(:unauthorized)
       end
-      
+
       it('public sets can still be queried') do
         get summary_path, params: query_params.merge(scope_id: scope_1_id, sets: ['curated:openstax'])
         expect(response).to have_http_status(:ok)

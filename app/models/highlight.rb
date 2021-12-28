@@ -13,6 +13,7 @@ class Highlight < ApplicationRecord
   belongs_to :user
 
   before_validation :normalize_color, :normalize_ids
+  before_validation :find_neighbors, on: :create
 
   validates_presence_of :user_id,
                         :source_type,
@@ -47,10 +48,92 @@ class Highlight < ApplicationRecord
     end
   end
 
+  def page_content_fetchable?
+    openstax_page? && source_metadata.keys.include?('bookVersion')
+  end
+
+  def content_path
+    strategy = location_strategies[0]
+    return unless strategy['type'] == 'XpathRangeSelector' && strategy['node_path']
+    [strategy['node_path'], strategy['start_offset']].flatten.compact
+  end
+
   protected
 
   def all_mine_from_scope_and_source
     Highlight.where(user_id: user_id).where(scope_id: scope_id).where(source_id: source_id)
+  end
+
+  def fetch_page_anchors
+    return unless page_content_fetchable?
+
+    page_content = PageContent.new(
+      book_uuid: scope_id,
+      book_version: source_metadata['bookVersion'],
+      page_uuid: source_id
+    )
+
+    page_content.fetch
+    page_anchors = page_content.anchors
+  end
+
+  def page_anchors
+    @page_anchors ||= fetch_page_anchors
+  end
+
+  def sorted_anchor_neighbors
+    existing = all_mine_from_scope_and_source.where(anchor: anchor).order(:order_in_source)
+    paths = [existing, self].flatten.map do |h|
+      [(h.id || 'self'), h.content_path] if h.content_path
+    end
+
+    paths.compact.sort_by(&:second)
+  end
+
+  def self_index
+    sorted_anchor_neighbors.index {|i| i[0] == 'self' }
+  end
+
+  def find_prev_neighbor_id
+    return nil unless self_index
+    self_index == 0 ? nil : sorted_anchor_neighbors[self_index - 1]&.at(0)
+  end
+
+  def find_next_neighbor_id
+    return nil unless self_index
+    sorted_anchor_neighbors[self_index + 1]&.at(0)
+  end
+
+  def find_neighbors
+    anchors = all_mine_from_scope_and_source.pluck(:anchor)
+    return unless anchors.any?
+
+    # If the highlight is inside an existing anchor, find the neighbors
+    # using content_path, otherwise find it relative to all page anchors
+    if anchors.include?(anchor)
+      if sorted_anchor_neighbors.one? || !find_prev_neighbor_id && !find_next_neighbor_id
+        # we don't have any other data to compare, use the highlight ids sent
+        return if prev_highlight_id || next_highlight_id
+        # can't find placement data, no highlight ids sent - put it at the end
+        self.prev_highlight_id = all_mine_from_scope_and_source.where(anchor: anchor).order(:order_in_source).last&.id
+        self.next_highlight_id = nil
+      else
+        self.prev_highlight_id = find_prev_neighbor_id
+        self.next_highlight_id = find_next_neighbor_id
+      end
+    elsif page_anchors && page_anchors.any? && page_anchors.find_index(anchor)
+      index = page_anchors.find_index(anchor)
+      prev_anchors = page_anchors.slice(0, index)
+      next_anchor = page_anchors[index + 1]
+      saved_neighbors = all_mine_from_scope_and_source.order(:order_in_source)
+
+      self.prev_highlight_id = saved_neighbors.select {|h| prev_anchors.include?(h.anchor) }.last&.id
+      self.next_highlight_id = prev_highlight ? prev_highlight&.next_highlight_id : saved_neighbors.select {|h| next_anchor == h.anchor }.first&.id
+    else
+      # Placement cannot be determined - put it at the end
+      self.prev_highlight_id =  all_mine_from_scope_and_source.order(:order_in_source).last&.id
+      self.next_highlight_id = nil
+    end
   end
 
   def valid_uuid?(uuid)

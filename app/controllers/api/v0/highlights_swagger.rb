@@ -47,6 +47,13 @@ class Api::V0::HighlightsSwagger
       key :type, :string
       key :description, 'The type for the xpath range selector.'
     end
+    property :node_path do
+      key :type, :array
+      key :description, 'An array containing node indexes that point to the content node'
+      items do
+        key :type, :integer
+      end
+    end
   end
 
   swagger_schema :Highlights do

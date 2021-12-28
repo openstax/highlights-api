@@ -84,7 +84,165 @@ RSpec.describe Highlight, type: :model do
       end
     end
 
+    context 'page_content_fetchable?' do
+      it 'checks that required source_metadata is available' do
+        # old clients won't have new metadata, only bookVersions
+        record = build(:highlight, source_metadata: { })
+        expect(record.page_content_fetchable?).to be false
+
+        record = build(:highlight, source_metadata: { bookVersion: '1.0' })
+        expect(record.page_content_fetchable?).to be true
+      end
+    end
+
     context 'neighbors' do
+      let(:page_anchors) { ['a', 'b', 'c'] }
+
+      context 'when prev or next information is missing' do
+        context 'new anchor' do
+          before do
+            allow_any_instance_of(Highlight).to receive(:page_anchors).and_return(page_anchors)
+          end
+
+          context 'with page anchors' do
+            it 'can find neighbors from the start and end' do
+              hlb = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'b')
+              hla = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+              hlc = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'c')
+
+              orders = [hla, hlb, hlc].map {|hl| hl.reload.order_in_source }
+              expect(orders).to eq [-1.0, 0.0, 1.0]
+              expect(hlb.prev_highlight.anchor).to eq hla.anchor
+              expect(hlb.next_highlight.anchor).to eq hlc.anchor
+            end
+
+            it 'can find neighbors from the middle' do
+              hla = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+              hlc = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'c')
+              hlb = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'b')
+
+              orders = [hla, hlb, hlc].map {|hl| hl.reload.order_in_source }
+              expect(orders).to eq [0.0, 0.5, 1.0]
+              expect(hlb.prev_highlight_id).to eq hla.id
+              expect(hlb.next_highlight_id).to eq hlc.id
+            end
+
+          end
+
+          context 'without page anchors' do
+            it 'places the highlight at the end' do
+              hl1 = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+              hl2 = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'b')
+
+              expect(hl1.reload.next_highlight_id).to eq hl2.id
+              expect(hl2.reload.prev_highlight_id).to eq hl1.id
+            end
+          end
+        end
+
+        context 'existing anchor' do
+          before do
+            allow_any_instance_of(Highlight).to receive(:page_anchors).and_return(page_anchors)
+          end
+
+          context 'inside anchor position methods' do
+            let(:hl1) { create(:highlight, :with_content_path, path: [0, 0],
+                               source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a') }
+            let(:hl2) { create(:highlight, :with_content_path, path: [0, 100],
+                               source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a') }
+            let(:hl3) { build(:highlight, :with_content_path,  path: [0, 50],
+                              source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a') }
+
+            before { [hl1, hl2].map(&:reload) }
+
+            it '#sorted_neighbors sorts a new record with existing' do
+              sorted_anchors = [
+                [hl1.id, hl1.content_path],
+                ["self", hl3.content_path],
+                [hl2.id, hl2.content_path]
+              ]
+
+              expect(hl3.send(:sorted_anchor_neighbors)).to eq sorted_anchors
+            end
+
+            it '#self_index finds itself' do
+              expect(hl3.send(:self_index)).to eq 1
+            end
+          end
+
+          it 'can find neighbors from the start and end' do
+            hl1 = create(:highlight, :with_content_path, path: [1, 0],
+                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+
+            hl2 = create(:highlight, :with_content_path, path: [0, 0],
+                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+
+            hl3 = create(:highlight, :with_content_path, path: [2, 0],
+                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+
+            orders = [hl2, hl1, hl3].map {|hl| hl.reload.order_in_source }
+            expect(orders).to eq [-1.0, 0.0, 1.0]
+            expect(hl1.prev_highlight_id).to eq hl2.id
+            expect(hl1.next_highlight_id).to eq hl3.id
+          end
+
+          it 'can find neighbors from the middle' do
+            hl2 = create(:highlight, :with_content_path, path: [0, 0],
+                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+
+            hl3 = create(:highlight, :with_content_path, path: [2, 0],
+                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+
+            hl1 = create(:highlight, :with_content_path, path: [1, 0],
+                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+
+
+            orders = [hl2, hl1, hl3].map {|hl| hl.reload.order_in_source }
+            expect(orders).to eq [0.0, 0.5, 1.0]
+            expect(hl1.prev_highlight_id).to eq hl2.id
+            expect(hl1.next_highlight_id).to eq hl3.id
+          end
+
+          it 'works with existing highlights that do not have node_path data' do
+            hl1 = create(:highlight, :with_base_xpath_selector,
+                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+
+            hl2 = create(:highlight, :with_base_xpath_selector,
+                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+
+            hl3 = create(:highlight, :with_base_xpath_selector,
+                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+
+            hl2.reload
+
+            expect(hl2.prev_highlight_id).to eq hl1.id
+            expect(hl2.next_highlight_id).to eq hl3.id
+          end
+        end
+      end
+
+      context 'when prev or next information is stale' do
+        before do
+          allow_any_instance_of(Highlight).to receive(:page_anchors).and_return(page_anchors)
+        end
+
+        it 'determines the correct order' do
+          hla = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id,
+                       content_path: [0], anchor: 'a')
+
+          hlb = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id,
+                       content_path: [0], anchor: 'b')
+
+          hld = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id,
+                       content_path: [0], anchor: 'd')
+
+          hlc = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id,
+                       content_path: [0], anchor: 'c', prev_highlight_id: hla.id)
+
+          expect(hlc.prev_highlight_id).to eq hlb.id
+        end
+      end
+
       context 'source consistency' do
         it 'is invalid unless prev has same source as the highlight' do
           hl1 = create(:highlight, source_id: uuid1)
@@ -110,12 +268,6 @@ RSpec.describe Highlight, type: :model do
         let!(:hl1) { create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id) }
 
         context 'working in the same scope' do
-          it 'complains about making another one without specifying prev or next' do
-            expect{
-              create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id)
-            }.to raise_error(ActiveRecord::RecordInvalid, /Must specify previous or next/)
-          end
-
           it 'is ok if the highlight is from a different user' do
             expect{
               create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: other_user.id)
