@@ -240,8 +240,7 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         color: 'yellow',
         location_strategies: [type: 'TextPositionSelector',
                               start: 12,
-                              end: 10],
-        content_path: [0]
+                              end: 10]
       }
     end
 
@@ -303,13 +302,11 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
             expect(json_response[:order_in_source]).to be < 0
           end
 
-          it 'uses source_metadata to place the new highlight in the correct order' do
+          it 'uses anchor data to place the new highlight in the correct order' do
             content = { "content" => "<!DOCTYPE html><html><body><p id='banchor'></p><p id='#{@hl1_anchor}'></p></body></html>" }
             allow_any_instance_of(PageContent).to receive(:archive_fetch).and_return(content)
 
-            source_metadata = { bookUuid: 'anyid', bookVersion: '1.0', pageUuid: 'anyid' }
-            highlight_params = { id: fake_uuid(3), anchor: 'banchor', source_metadata: source_metadata }
-
+            highlight_params = { id: fake_uuid(3), anchor: 'banchor', source_metadata: { bookVersion: '1.0' } }
             post highlights_path, params: valid_attributes.deep_merge(highlight: highlight_params)
 
             expect(response).to have_http_status(:created)

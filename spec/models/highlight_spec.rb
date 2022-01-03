@@ -155,18 +155,20 @@ RSpec.describe Highlight, type: :model do
 
             before { [hl1, hl2].map(&:reload) }
 
-            it '#sorted_neighbors sorts a new record with existing' do
+            it '#anchor_paths sorts a new record with existing' do
               sorted_anchors = [
                 [hl1.id, hl1.content_path],
-                ["self", hl3.content_path],
+                ["new", hl3.content_path],
                 [hl2.id, hl2.content_path]
               ]
 
-              expect(hl3.send(:sorted_anchor_neighbors)).to eq sorted_anchors
+              expect(hl3.send(:anchor_paths)).to eq sorted_anchors
             end
 
-            it '#self_index finds itself' do
-              expect(hl3.send(:self_index)).to eq 1
+            it '#anchor_paths_self_index finds itself' do
+              expect(hl3.send(:anchor_paths_self_index)).to eq 1
+              hl3.save
+              expect(hl2.send(:anchor_paths_self_index)).to eq 2
             end
           end
 
@@ -206,10 +208,8 @@ RSpec.describe Highlight, type: :model do
           it 'works with existing highlights that do not have node_path data' do
             hl1 = create(:highlight, :with_base_xpath_selector,
                          source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
-
             hl2 = create(:highlight, :with_base_xpath_selector,
                          source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
-
             hl3 = create(:highlight, :with_base_xpath_selector,
                          source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
 
@@ -217,6 +217,22 @@ RSpec.describe Highlight, type: :model do
 
             expect(hl2.prev_highlight_id).to eq hl1.id
             expect(hl2.next_highlight_id).to eq hl3.id
+
+            hl4 = create(:highlight, :with_content_path, path: [10, 0],
+                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+            hl5 = create(:highlight, :with_content_path, path: [0, 0],
+                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+            hl6 = create(:highlight, :with_base_xpath_selector,
+                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+            hl7 = create(:highlight, :with_content_path, path: [],
+                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+
+            [hl5, hl6, hl7].map(&:reload)
+
+            expect(hl5.prev_highlight_id).to eq hl3.id
+            expect(hl5.next_highlight_id).to eq hl4.id
+            expect(hl6.prev_highlight_id).to eq hl4.id
+            expect(hl7.prev_highlight_id).to eq hl6.id
           end
         end
       end
@@ -227,17 +243,17 @@ RSpec.describe Highlight, type: :model do
         end
 
         it 'determines the correct order' do
-          hla = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id,
-                       content_path: [0], anchor: 'a')
+          hla = create(:highlight, :with_content_path, path: [0],
+                       source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
 
-          hlb = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id,
-                       content_path: [0], anchor: 'b')
+          hlb = create(:highlight, :with_content_path, path: [0],
+                       source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'b')
 
-          hld = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id,
-                       content_path: [0], anchor: 'd')
+          hld = create(:highlight, :with_content_path, path: [0],
+                       source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'd')
 
-          hlc = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id,
-                       content_path: [0], anchor: 'c', prev_highlight_id: hla.id)
+          hlc = create(:highlight, :with_content_path, path: [0],
+                       source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'c', prev_highlight_id: hla.id)
 
           expect(hlc.prev_highlight_id).to eq hlb.id
         end

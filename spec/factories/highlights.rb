@@ -52,7 +52,7 @@ FactoryBot.define do
             type: 'XpathRangeSelector',
             node_path: evaluator.path[0...-1],
             start_offset: evaluator.path[-1],
-            end_offset: evaluator.path[-1] + 1,
+            end_offset: (evaluator.path[-1] || 0) + 1,
             start_container: '.',
             end_container: '.'
           }

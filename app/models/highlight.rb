@@ -49,7 +49,7 @@ class Highlight < ApplicationRecord
   end
 
   def page_content_fetchable?
-    openstax_page? && source_metadata.keys.include?('bookVersion')
+    openstax_page? && source_metadata && source_metadata.keys.include?('bookVersion')
   end
 
   def content_path
@@ -74,34 +74,41 @@ class Highlight < ApplicationRecord
     )
 
     page_content.fetch
-    page_anchors = page_content.anchors
+    page_content.anchors
   end
 
   def page_anchors
     @page_anchors ||= fetch_page_anchors
   end
 
-  def sorted_anchor_neighbors
-    existing = all_mine_from_scope_and_source.where(anchor: anchor).order(:order_in_source)
-    paths = [existing, self].flatten.map do |h|
-      [(h.id || 'self'), h.content_path] if h.content_path
-    end
+  def anchor_paths
+    paths = anchor_highlights_with_content_paths.map {|h| [h.id, h.content_path] }
+    paths << [(id || 'new'), content_path] if content_path && !persisted?
 
-    paths.compact.sort_by(&:second)
+    paths.compact.reject {|path| path[1].empty? }.sort_by(&:second)
   end
 
-  def self_index
-    sorted_anchor_neighbors.index {|i| i[0] == 'self' }
+  def anchor_highlights
+    all_mine_from_scope_and_source.where(anchor: anchor).order(:order_in_source)
   end
 
-  def find_prev_neighbor_id
-    return nil unless self_index
-    self_index == 0 ? nil : sorted_anchor_neighbors[self_index - 1]&.at(0)
+  def anchor_highlights_with_content_paths
+    anchor_highlights.select {|highlight| highlight.content_path.present? }
   end
 
-  def find_next_neighbor_id
-    return nil unless self_index
-    sorted_anchor_neighbors[self_index + 1]&.at(0)
+  def anchor_paths_self_index
+    identifier = id || 'new'
+    anchor_paths.index {|i| i[0] == identifier }
+  end
+
+  def find_prev_anchor_neighbor_id
+    return nil unless anchor_paths_self_index
+    anchor_paths_self_index == 0 ? nil : anchor_paths[anchor_paths_self_index - 1]&.at(0)
+  end
+
+  def find_next_anchor_neighbor_id
+    return nil unless anchor_paths_self_index
+    anchor_paths[anchor_paths_self_index + 1]&.at(0)
   end
 
   def find_neighbors
@@ -111,25 +118,34 @@ class Highlight < ApplicationRecord
     # If the highlight is inside an existing anchor, find the neighbors
     # using content_path, otherwise find it relative to all page anchors
     if anchors.include?(anchor)
-      if sorted_anchor_neighbors.one? || !find_prev_neighbor_id && !find_next_neighbor_id
+      if anchor_paths.one? || !find_prev_anchor_neighbor_id && !find_next_anchor_neighbor_id
         # we don't have any other data to compare, use the highlight ids sent
         return if prev_highlight_id || next_highlight_id
         # can't find placement data, no highlight ids sent - put it at the end
-        self.prev_highlight_id = all_mine_from_scope_and_source.where(anchor: anchor).order(:order_in_source).last&.id
+        self.prev_highlight_id = anchor_highlights.last&.id
         self.next_highlight_id = nil
       else
-        self.prev_highlight_id = find_prev_neighbor_id
-        self.next_highlight_id = find_next_neighbor_id
+        self.prev_highlight_id = find_prev_anchor_neighbor_id
+        self.next_highlight_id = find_next_anchor_neighbor_id
+
+        if prev_highlight
+          self.next_highlight_id = prev_highlight.next_highlight_id
+        elsif next_highlight
+          self.prev_highlight_id = next_highlight.prev_highlight_id
+        end
       end
     elsif page_anchors && page_anchors.any? && page_anchors.find_index(anchor)
+      saved_neighbors = all_mine_from_scope_and_source.order(:order_in_source)
       index = page_anchors.find_index(anchor)
       prev_anchors = page_anchors.slice(0, index)
-      next_anchor = page_anchors[index + 1]
-      saved_neighbors = all_mine_from_scope_and_source.order(:order_in_source)
+      next_neighbor = saved_neighbors.find do |highlight|
+        neighbor_index = page_anchors.find_index(highlight.anchor)
+        neighbor_index && neighbor_index > index
+      end
 
       self.prev_highlight_id = saved_neighbors.select {|h| prev_anchors.include?(h.anchor) }.last&.id
-      self.next_highlight_id = prev_highlight ? prev_highlight&.next_highlight_id : saved_neighbors.select {|h| next_anchor == h.anchor }.first&.id
-    else
+      self.next_highlight_id = prev_highlight ? prev_highlight&.next_highlight_id : next_neighbor&.id
+    elsif !prev_highlight_id && !next_highlight_id
       # Placement cannot be determined - put it at the end
       self.prev_highlight_id =  all_mine_from_scope_and_source.order(:order_in_source).last&.id
       self.next_highlight_id = nil
