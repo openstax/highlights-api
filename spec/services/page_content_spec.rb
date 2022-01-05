@@ -16,18 +16,35 @@ RSpec.describe PageContent, type: :service do
   end
 
   context 'fetching from archive' do
-    before do
-      json = '{"content":"<!DOCTYPE html><html><body><p id=\\"first\\"></p><p id=\\"second\\"></p><p id=\\"third\\"></p></body></html>"}'
-      allow(page_content).to receive(:archive_fetch).and_return(JSON.parse(json))
-      page_content.fetch
+    context 'when there are no issues' do
+      before do
+        html = '<!DOCTYPE html><html><body><p id="first"></p><p id="second"></p><p id="third"></p></body></html>'
+        allow(page_content).to receive(:fetch_archive_content).and_return(html)
+        page_content.fetch
+      end
+
+      it 'parses page content' do
+        expect(page_content.content).not_to be nil
+      end
+
+      it 'parses anchors' do
+        expect(page_content.anchors).to eq ["first", "second", "third"]
+      end
     end
 
-    it 'parses page content' do
-      expect(page_content.content).not_to be nil
-    end
+    context 'when the content 404s' do
+      before do
+        allow(page_content).to receive(:latest_archive_version).and_return(nil)
+        allow_any_instance_of(OpenStax::Content::Archive).to receive(:fetch).and_return('will not parse')
+      end
 
-    it 'parses anchors' do
-      expect(page_content.anchors).to eq ["first", "second", "third"]
+      it 'handles parser errors' do
+        expect { page_content.fetch }.to raise_error(JSON::ParserError) # Should raise errors in dev
+
+        allow(Rails.application.config).to receive(:consider_all_requests_local) { false }
+        expect { page_content.fetch }.not_to raise_error
+        expect(page_content.anchors).to eq []
+      end
     end
   end
 end

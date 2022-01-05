@@ -18,17 +18,26 @@ class PageContent
     @archive ||= OpenStax::Content::Archive.new latest_archive_version
   end
 
-  def archive_fetch
-    archive.json(page_id)
+  def fetch_archive_content
+    begin
+      JSON.parse(archive.fetch(page_id))["content"]
+    rescue JSON::ParserError => exception
+      if Rails.application.config.consider_all_requests_local
+        raise exception
+      else
+        Raven.capture_exception(exception)
+        return nil
+      end
+    end
   end
 
   def fetch
-    @content = archive_fetch["content"]
+    @content = fetch_archive_content
     @doc = Nokogiri::HTML(@content)
+    self
   end
 
   def anchors
     @doc.xpath('//@id').map(&:value)
   end
-
 end

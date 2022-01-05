@@ -303,8 +303,8 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           end
 
           it 'uses anchor data to place the new highlight in the correct order' do
-            content = { "content" => "<!DOCTYPE html><html><body><p id='banchor'></p><p id='#{@hl1_anchor}'></p></body></html>" }
-            allow_any_instance_of(PageContent).to receive(:archive_fetch).and_return(content)
+            content = "<!DOCTYPE html><html><body><p id='banchor'></p><p id='#{@hl1_anchor}'></p></body></html>"
+            allow_any_instance_of(PageContent).to receive(:fetch_archive_content).and_return(content)
 
             highlight_params = { id: fake_uuid(3), anchor: 'banchor', source_metadata: { bookVersion: '1.0' } }
             post highlights_path, params: valid_attributes.deep_merge(highlight: highlight_params)

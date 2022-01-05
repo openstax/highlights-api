@@ -73,8 +73,7 @@ class Highlight < ApplicationRecord
       page_uuid: source_id
     )
 
-    page_content.fetch
-    page_content.anchors
+    page_content.fetch.anchors
   end
 
   def page_anchors
