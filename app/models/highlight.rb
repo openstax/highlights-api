@@ -53,9 +53,9 @@ class Highlight < ApplicationRecord
   end
 
   def content_path
-    strategy = location_strategies[0]
-    return unless strategy['type'] == 'XpathRangeSelector' && strategy['node_path']
-    [strategy['node_path'], strategy['start_offset']].flatten.compact
+    strat = location_strategies[0]
+    return unless strat['type'] == 'XpathRangeSelector' && strat['node_path'] && strat['start_offset']
+    [strat['node_path'], strat['start_offset']].flatten
   end
 
   protected
@@ -100,55 +100,67 @@ class Highlight < ApplicationRecord
     anchor_paths.index {|i| i[0] == identifier }
   end
 
-  def find_prev_anchor_neighbor_id
+  def find_prev_content_path_neighbor_id
     return nil unless anchor_paths_self_index
     anchor_paths_self_index == 0 ? nil : anchor_paths[anchor_paths_self_index - 1]&.at(0)
   end
 
-  def find_next_anchor_neighbor_id
+  def find_next_content_path_neighbor_id
     return nil unless anchor_paths_self_index
     anchor_paths[anchor_paths_self_index + 1]&.at(0)
   end
 
+  def has_content_path_neighbor?
+    !!(find_prev_content_path_neighbor_id || find_next_content_path_neighbor_id)
+  end
+
   def find_neighbors
-    anchors = all_mine_from_scope_and_source.pluck(:anchor)
+    anchors = all_mine_from_scope_and_source.order(:order_in_source).map(&:anchor)
     return unless anchors.any?
 
     # If the highlight is inside an existing anchor, find the neighbors
     # using content_path, otherwise find it relative to all page anchors
     if anchors.include?(anchor)
-      if anchor_paths.one? || !find_prev_anchor_neighbor_id && !find_next_anchor_neighbor_id
-        # we don't have any other data to compare, use the highlight ids sent
-        return if prev_highlight_id || next_highlight_id
-        # can't find placement data, no highlight ids sent - put it at the end
-        self.prev_highlight_id = anchor_highlights.last&.id
-        self.next_highlight_id = nil
-      else
-        self.prev_highlight_id = find_prev_anchor_neighbor_id
-        self.next_highlight_id = find_next_anchor_neighbor_id
-
-        if prev_highlight
-          self.next_highlight_id = prev_highlight.next_highlight_id
-        elsif next_highlight
-          self.prev_highlight_id = next_highlight.prev_highlight_id
-        end
-      end
+      set_inside_anchor_neighbors
     elsif page_anchors && page_anchors.any? && page_anchors.find_index(anchor)
-      saved_neighbors = all_mine_from_scope_and_source.order(:order_in_source)
-      index = page_anchors.find_index(anchor)
-      prev_anchors = page_anchors.slice(0, index)
-      next_neighbor = saved_neighbors.find do |highlight|
-        neighbor_index = page_anchors.find_index(highlight.anchor)
-        neighbor_index && neighbor_index > index
-      end
-
-      self.prev_highlight_id = saved_neighbors.select {|h| prev_anchors.include?(h.anchor) }.last&.id
-      self.next_highlight_id = prev_highlight ? prev_highlight&.next_highlight_id : next_neighbor&.id
+      set_outside_anchor_neighbors
     elsif !prev_highlight_id && !next_highlight_id
-      # Placement cannot be determined - put it at the end
-      self.prev_highlight_id =  all_mine_from_scope_and_source.order(:order_in_source).last&.id
+      # There are saved neighbors, but placement cannot be determined - put it at the end
+      self.prev_highlight_id = all_mine_from_scope_and_source.order(:order_in_source).last&.id
       self.next_highlight_id = nil
     end
+  end
+
+  def set_inside_anchor_neighbors
+    if anchor_paths.many? && has_content_path_neighbor?
+      self.prev_highlight_id = find_prev_content_path_neighbor_id
+      self.next_highlight_id = find_next_content_path_neighbor_id
+
+      if prev_highlight
+        self.next_highlight_id = prev_highlight.next_highlight_id
+      elsif next_highlight
+        self.prev_highlight_id = next_highlight.prev_highlight_id
+      end
+    else
+      # we don't have any other data to compare, use the highlight ids sent
+      return if prev_highlight_id || next_highlight_id
+      # can't find placement data, no highlight ids sent - put it at the end
+      self.prev_highlight_id = anchor_highlights.last&.id
+      self.next_highlight_id = nil
+    end
+  end
+
+  def set_outside_anchor_neighbors
+    saved_neighbors = all_mine_from_scope_and_source.order(:order_in_source)
+    index = page_anchors.find_index(anchor)
+    prev_anchors = page_anchors.slice(0, index)
+    next_neighbor = saved_neighbors.find do |highlight|
+      neighbor_index = page_anchors.find_index(highlight.anchor)
+      neighbor_index && neighbor_index > index
+    end
+
+    self.prev_highlight_id = saved_neighbors.select {|h| prev_anchors.include?(h.anchor) }.last&.id
+    self.next_highlight_id = prev_highlight ? prev_highlight&.next_highlight_id : next_neighbor&.id
   end
 
   def valid_uuid?(uuid)
