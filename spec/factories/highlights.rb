@@ -41,23 +41,5 @@ FactoryBot.define do
         ]
       end
     end
-
-    trait :with_content_path do
-      transient do
-        path { [0, 0] }
-      end
-      after(:build) do |highlight, evaluator|
-        highlight.location_strategies = [
-          {
-            type: 'XpathRangeSelector',
-            node_path: evaluator.path[0...-1],
-            start_offset: evaluator.path[-1],
-            end_offset: (evaluator.path[-1] || 0) + 1,
-            start_container: '.',
-            end_container: '.'
-          }
-        ]
-      end
-    end
   end
 end

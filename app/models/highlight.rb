@@ -52,12 +52,6 @@ class Highlight < ApplicationRecord
     openstax_page? && source_metadata && source_metadata.keys.include?('bookVersion')
   end
 
-  def content_path
-    strat = location_strategies[0]
-    return unless strat['type'] == 'XpathRangeSelector' && strat['node_path'] && strat['start_offset']
-    [strat['node_path'], strat['start_offset']].flatten
-  end
-
   protected
 
   def all_mine_from_scope_and_source
@@ -81,18 +75,14 @@ class Highlight < ApplicationRecord
   end
 
   def anchor_paths
-    paths = anchor_highlights_with_content_paths.map {|h| [h.id, h.content_path] }
+    paths = anchor_highlights.pluck(:id, :content_path).select {|h| h[1].present? }
     paths << [(id || 'new'), content_path] if content_path && !persisted?
 
-    paths.compact.reject {|path| path[1].empty? }.sort_by(&:second)
+    paths.sort_by(&:second)
   end
 
   def anchor_highlights
     all_mine_from_scope_and_source.where(anchor: anchor).order(:order_in_source)
-  end
-
-  def anchor_highlights_with_content_paths
-    anchor_highlights.select {|highlight| highlight.content_path.present? }
   end
 
   def anchor_paths_self_index
@@ -132,7 +122,7 @@ class Highlight < ApplicationRecord
   end
 
   def set_inside_anchor_neighbors
-    if anchor_paths.many? && has_content_path_neighbor?
+    if content_path.present? && anchor_paths.many? && has_content_path_neighbor?
       self.prev_highlight_id = find_prev_content_path_neighbor_id
       self.next_highlight_id = find_next_content_path_neighbor_id
 

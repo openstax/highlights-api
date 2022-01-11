@@ -50,6 +50,9 @@ module Api::V0::Bindings
     # Location strategies for the highlight. Items should have a schema matching the strategy schemas that have been defined. (`XpathRangeSelector` or `TextPositionSelector`).
     attr_accessor :location_strategies
 
+    # An array containing node and text indexes that point to the content location
+    attr_accessor :content_path
+
     class EnumAttributeValidator
       attr_reader :datatype
       attr_reader :allowable_values
@@ -86,7 +89,8 @@ module Api::V0::Bindings
         :'anchor' => :'anchor',
         :'highlighted_content' => :'highlighted_content',
         :'annotation' => :'annotation',
-        :'location_strategies' => :'location_strategies'
+        :'location_strategies' => :'location_strategies',
+        :'content_path' => :'content_path'
       }
     end
 
@@ -104,7 +108,8 @@ module Api::V0::Bindings
         :'anchor' => :'String',
         :'highlighted_content' => :'String',
         :'annotation' => :'String',
-        :'location_strategies' => :'Array<Object>'
+        :'location_strategies' => :'Array<Object>',
+        :'content_path' => :'Array<Integer>'
       }
     end
 
@@ -163,6 +168,12 @@ module Api::V0::Bindings
       if attributes.has_key?(:'location_strategies')
         if (value = attributes[:'location_strategies']).is_a?(Array)
           self.location_strategies = value
+        end
+      end
+
+      if attributes.has_key?(:'content_path')
+        if (value = attributes[:'content_path']).is_a?(Array)
+          self.content_path = value
         end
       end
     end
@@ -274,7 +285,8 @@ module Api::V0::Bindings
           anchor == o.anchor &&
           highlighted_content == o.highlighted_content &&
           annotation == o.annotation &&
-          location_strategies == o.location_strategies
+          location_strategies == o.location_strategies &&
+          content_path == o.content_path
     end
 
     # @see the `==` method
@@ -286,7 +298,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [id, source_type, source_id, source_metadata, scope_id, prev_highlight_id, next_highlight_id, color, anchor, highlighted_content, annotation, location_strategies].hash
+      [id, source_type, source_id, source_metadata, scope_id, prev_highlight_id, next_highlight_id, color, anchor, highlighted_content, annotation, location_strategies, content_path].hash
     end
 
     # Builds the object from hash

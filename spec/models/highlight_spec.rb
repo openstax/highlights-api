@@ -96,7 +96,7 @@ RSpec.describe Highlight, type: :model do
     end
 
     context 'neighbors' do
-      let(:page_anchors) { ['a', 'b', 'c'] }
+      let(:page_anchors) { ['page_1', 'a', 'b', 'c'] }
 
       context 'when prev or next information is missing' do
         context 'new anchor' do
@@ -146,11 +146,11 @@ RSpec.describe Highlight, type: :model do
           end
 
           context 'inside anchor position methods' do
-            let(:hl1) { create(:highlight, :with_content_path, path: [0, 0],
+            let(:hl1) { create(:highlight, content_path: [0, 0],
                                source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a') }
-            let(:hl2) { create(:highlight, :with_content_path, path: [0, 100],
+            let(:hl2) { create(:highlight, content_path: [0, 100],
                                source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a') }
-            let(:hl3) { build(:highlight, :with_content_path,  path: [0, 50],
+            let(:hl3) { build(:highlight, content_path: [0, 50],
                               source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a') }
 
             before { [hl1, hl2].map(&:reload) }
@@ -173,13 +173,13 @@ RSpec.describe Highlight, type: :model do
           end
 
           it 'can find neighbors from the start and end' do
-            hl1 = create(:highlight, :with_content_path, path: [1, 0],
+            hl1 = create(:highlight, content_path: [1, 0],
                          source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
 
-            hl2 = create(:highlight, :with_content_path, path: [0, 0],
+            hl2 = create(:highlight, content_path: [0, 0],
                          source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
 
-            hl3 = create(:highlight, :with_content_path, path: [2, 0],
+            hl3 = create(:highlight, content_path: [2, 0],
                          source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
 
             orders = [hl2, hl1, hl3].map {|hl| hl.reload.order_in_source }
@@ -189,13 +189,13 @@ RSpec.describe Highlight, type: :model do
           end
 
           it 'can find neighbors from the middle' do
-            hl2 = create(:highlight, :with_content_path, path: [0, 0],
+            hl2 = create(:highlight, content_path: [0, 0],
                          source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
 
-            hl3 = create(:highlight, :with_content_path, path: [2, 0],
+            hl3 = create(:highlight, content_path: [2, 0],
                          source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
 
-            hl1 = create(:highlight, :with_content_path, path: [1, 0],
+            hl1 = create(:highlight, content_path: [1, 0],
                          source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
 
 
@@ -218,21 +218,31 @@ RSpec.describe Highlight, type: :model do
             expect(hl2.prev_highlight_id).to eq hl1.id
             expect(hl2.next_highlight_id).to eq hl3.id
 
-            hl4 = create(:highlight, :with_content_path, path: [10, 0],
+            hl5 = create(:highlight, content_path: [10, 0],
                          source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
-            hl5 = create(:highlight, :with_content_path, path: [0, 0],
+            hl4 = create(:highlight, content_path: [0, 0],
                          source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
             hl6 = create(:highlight, :with_base_xpath_selector,
                          source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
-            hl7 = create(:highlight, :with_content_path, path: [],
+            hl7 = create(:highlight, content_path: [],
                          source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
 
             [hl5, hl6, hl7].map(&:reload)
 
-            expect(hl5.prev_highlight_id).to eq hl3.id
-            expect(hl5.next_highlight_id).to eq hl4.id
-            expect(hl6.prev_highlight_id).to eq hl4.id
+            expect(hl4.prev_highlight_id).to eq hl3.id
+            expect(hl5.prev_highlight_id).to eq hl4.id
+            expect(hl6.prev_highlight_id).to eq hl5.id
             expect(hl7.prev_highlight_id).to eq hl6.id
+
+            hl8 = create(:highlight, content_path: [2, 1],
+                         highlighted_content: '<p id="b">Content that spans</p><p id="c">multiple anchors</p>',
+                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'page_1')
+            hl9 = create(:highlight, content_path: [3, 1],
+                         highlighted_content: '<p id="c">Highlighted content</p>',
+                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'page_1')
+
+            expect(hl8.reload.prev_highlight_id).to be nil
+            expect(hl8.reload.next_highlight_id).to eq hl9.id
           end
         end
       end
@@ -243,16 +253,16 @@ RSpec.describe Highlight, type: :model do
         end
 
         it 'determines the correct order' do
-          hla = create(:highlight, :with_content_path, path: [0],
+          hla = create(:highlight, content_path: [0],
                        source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
 
-          hlb = create(:highlight, :with_content_path, path: [0],
+          hlb = create(:highlight, content_path: [0],
                        source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'b')
 
-          hld = create(:highlight, :with_content_path, path: [0],
+          hld = create(:highlight, content_path: [0],
                        source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'd')
 
-          hlc = create(:highlight, :with_content_path, path: [0],
+          hlc = create(:highlight, content_path: [0],
                        source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'c', prev_highlight_id: hla.id)
 
           expect(hlc.prev_highlight_id).to eq hlb.id

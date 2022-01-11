@@ -47,13 +47,6 @@ class Api::V0::HighlightsSwagger
       key :type, :string
       key :description, 'The type for the xpath range selector.'
     end
-    property :node_path do
-      key :type, :array
-      key :description, 'An array containing node indexes that point to the content node'
-      items do
-        key :type, :integer
-      end
-    end
   end
 
   swagger_schema :Highlights do
@@ -211,6 +204,16 @@ class Api::V0::HighlightsSwagger
       key :readOnly, true
       key :description, 'A number whose relative value gives the highlight\'s order within the ' \
                         'source. Its value has no meaning on its own.'
+    end
+  end
+
+  add_properties(:NewHighlight) do
+    property :content_path do
+      key :type, :array
+      key :description, 'An array containing node and text indexes that point to the content location'
+      items do
+        key :type, :integer
+      end
     end
   end
 

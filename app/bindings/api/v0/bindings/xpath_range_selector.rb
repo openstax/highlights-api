@@ -29,9 +29,6 @@ module Api::V0::Bindings
     # The type for the xpath range selector.
     attr_accessor :type
 
-    # An array containing node indexes that point to the content node
-    attr_accessor :node_path
-
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
@@ -39,8 +36,7 @@ module Api::V0::Bindings
         :'end_offset' => :'end_offset',
         :'start_container' => :'start_container',
         :'start_offset' => :'start_offset',
-        :'type' => :'type',
-        :'node_path' => :'node_path'
+        :'type' => :'type'
       }
     end
 
@@ -51,8 +47,7 @@ module Api::V0::Bindings
         :'end_offset' => :'Integer',
         :'start_container' => :'String',
         :'start_offset' => :'Integer',
-        :'type' => :'String',
-        :'node_path' => :'Array<Integer>'
+        :'type' => :'String'
       }
     end
 
@@ -82,12 +77,6 @@ module Api::V0::Bindings
 
       if attributes.has_key?(:'type')
         self.type = attributes[:'type']
-      end
-
-      if attributes.has_key?(:'node_path')
-        if (value = attributes[:'node_path']).is_a?(Array)
-          self.node_path = value
-        end
       end
     end
 
@@ -138,8 +127,7 @@ module Api::V0::Bindings
           end_offset == o.end_offset &&
           start_container == o.start_container &&
           start_offset == o.start_offset &&
-          type == o.type &&
-          node_path == o.node_path
+          type == o.type
     end
 
     # @see the `==` method
@@ -151,7 +139,7 @@ module Api::V0::Bindings
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [end_container, end_offset, start_container, start_offset, type, node_path].hash
+      [end_container, end_offset, start_container, start_offset, type].hash
     end
 
     # Builds the object from hash
