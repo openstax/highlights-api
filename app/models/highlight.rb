@@ -104,7 +104,17 @@ class Highlight < ApplicationRecord
     !!(find_prev_content_path_neighbor_id || find_next_content_path_neighbor_id)
   end
 
+  def content_paths_comparable?
+    content_path.present? && anchor_paths.many? && has_content_path_neighbor?
+  end
+
+  def page_anchors_comparable?
+    page_anchors.any? && page_anchors.find_index(anchor).present?
+  end
+
   def find_neighbors
+    return if (prev_highlight_id || next_highlight_id) && neighbors_are_adjacent?
+
     anchors = all_mine_from_scope_and_source.order(:order_in_source).map(&:anchor)
     return unless anchors.any?
 
@@ -112,7 +122,7 @@ class Highlight < ApplicationRecord
     # using content_path, otherwise find it relative to all page anchors
     if anchors.include?(anchor)
       set_inside_anchor_neighbors
-    elsif page_anchors && page_anchors.any? && page_anchors.find_index(anchor)
+    elsif page_anchors_comparable?
       set_outside_anchor_neighbors
     elsif !prev_highlight_id && !next_highlight_id
       # There are saved neighbors, but placement cannot be determined - put it at the end
@@ -122,19 +132,16 @@ class Highlight < ApplicationRecord
   end
 
   def set_inside_anchor_neighbors
-    if content_path.present? && anchor_paths.many? && has_content_path_neighbor?
+    if content_paths_comparable?
       self.prev_highlight_id = find_prev_content_path_neighbor_id
       self.next_highlight_id = find_next_content_path_neighbor_id
+    end
 
-      if prev_highlight
-        self.next_highlight_id = prev_highlight.next_highlight_id
-      elsif next_highlight
-        self.prev_highlight_id = next_highlight.prev_highlight_id
-      end
+    if prev_highlight
+      self.next_highlight_id = prev_highlight.next_highlight_id
+    elsif next_highlight
+      self.prev_highlight_id = next_highlight.prev_highlight_id
     else
-      # we don't have any other data to compare, use the highlight ids sent
-      return if prev_highlight_id || next_highlight_id
-      # can't find placement data, no highlight ids sent - put it at the end
       self.prev_highlight_id = anchor_highlights.last&.id
       self.next_highlight_id = nil
     end
@@ -203,10 +210,18 @@ class Highlight < ApplicationRecord
   end
 
   def neighbors_must_point_to_each_other
-    if (prev_highlight && prev_highlight.next_highlight_id != next_highlight_id) ||
-       (next_highlight && next_highlight.prev_highlight_id != prev_highlight_id)
+    if neighbors_are_not_adjacent?
       errors.add(:base, 'The specified previous and next highlights are not adjacent')
     end
+  end
+
+  def neighbors_are_not_adjacent?
+    (prev_highlight && prev_highlight.next_highlight_id != next_highlight_id) ||
+    (next_highlight && next_highlight.prev_highlight_id != prev_highlight_id)
+  end
+
+  def neighbors_are_adjacent?
+    !neighbors_are_not_adjacent?
   end
 
   def insert_new_highlight_between_neighbors

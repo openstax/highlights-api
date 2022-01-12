@@ -104,7 +104,7 @@ RSpec.describe Highlight, type: :model do
             allow_any_instance_of(Highlight).to receive(:page_anchors).and_return(page_anchors)
           end
 
-          context 'with page anchors' do
+          context 'with comparable page anchors' do
             it 'can find neighbors from the start and end' do
               hlb = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'b')
               hla = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
@@ -129,13 +129,24 @@ RSpec.describe Highlight, type: :model do
 
           end
 
-          context 'without page anchors' do
-            it 'places the highlight at the end' do
-              hl1 = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
-              hl2 = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'b')
+          context 'without comparable page anchors' do
+            context 'with valid prev/next' do
+              it 'places in the correct order' do
+                hl1 = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+                hl2 = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'unknown', next_highlight_id: hl1.id)
 
-              expect(hl1.reload.next_highlight_id).to eq hl2.id
-              expect(hl2.reload.prev_highlight_id).to eq hl1.id
+                expect(hl1.reload.prev_highlight_id).to eq hl2.id
+                expect(hl2.reload.next_highlight_id).to eq hl1.id
+              end
+            end
+            context 'without valid prev/next data' do
+              it 'places the highlight at the end' do
+                hl1 = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+                hl2 = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'b')
+                hl3 = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'unknown')
+
+                expect(hl3.reload.prev_highlight_id).to eq hl2.id
+              end
             end
           end
         end
@@ -236,13 +247,24 @@ RSpec.describe Highlight, type: :model do
 
             hl8 = create(:highlight, content_path: [2, 1],
                          highlighted_content: '<p id="b">Content that spans</p><p id="c">multiple anchors</p>',
-                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'page_1')
+                         source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'page_1', prev_highlight_id: hl7.id)
             hl9 = create(:highlight, content_path: [3, 1],
                          highlighted_content: '<p id="c">Highlighted content</p>',
                          source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'page_1')
 
-            expect(hl8.reload.prev_highlight_id).to be nil
+            expect(hl8.reload.prev_highlight_id).to eq hl7.id
             expect(hl8.reload.next_highlight_id).to eq hl9.id
+          end
+
+          it 'overrides prev/next if there would be an adjacency error' do
+            hl1 = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+            hl2 = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
+            hl3 = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a', prev_highlight_id: hl1.id, next_highlight: nil)
+            hl4 = create(:highlight, source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a', prev_highlight_id: nil, next_highlight_id: hl3.id)
+
+            expect(hl3.reload.prev_highlight_id).to eq hl4.id
+            expect(hl4.reload.prev_highlight_id).to eq hl1.id
+            expect(hl4.next_highlight_id).to eq hl3.id
           end
         end
       end
@@ -252,7 +274,7 @@ RSpec.describe Highlight, type: :model do
           allow_any_instance_of(Highlight).to receive(:page_anchors).and_return(page_anchors)
         end
 
-        it 'determines the correct order' do
+        it 'determines the order' do
           hla = create(:highlight, content_path: [0],
                        source_id: uuid1, scope_id: uuid1, user_id: user_id, anchor: 'a')
 
@@ -267,6 +289,7 @@ RSpec.describe Highlight, type: :model do
 
           expect(hlc.prev_highlight_id).to eq hlb.id
         end
+
       end
 
       context 'source consistency' do
