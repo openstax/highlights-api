@@ -21,7 +21,7 @@ class PageContent
   def fetch_archive_content
     begin
       JSON.parse(archive.fetch(page_id))["content"]
-    rescue JSON::ParserError => exception
+    rescue JSON::ParserError, Faraday::ConnectionFailed => exception
       if Rails.application.config.consider_all_requests_local
         raise exception
       else
