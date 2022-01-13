@@ -86,7 +86,6 @@ RSpec.describe Highlight, type: :model do
 
     context 'page_content_fetchable?' do
       it 'checks that required source_metadata is available' do
-        # old clients won't have new metadata, only bookVersions
         record = build(:highlight, source_metadata: { })
         expect(record.page_content_fetchable?).to be false
 
