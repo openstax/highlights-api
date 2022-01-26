@@ -14,8 +14,12 @@ class PageContent
     @latest_archive_version ||= s3.ls.last
   end
 
+  def archive_version
+    Rails.application.secrets.content[:archive_version] || latest_archive_version
+  end
+
   def archive
-    @archive ||= OpenStax::Content::Archive.new latest_archive_version
+    @archive ||= OpenStax::Content::Archive.new archive_version
   end
 
   def fetch_archive_content
