@@ -124,7 +124,7 @@ class Highlight < ApplicationRecord
       set_inside_anchor_neighbors
     elsif page_anchors_comparable?
       set_outside_anchor_neighbors
-    elsif !prev_highlight_id && !next_highlight_id
+    else
       # There are saved neighbors, but placement cannot be determined - put it at the end
       self.prev_highlight_id = all_mine_from_scope_and_source.order(:order_in_source).last&.id
       self.next_highlight_id = nil
