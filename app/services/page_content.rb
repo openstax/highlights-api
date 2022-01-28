@@ -2,6 +2,7 @@ class PageContent
   attr_accessor :book_id, :page_id, :content, :doc
 
   def initialize(book_uuid:, book_version:, page_uuid:)
+    @book_uuid = book_uuid
     @book_id = "#{book_uuid}@#{book_version}"
     @page_id = "#{book_id}:#{page_uuid}"
   end
@@ -14,12 +15,32 @@ class PageContent
     @latest_archive_version ||= s3.ls.last
   end
 
+  def overriden_archive_version
+    @overriden_archive_version ||= fetch_rex_books.dig(@book_uuid, 'archiveOverride').to_s.gsub('/apps/archive/', '').presence
+  end
+
   def archive_version
-    Rails.application.secrets.content[:archive_version] || latest_archive_version
+    overriden_archive_version || Rails.application.secrets.content[:archive_version] || latest_archive_version
   end
 
   def archive
     @archive ||= OpenStax::Content::Archive.new archive_version
+  end
+
+  def fetch_rex_books
+    url = Rails.application.secrets.content[:rex_release_url]
+
+    begin
+      body = Faraday.get(url).body
+      JSON.parse(body)['books']
+    rescue JSON::ParserError, Faraday::ConnectionFailed => exception
+      if Rails.application.config.consider_all_requests_local
+        raise exception
+      else
+        Raven.capture_exception(exception)
+        return {}
+      end
+    end
   end
 
   def fetch_archive_content

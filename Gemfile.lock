@@ -296,6 +296,7 @@ DEPENDENCIES
   codecov
   dotenv-rails
   factory_bot_rails
+  faraday
   listen (>= 3.0.5, < 4.0)
   lograge
   nokogiri

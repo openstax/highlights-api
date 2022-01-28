@@ -55,6 +55,7 @@ gem "openstax_auth", github: 'openstax/auth-rails', ref: 'ed2d7da86ca226b9337695
 gem 'openstax_content'
 gem 'addressable'
 gem 'nokogiri'
+gem 'faraday'
 
 # Exception reporting
 gem 'sentry-raven'
