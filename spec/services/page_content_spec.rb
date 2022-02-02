@@ -27,8 +27,7 @@ RSpec.describe PageContent, type: :service do
      end
 
     it 'uses the overriden archive version if available' do
-      books = { book_uuid => { 'defaultVersion' => '1.0', 'archiveOverride' => 'override' } }
-      allow(page_content).to receive(:fetch_rex_books).and_return(books)
+      allow(page_content).to receive(:overriden_archive_version).and_return('override')
       expect(page_content.archive_version).to eq 'override'
     end
 
@@ -42,6 +41,40 @@ RSpec.describe PageContent, type: :service do
       allow(Rails.application.secrets).to receive(:content).and_return({})
 
       expect(page_content.archive_version).to eq latest_version
+    end
+  end
+
+  context '#overriden_archive_version' do
+    context 'when archiveOverride is available' do
+      before do
+        books = { book_uuid => { 'archiveOverride' => 'override' } }
+        allow(page_content).to receive(:fetch_rex_books).and_return(books)
+      end
+
+      it 'returns the override version' do
+        expect(page_content.overriden_archive_version).to eq 'override'
+      end
+    end
+
+    context 'when archiveOverride is not available' do
+      before do
+        books = { book_uuid => {} }
+        allow(page_content).to receive(:fetch_rex_books).and_return(books)
+      end
+
+      it 'returns nil' do
+        expect(page_content.overriden_archive_version).to be nil
+      end
+    end
+
+    context 'when there is no book match' do
+      before do
+        allow(page_content).to receive(:fetch_rex_books).and_return({})
+      end
+
+      it 'returns nil' do
+        expect(page_content.overriden_archive_version).to be nil
+      end
     end
   end
 
