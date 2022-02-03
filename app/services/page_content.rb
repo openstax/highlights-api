@@ -19,40 +19,39 @@ class PageContent
     @overriden_archive_version ||= fetch_rex_books.dig(@book_uuid, 'archiveOverride').to_s.gsub('/apps/archive/', '').presence
   end
 
+  def rex_archive_version
+    @rex_archive_version ||= fetch_rex_archive_version
+  end
+
   def archive_version
-    overriden_archive_version || Rails.application.secrets.content[:archive_version] || latest_archive_version
+    overriden_archive_version || rex_archive_version || latest_archive_version
   end
 
   def archive
     @archive ||= OpenStax::Content::Archive.new archive_version
   end
 
+  def fetch_rex_archive_version
+    url = Rails.application.secrets.content[:rex_config_url]
+
+    rescue_from_fetch_parse_errors do
+      body = Faraday.get(url).body
+      JSON.parse(body)['REACT_APP_ARCHIVE']
+    end
+  end
+
   def fetch_rex_books
     url = Rails.application.secrets.content[:rex_release_url]
 
-    begin
+    rescue_from_fetch_parse_errors({}) do
       body = Faraday.get(url).body
       JSON.parse(body)['books']
-    rescue JSON::ParserError, Faraday::ConnectionFailed => exception
-      if Rails.application.config.consider_all_requests_local
-        raise exception
-      else
-        Raven.capture_exception(exception)
-        return {}
-      end
     end
   end
 
   def fetch_archive_content
-    begin
+    rescue_from_fetch_parse_errors do
       JSON.parse(archive.fetch(page_id))["content"]
-    rescue JSON::ParserError, Faraday::ConnectionFailed => exception
-      if Rails.application.config.consider_all_requests_local
-        raise exception
-      else
-        Raven.capture_exception(exception)
-        return nil
-      end
     end
   end
 
@@ -64,5 +63,18 @@ class PageContent
 
   def anchors
     @doc.xpath('//@id').map(&:value)
+  end
+
+  def rescue_from_fetch_parse_errors(return_obj = nil)
+    begin
+      yield
+    rescue JSON::ParserError, Faraday::ConnectionFailed => exception
+      if Rails.application.config.consider_all_requests_local
+        raise exception
+      else
+        Raven.capture_exception(exception)
+        return return_obj
+      end
+    end
   end
 end

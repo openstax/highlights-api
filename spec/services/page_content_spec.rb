@@ -1,15 +1,17 @@
 require 'rails_helper'
 
 RSpec.describe PageContent, type: :service do
-  let(:book_uuid)       { SecureRandom.uuid }
-  let(:page_uuid)       { SecureRandom.uuid }
-  let(:book_version)    { SecureRandom.random_number }
-  let(:archive_version) { '123.456' }
+  let(:book_uuid)          { SecureRandom.uuid }
+  let(:page_uuid)          { SecureRandom.uuid }
+  let(:book_version)       { SecureRandom.random_number }
+  let(:s3_archive_version) { '2' }
+  let(:rex_archive_version){ '1' }
 
   subject(:page_content) { described_class.new(book_uuid: book_uuid, book_version: book_version, page_uuid: page_uuid) }
 
   before do
     allow(page_content).to receive(:fetch_rex_books).and_return({})
+    allow(page_content).to receive(:fetch_rex_archive_version).and_return(rex_archive_version)
   end
 
   context 'initializing' do
@@ -21,26 +23,21 @@ RSpec.describe PageContent, type: :service do
   end
 
   context '#archive_version' do
-     before do
-      content = { archive_version: archive_version }
-      allow(Rails.application.secrets).to receive(:content).and_return(content)
-     end
-
     it 'uses the overriden archive version if available' do
       allow(page_content).to receive(:overriden_archive_version).and_return('override')
       expect(page_content.archive_version).to eq 'override'
     end
 
-    it 'uses the configured archive version' do
-      expect(page_content.archive_version).to eq archive_version
+    it 'uses the rex archive version if there is no override' do
+      expect(page_content.overriden_archive_version).to eq nil
+      expect(page_content.archive_version).to eq rex_archive_version
     end
 
     it 'falls back to the latest S3 version' do
-      latest_version = 's3version'
-      allow(page_content).to receive(:latest_archive_version).and_return(latest_version)
-      allow(Rails.application.secrets).to receive(:content).and_return({})
+      allow(page_content).to receive(:latest_archive_version).and_return(s3_archive_version)
+      allow(page_content).to receive(:rex_archive_version).and_return(nil)
 
-      expect(page_content.archive_version).to eq latest_version
+      expect(page_content.archive_version).to eq s3_archive_version
     end
   end
 
