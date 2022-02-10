@@ -1,0 +1,60 @@
+name: Migrations
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+jobs:
+  migrations:
+    timeout-minutes: 30
+    runs-on: ubuntu-20.04
+    services:
+      postgres:
+        image: postgres:11
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        env:
+          POSTGRES_PASSWORD: postgres
+
+    steps:
+      # Clone repo and checkout merge commit parent (PR base/target commit)
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - run: git checkout HEAD^
+
+      # Install ruby for the PR's base/target commit
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6.5
+          bundler-cache: true
+
+      - name: Create database and data to be migrated
+        env:
+          RAILS_ENV: test
+          TEST_DB_PASS: postgres
+        run: |
+          bundle exec rails db:create db:schema:load db:seed --trace
+          bundle exec rails runner '10.times { FactoryBot.create :highlight }'
+          git checkout --force -
+
+      # Install ruby for the PR's head commit
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6.5
+          bundler-cache: true
+
+      - name: Migrate and ensure no files changed
+        env:
+          RAILS_ENV: test
+          TEST_DB_PASS: postgres
+        run: |
+          bundle exec rails db:migrate
+          git diff --exit-code
