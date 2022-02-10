@@ -1,6 +1,7 @@
 # OpenStax Highlights API
 
-[![Build Status](https://travis-ci.com/openstax/open-search.svg?branch=master)](https://travis-ci.com/openstax/highlights-api)
+[![Migrations](https://github.com/openstax/highlights-api/workflows/Migrations/badge.svg)](https://github.com/openstax/highlights-api/actions?query=workflow:Migrations)
+[![Tests](https://github.com/openstax/highlights-api/workflows/Tests/badge.svg)](https://github.com/openstax/highlights-api/actions?query=workflow:Tests)
 
 The API interface to highlights within OpenStax
 
