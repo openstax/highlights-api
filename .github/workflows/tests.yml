@@ -23,13 +23,18 @@ jobs:
           POSTGRES_PASSWORD: postgres
 
     steps:
+      - run: sudo apt-get install --yes libjemalloc-dev
+
       - uses: actions/checkout@v2
+
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.6.5
           bundler-cache: true
+
       - name: Create test database and run tests
         env:
+          LD_PRELOAD: /usr/lib/x86_64-linux-gnu/libjemalloc.so.2
           RAILS_ENV: test
           TEST_DB_PASS: postgres
         run: |

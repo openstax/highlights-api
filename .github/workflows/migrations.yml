@@ -23,6 +23,8 @@ jobs:
           POSTGRES_PASSWORD: postgres
 
     steps:
+      - run: sudo apt-get install --yes libjemalloc-dev
+
       # Clone repo and checkout merge commit parent (PR base/target commit)
       - uses: actions/checkout@v2
         with:
@@ -38,6 +40,7 @@ jobs:
 
       - name: Create database and data to be migrated
         env:
+          LD_PRELOAD: /usr/lib/x86_64-linux-gnu/libjemalloc.so.2
           RAILS_ENV: test
           TEST_DB_PASS: postgres
         run: |
@@ -53,6 +56,7 @@ jobs:
 
       - name: Migrate and ensure no files changed
         env:
+          LD_PRELOAD: /usr/lib/x86_64-linux-gnu/libjemalloc.so.2
           RAILS_ENV: test
           TEST_DB_PASS: postgres
         run: |
