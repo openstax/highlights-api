@@ -7,16 +7,10 @@ class PageContent
     @page_id = "#{book_id}:#{page_uuid}"
   end
 
-  def s3
-    @s3 ||= OpenStax::Content::S3.new
-  end
-
-  def latest_archive_version
-    @latest_archive_version ||= s3.ls.last
-  end
-
   def overriden_archive_version
-    @overriden_archive_version ||= fetch_rex_books.dig(@book_uuid, 'archiveOverride').to_s.gsub('/apps/archive/', '').presence
+    @overriden_archive_version ||= fetch_rex_books.dig(
+      @book_uuid, 'archiveOverride'
+    ).to_s.gsub('/apps/archive/', '').presence
   end
 
   def rex_archive_version
@@ -24,7 +18,7 @@ class PageContent
   end
 
   def archive_version
-    overriden_archive_version || rex_archive_version || latest_archive_version
+    overriden_archive_version || rex_archive_version
   end
 
   def archive
@@ -32,7 +26,7 @@ class PageContent
   end
 
   def fetch_rex_archive_version
-    url = Rails.application.secrets.content[:rex_config_url]
+    url = Rails.application.secrets.rex[:config_url]
 
     rescue_from_fetch_parse_errors do
       body = Faraday.get(url).body
@@ -41,7 +35,7 @@ class PageContent
   end
 
   def fetch_rex_books
-    url = Rails.application.secrets.content[:rex_release_url]
+    url = Rails.application.secrets.rex[:release_url]
 
     rescue_from_fetch_parse_errors({}) do
       body = Faraday.get(url).body
