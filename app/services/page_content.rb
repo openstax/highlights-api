@@ -10,7 +10,7 @@ class PageContent
   def overriden_archive_version
     @overriden_archive_version ||= fetch_rex_books.dig(
       @book_uuid, 'archiveOverride'
-    ).to_s.gsub('/apps/archive/', '').presence
+    ).to_s.delete_prefix('/apps/archive/').presence
   end
 
   def rex_archive_version
