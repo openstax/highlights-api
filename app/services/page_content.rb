@@ -1,10 +1,17 @@
 class PageContent
-  attr_accessor :book_id, :page_id, :content, :doc
 
-  def initialize(book_uuid:, book_version:, page_uuid:)
+  ALLOWED_REQUEST_HOSTS = [
+    /^(dev|[^\.]*\.sandbox)\.openstax\.org$/,
+    /^rex-web-[^\.]*\.herokuapp\.com$/
+  ]
+
+  attr_accessor :book_id, :page_id, :request_host, :content, :doc
+
+  def initialize(book_uuid:, book_version:, page_uuid:, request_host:)
     @book_uuid = book_uuid
     @book_id = "#{book_uuid}@#{book_version}"
     @page_id = "#{book_id}:#{page_uuid}"
+    @request_host = request_host
   end
 
   def overriden_archive_version
@@ -25,27 +32,46 @@ class PageContent
     @archive ||= OpenStax::Content::Archive.new archive_version
   end
 
-  def fetch_rex_archive_version
-    url = Rails.application.secrets.rex[:config_url]
+  def rex_host
+    Rails.application.secrets.rex_host || get_request_host
+  end
 
+  def get_request_host
+    uri = Addressable::URI.parse request_host
+
+    if ALLOWED_REQUEST_HOSTS.none? {|hostable| hostable.match? uri.host }
+      raise Addressable::URI::InvalidURIError
+    end
+
+    uri.scheme = 'https'
+    uri.to_s
+  end
+
+  def rex_release_url
+    "#{rex_host}/rex/config.json"
+  end
+
+  def rex_config_url
+    "#{rex_host}/rex/release.json"
+  end
+
+  def fetch_rex_archive_version
     rescue_from_fetch_parse_errors do
-      body = Faraday.get(url).body
+      body = Faraday.get(rex_config_url).body
       JSON.parse(body)['REACT_APP_ARCHIVE']
     end
   end
 
   def fetch_rex_books
-    url = Rails.application.secrets.rex[:release_url]
-
     rescue_from_fetch_parse_errors({}) do
-      body = Faraday.get(url).body
+      body = Faraday.get(rex_release_url).body
       JSON.parse(body)['books']
     end
   end
 
   def fetch_archive_content
     rescue_from_fetch_parse_errors do
-      JSON.parse(archive.fetch(page_id))["content"]
+      JSON.parse(archive.fetch(page_id))['content']
     end
   end
 
@@ -62,7 +88,9 @@ class PageContent
   def rescue_from_fetch_parse_errors(return_obj = nil)
     begin
       yield
-    rescue JSON::ParserError, Faraday::ConnectionFailed => exception
+    rescue JSON::ParserError,
+           Faraday::ConnectionFailed,
+           Addressable::URI::InvalidURIError => exception
       if Rails.application.config.consider_all_requests_local
         raise exception
       else

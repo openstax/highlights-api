@@ -6,7 +6,9 @@ RSpec.describe PageContent, type: :service do
   let(:book_version)        { SecureRandom.random_number }
   let(:rex_archive_version) { '1' }
 
-  subject(:page_content) { described_class.new(book_uuid: book_uuid, book_version: book_version, page_uuid: page_uuid) }
+  subject(:page_content) {
+    described_class.new(book_uuid: book_uuid, book_version: book_version, page_uuid: page_uuid, request_host: 'https://dev.openstax.org')
+  }
 
   before do
     allow(page_content).to receive(:fetch_rex_books).and_return({})
@@ -18,6 +20,44 @@ RSpec.describe PageContent, type: :service do
       book_id = "#{book_uuid}@#{book_version}"
       expect(page_content.book_id).to eq book_id
       expect(page_content.page_id).to eq "#{book_id}:#{page_uuid}"
+    end
+  end
+
+  context '#rex_host' do
+    it 'uses the request host if rex_host is not set' do
+      expect(page_content.rex_host).to match(page_content.request_host)
+    end
+
+    it 'uses rex_host if set' do
+      host = 'https://configured.host'
+      allow(Rails.application.secrets).to receive(:rex_host).and_return(host)
+
+      expect(page_content.rex_host).to match(host)
+    end
+
+    it 'upgrades request_host to https' do
+      host = 'http://dev.openstax.org'
+      page_content.request_host = host
+
+      expect(page_content.rex_host).to eq('https://dev.openstax.org')
+    end
+
+    it 'limits request_host to allowed hosts' do
+      ['https://invalid.openstax.org',
+       'https://rex-webb-issue-123.herokuapp.com',
+       ''].each do |invalid|
+        page_content.request_host = invalid
+
+        expect { page_content.rex_host }.to raise_error(Addressable::URI::InvalidURIError)
+      end
+
+      ['https://dev.openstax.org',
+       'https://release-123.sandbox.openstax.org',
+       'https://rex-web-issue-123-abc.herokuapp.com'].each do |valid|
+        page_content.request_host = valid
+
+        expect(page_content.rex_host).to eq valid
+      end
     end
   end
 

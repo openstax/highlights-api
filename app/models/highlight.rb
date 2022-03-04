@@ -37,6 +37,8 @@ class Highlight < ApplicationRecord
   around_create :insert_new_highlight_between_neighbors
   before_destroy :reconnect_neighbors_around_destroyed_highlight
 
+  attr_accessor :request_host
+
   def normalize_color
     self.color = color&.downcase
   end
@@ -64,7 +66,8 @@ class Highlight < ApplicationRecord
     page_content = PageContent.new(
       book_uuid: scope_id,
       book_version: source_metadata['bookVersion'],
-      page_uuid: source_id
+      page_uuid: source_id,
+      request_host: request_host
     )
 
     page_content.fetch.anchors
