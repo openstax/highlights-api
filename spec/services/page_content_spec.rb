@@ -43,11 +43,10 @@ RSpec.describe PageContent, type: :service do
     end
 
     it 'limits request_host to allowed hosts' do
-      ['https://invalid.openstax.org',
-       'https://rex-webb-issue-123.herokuapp.com',
-       ''].each do |invalid|
-        page_content.request_host = invalid
+      allow(Rails.application.secrets).to receive(:rex_host).and_return(nil)
 
+      ['https://invalid.openstax.org', 'https://rex-webb-issue-123.herokuapp.com', ''].each do |invalid|
+        page_content.request_host = invalid
         expect { page_content.rex_host }.to raise_error(Addressable::URI::InvalidURIError)
       end
 
@@ -55,7 +54,6 @@ RSpec.describe PageContent, type: :service do
        'https://release-123.sandbox.openstax.org',
        'https://rex-web-issue-123-abc.herokuapp.com'].each do |valid|
         page_content.request_host = valid
-
         expect(page_content.rex_host).to eq valid
       end
     end
