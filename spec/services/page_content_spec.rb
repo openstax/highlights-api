@@ -13,6 +13,7 @@ RSpec.describe PageContent, type: :service do
   before do
     allow(page_content).to receive(:fetch_rex_books).and_return({})
     allow(page_content).to receive(:fetch_rex_archive_version).and_return(rex_archive_version)
+    allow(Rails.application.secrets).to receive(:rex_host).and_return(nil)
   end
 
   context 'initializing' do
@@ -34,28 +35,45 @@ RSpec.describe PageContent, type: :service do
 
       expect(page_content.rex_host).to match(host)
     end
+  end
+
+  context '#get_request_host' do
+    it 'can parse a host without protocol' do
+      page_content.request_host = 'dev.openstax.org'
+      expect(page_content.get_request_host).to eq('https://dev.openstax.org')
+    end
 
     it 'upgrades request_host to https' do
-      host = 'http://dev.openstax.org'
-      page_content.request_host = host
-
-      expect(page_content.rex_host).to eq('https://dev.openstax.org')
+      page_content.request_host = 'http://dev.openstax.org'
+      expect(page_content.get_request_host).to eq('https://dev.openstax.org')
     end
 
     it 'limits request_host to allowed hosts' do
-      allow(Rails.application.secrets).to receive(:rex_host).and_return(nil)
-
       ['https://invalid.openstax.org', 'https://rex-webb-issue-123.herokuapp.com', ''].each do |invalid|
         page_content.request_host = invalid
-        expect { page_content.rex_host }.to raise_error(Addressable::URI::InvalidURIError)
+        expect { page_content.get_request_host }.to raise_error(Addressable::URI::InvalidURIError)
       end
 
       ['https://dev.openstax.org',
        'https://release-123.sandbox.openstax.org',
        'https://rex-web-issue-123-abc.herokuapp.com'].each do |valid|
         page_content.request_host = valid
-        expect(page_content.rex_host).to eq valid
+        expect(page_content.get_request_host).to eq valid
       end
+    end
+  end
+
+  context '#rex_release_url' do
+    it 'returns the correct url' do
+      page_content.request_host = 'dev.openstax.org'
+      expect(page_content.rex_release_url).to eq 'https://dev.openstax.org/rex/release.json'
+    end
+  end
+
+  context '#rex_config_url' do
+    it 'returns the correct url' do
+      page_content.request_host = 'dev.openstax.org'
+      expect(page_content.rex_config_url).to eq 'https://dev.openstax.org/rex/config.json'
     end
   end
 

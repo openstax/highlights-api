@@ -37,7 +37,7 @@ class PageContent
   end
 
   def get_request_host
-    uri = Addressable::URI.parse request_host
+    uri = Addressable::URI.heuristic_parse request_host
 
     if ALLOWED_REQUEST_HOSTS.none? {|hostable| hostable.match? uri.host }
       raise Addressable::URI::InvalidURIError
@@ -48,11 +48,11 @@ class PageContent
   end
 
   def rex_release_url
-    "#{rex_host}/rex/config.json"
+    "#{rex_host}/rex/release.json"
   end
 
   def rex_config_url
-    "#{rex_host}/rex/release.json"
+    "#{rex_host}/rex/config.json"
   end
 
   def fetch_rex_archive_version
