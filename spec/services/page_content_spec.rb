@@ -13,7 +13,7 @@ RSpec.describe PageContent, type: :service do
   before do
     allow(page_content).to receive(:fetch_rex_books).and_return({})
     allow(page_content).to receive(:fetch_rex_archive_version).and_return(rex_archive_version)
-    allow(Rails.application.secrets).to receive(:rex_host).and_return(nil)
+    allow(Rails.application.secrets).to receive(:rex_host).and_return('dynamic')
   end
 
   context 'initializing' do
@@ -49,16 +49,17 @@ RSpec.describe PageContent, type: :service do
     end
 
     it 'limits request_host to allowed hosts' do
-      ['https://invalid.openstax.org', 'https://rex-webb-issue-123.herokuapp.com', ''].each do |invalid|
+      ['invalid.openstax.com', 'rex-webb-issue-123.herokuapp.com', ''].each do |invalid|
         page_content.request_host = invalid
-        expect { page_content.get_request_host }.to raise_error(Addressable::URI::InvalidURIError)
+        expect { page_content.get_request_host }.to raise_error(InvalidRexHostError)
       end
 
-      ['https://dev.openstax.org',
-       'https://release-123.sandbox.openstax.org',
-       'https://rex-web-issue-123-abc.herokuapp.com'].each do |valid|
+      ['openstax.org',
+       'dev.openstax.org',
+       'release-123.sandbox.openstax.org',
+       'rex-web-issue-123-abc.herokuapp.com'].each do |valid|
         page_content.request_host = valid
-        expect(page_content.get_request_host).to eq valid
+        expect(page_content.get_request_host).to eq "https://#{valid}"
       end
     end
   end

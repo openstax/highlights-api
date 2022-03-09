@@ -1,7 +1,8 @@
 class PageContent
 
   ALLOWED_REQUEST_HOSTS = [
-    /^(dev|[^\.]*\.sandbox)\.openstax\.org$/,
+    /^openstax\.org$/,
+    /^.*\.openstax\.org$/,
     /^rex-web-[^\.]*\.herokuapp\.com$/
   ]
 
@@ -33,14 +34,15 @@ class PageContent
   end
 
   def rex_host
-    Rails.application.secrets.rex_host || get_request_host
+    host = Rails.application.secrets.rex_host
+    host == 'dynamic' ? get_request_host : host
   end
 
   def get_request_host
     uri = Addressable::URI.heuristic_parse request_host
 
     if ALLOWED_REQUEST_HOSTS.none? {|hostable| hostable.match? uri.host }
-      raise Addressable::URI::InvalidURIError
+      raise InvalidRexHostError
     end
 
     uri.scheme = 'https'
@@ -89,6 +91,7 @@ class PageContent
     begin
       yield
     rescue JSON::ParserError,
+           InvalidRexHostError,
            Faraday::ConnectionFailed,
            Addressable::URI::InvalidURIError => exception
       if Rails.application.config.consider_all_requests_local
@@ -99,4 +102,7 @@ class PageContent
       end
     end
   end
+end
+
+class InvalidRexHostError < StandardError
 end
