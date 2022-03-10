@@ -5,9 +5,8 @@ RSpec.describe PageContent, type: :service do
   let(:page_uuid)           { SecureRandom.uuid }
   let(:book_version)        { SecureRandom.random_number }
   let(:rex_archive_version) { '1' }
-
   subject(:page_content) {
-    described_class.new(book_uuid: book_uuid, book_version: book_version, page_uuid: page_uuid, request_host: 'https://dev.openstax.org')
+    described_class.new(book_uuid: book_uuid, book_version: book_version, page_uuid: page_uuid, request_host: 'dev.openstax.org')
   }
 
   before do
@@ -120,6 +119,55 @@ RSpec.describe PageContent, type: :service do
 
       it 'returns nil' do
         expect(page_content.overriden_archive_version).to be nil
+      end
+    end
+  end
+
+  context 'fetching rex archive version' do
+    before do
+      allow(Rails.application.config).to receive(:consider_all_requests_local) { false }
+      allow(page_content).to receive(:fetch_rex_archive_version).and_call_original
+    end
+    context 'when there are no issues' do
+      it 'returns the version' do
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
+          double("response", status: 200, body: '{"REACT_APP_ARCHIVE": 123}')
+        )
+        expect(page_content.fetch_rex_archive_version).to eq 123
+      end
+    end
+
+    context 'when the fetch fails' do
+      it 'handles the error and returns nil' do
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
+          double("response", status: 404, body: '')
+        )
+        expect(page_content.fetch_rex_archive_version).to eq nil
+      end
+    end
+  end
+
+  context 'fetching rex books' do
+    before do
+      allow(Rails.application.config).to receive(:consider_all_requests_local) { false }
+      allow(page_content).to receive(:fetch_rex_books).and_call_original
+    end
+    context 'when there are no issues' do
+      it 'returns the list of books' do
+        books = '{"books": {"abc": {"defaultVersion": "def"}}}'
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
+          double("response", status: 200, body: books)
+        )
+        expect(page_content.fetch_rex_books.deep_symbolize_keys).to eq({ abc: { defaultVersion: "def" } })
+      end
+    end
+
+    context 'when the fetch fails' do
+      it 'handles the error and returns nil' do
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
+          double("response", status: 404, body: '')
+        )
+        expect(page_content.fetch_rex_books).to eq({})
       end
     end
   end
