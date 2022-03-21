@@ -35,7 +35,9 @@ class PageContent
 
   def rex_host
     host = Rails.application.secrets.rex_host
-    host == 'dynamic' ? get_request_host : host
+    host = host == 'dynamic' ? get_request_host : host
+    Raven.extra_context rex_host: host
+    host
   end
 
   def get_request_host
