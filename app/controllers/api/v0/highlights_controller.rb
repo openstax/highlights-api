@@ -11,9 +11,12 @@ class Api::V0::HighlightsController < Api::V0::BaseController
     inbound_binding, error = bind(params.require(:highlight), Api::V0::Bindings::NewHighlight)
     render(json: error, status: error.status_code) and return if error
 
+    origin = Addressable::URI.heuristic_parse(request.headers['origin'])
+    request_host = origin && origin.host == 'localhost' ? origin.host : request.host
+
     created_highlight = with_advisory_lock(inbound_binding) do
       service_limits.with_create_protection do |user|
-        inbound_binding.create_model!(user_id: user.id, request_host: request.host)
+        inbound_binding.create_model!(user_id: user.id, request_host: request_host)
       end
     end
     response_binding = Api::V0::Bindings::Highlight.create_from_model(created_highlight)
