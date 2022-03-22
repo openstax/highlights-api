@@ -6,6 +6,8 @@ class PageContent
     /^rex-web-[^\.]*\.herokuapp\.com$/
   ]
 
+  DEV_HOST = 'https://dev.openstax.org'
+
   attr_accessor :book_id, :page_id, :request_host, :content, :doc
 
   def initialize(book_uuid:, book_version:, page_uuid:, request_host:)
@@ -34,13 +36,15 @@ class PageContent
   end
 
   def rex_host
-    host = Rails.application.secrets.rex_host
-    host = host == 'dynamic' ? get_request_host : host
-    Raven.extra_context rex_host: host
-    host
+    config_host = Rails.application.secrets.rex_host.presence || 'dynamic'
+    (config_host == 'dynamic' ? get_request_host : config_host).tap do |host|
+      Raven.extra_context rex_host: host
+    end
   end
 
   def get_request_host
+    return DEV_HOST if request_host == 'localhost'
+
     uri = Addressable::URI.heuristic_parse request_host
 
     if ALLOWED_REQUEST_HOSTS.none? {|hostable| hostable.match? uri.host }

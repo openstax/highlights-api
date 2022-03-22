@@ -26,6 +26,9 @@ RSpec.describe PageContent, type: :service do
   context '#rex_host' do
     it 'uses the request host if rex_host is not set' do
       expect(page_content.rex_host).to match(page_content.request_host)
+
+      allow(Rails.application.secrets).to receive(:rex_host).and_return('')
+      expect(page_content.rex_host).to match(page_content.request_host)
     end
 
     it 'uses rex_host if set' do
@@ -44,6 +47,11 @@ RSpec.describe PageContent, type: :service do
 
     it 'upgrades request_host to https' do
       page_content.request_host = 'http://dev.openstax.org'
+      expect(page_content.get_request_host).to eq('https://dev.openstax.org')
+    end
+
+    it 'uses the dev host if localhost' do
+      page_content.request_host = 'localhost'
       expect(page_content.get_request_host).to eq('https://dev.openstax.org')
     end
 
