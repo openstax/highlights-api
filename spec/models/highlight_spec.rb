@@ -90,6 +90,10 @@ RSpec.describe Highlight, type: :model do
         expect(record.page_content_fetchable?).to be false
 
         record = build(:highlight, source_metadata: { bookVersion: '1.0' })
+        expect(record.page_content_fetchable?).to be false
+
+        record = build(:highlight,
+                       source_metadata: { bookVersion: '1.0', pipelineVersion: '123.456' })
         expect(record.page_content_fetchable?).to be true
       end
     end

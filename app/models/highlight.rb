@@ -37,8 +37,6 @@ class Highlight < ApplicationRecord
   around_create :insert_new_highlight_between_neighbors
   before_destroy :reconnect_neighbors_around_destroyed_highlight
 
-  attr_accessor :request_host
-
   def normalize_color
     self.color = color&.downcase
   end
@@ -51,7 +49,9 @@ class Highlight < ApplicationRecord
   end
 
   def page_content_fetchable?
-    openstax_page? && source_metadata && source_metadata.keys.include?('bookVersion')
+    openstax_page? &&
+    source_metadata &&
+    ['bookVersion', 'pipelineVersion'].all? {|k| source_metadata.key?(k) }
   end
 
   protected
@@ -66,8 +66,8 @@ class Highlight < ApplicationRecord
     page_content = PageContent.new(
       book_uuid: scope_id,
       book_version: source_metadata['bookVersion'],
-      page_uuid: source_id,
-      request_host: request_host
+      archive_version: source_metadata['pipelineVersion'],
+      page_uuid: source_id
     )
 
     page_content.fetch.anchors

@@ -306,7 +306,11 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
             content = "<!DOCTYPE html><html><body><p id='banchor'></p><p id='#{@hl1_anchor}'></p></body></html>"
             allow_any_instance_of(PageContent).to receive(:fetch_archive_content).and_return(content)
 
-            highlight_params = { id: fake_uuid(3), anchor: 'banchor', source_metadata: { bookVersion: '1.0' } }
+            highlight_params = {
+              id: fake_uuid(3),
+              anchor: 'banchor',
+              source_metadata: { bookVersion: '1.0', pipelineVersion: '123.456' }
+            }
             post highlights_path, params: valid_attributes.deep_merge(highlight: highlight_params)
 
             expect(response).to have_http_status(:created)

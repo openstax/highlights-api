@@ -13,7 +13,7 @@ class Api::V0::HighlightsController < Api::V0::BaseController
 
     created_highlight = with_advisory_lock(inbound_binding) do
       service_limits.with_create_protection do |user|
-        inbound_binding.create_model!(user_id: user.id, request_host: request_host)
+        inbound_binding.create_model!(user_id: user.id)
       end
     end
     response_binding = Api::V0::Bindings::Highlight.create_from_model(created_highlight)
@@ -96,10 +96,5 @@ class Api::V0::HighlightsController < Api::V0::BaseController
       parameters["colors"] = parameters["colors"].split(',') if parameters["colors"].is_a?(String)
       parameters["sets"] = parameters["sets"].split(',') if parameters["sets"].is_a?(String)
     end
-  end
-
-  def request_host
-    origin = Addressable::URI.heuristic_parse(request.headers['origin'])
-    origin && origin.host == 'localhost' ? origin.host : request.host
   end
 end

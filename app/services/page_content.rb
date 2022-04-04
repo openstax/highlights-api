@@ -1,80 +1,15 @@
 class PageContent
+  attr_accessor :book_id, :page_id, :archive_version, :content, :doc
 
-  ALLOWED_REQUEST_HOSTS = [
-    /^openstax\.org$/,
-    /^.*\.openstax\.org$/,
-    /^rex-web-[^\.]*\.herokuapp\.com$/
-  ]
-
-  DEV_HOST = 'https://dev.openstax.org'
-
-  attr_accessor :book_id, :page_id, :request_host, :content, :doc
-
-  def initialize(book_uuid:, book_version:, page_uuid:, request_host:)
+  def initialize(book_uuid:, book_version:, page_uuid:, archive_version:)
     @book_uuid = book_uuid
     @book_id = "#{book_uuid}@#{book_version}"
     @page_id = "#{book_id}:#{page_uuid}"
-    @request_host = request_host
-  end
-
-  def overriden_archive_version
-    @overriden_archive_version ||= fetch_rex_books.dig(
-      @book_uuid, 'archiveOverride'
-    ).to_s.delete_prefix('/apps/archive/').presence
-  end
-
-  def rex_archive_version
-    @rex_archive_version ||= fetch_rex_archive_version
-  end
-
-  def archive_version
-    overriden_archive_version || rex_archive_version
+    @archive_version = archive_version
   end
 
   def archive
-    @archive ||= OpenStax::Content::Archive.new archive_version
-  end
-
-  def rex_host
-    config_host = Rails.application.secrets.rex_host.presence || 'dynamic'
-    (config_host == 'dynamic' ? get_request_host : config_host).tap do |host|
-      Raven.extra_context rex_host: host
-    end
-  end
-
-  def get_request_host
-    return DEV_HOST if request_host == 'localhost'
-
-    uri = Addressable::URI.heuristic_parse request_host
-
-    if ALLOWED_REQUEST_HOSTS.none? {|hostable| hostable.match? uri.host }
-      raise InvalidRexHostError
-    end
-
-    uri.scheme = 'https'
-    uri.to_s
-  end
-
-  def rex_release_url
-    "#{rex_host}/rex/release.json"
-  end
-
-  def rex_config_url
-    "#{rex_host}/rex/config.json"
-  end
-
-  def fetch_rex_archive_version
-    rescue_from_fetch_parse_errors do
-      body = Faraday.get(rex_config_url).body
-      JSON.parse(body)['REACT_APP_ARCHIVE']
-    end
-  end
-
-  def fetch_rex_books
-    rescue_from_fetch_parse_errors({}) do
-      body = Faraday.get(rex_release_url).body
-      JSON.parse(body)['books']
-    end
+    @archive ||= OpenStax::Content::Archive.new version: @archive_version
   end
 
   def fetch_archive_content
@@ -97,9 +32,7 @@ class PageContent
     begin
       yield
     rescue JSON::ParserError,
-           InvalidRexHostError,
-           Faraday::ConnectionFailed,
-           Addressable::URI::InvalidURIError => exception
+           Faraday::ConnectionFailed => exception
       if Rails.application.config.consider_all_requests_local
         raise exception
       else
@@ -108,7 +41,4 @@ class PageContent
       end
     end
   end
-end
-
-class InvalidRexHostError < StandardError
 end

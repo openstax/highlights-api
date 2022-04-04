@@ -52,8 +52,8 @@ Rails.application.config.to_prepare do
   end
 
   Api::V0::Bindings::NewHighlight.class_exec do
-    def create_model!(user_id:, request_host:)
-      Highlight.create!(to_hash.merge(user_id: user_id, request_host: request_host))
+    def create_model!(user_id:)
+      Highlight.create!(to_hash.merge(user_id: user_id))
     end
   end
 
