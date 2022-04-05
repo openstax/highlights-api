@@ -86,7 +86,7 @@ RSpec.describe Highlight, type: :model do
 
     context 'page_content_fetchable?' do
       it 'checks that required source_metadata is available' do
-        record = build(:highlight, source_metadata: { })
+        record = build(:highlight, source_metadata: {})
         expect(record.page_content_fetchable?).to be false
 
         record = build(:highlight, source_metadata: { bookVersion: '1.0' })
@@ -95,6 +95,13 @@ RSpec.describe Highlight, type: :model do
         record = build(:highlight,
                        source_metadata: { bookVersion: '1.0', pipelineVersion: '123.456' })
         expect(record.page_content_fetchable?).to be true
+      end
+    end
+
+    context '#fetch_page_anchors' do
+      it 'returns an empty array if page_content_fetchable? is false' do
+        record = build(:highlight, source_metadata: {})
+        expect(record.send(:fetch_page_anchors)).to eq []
       end
     end
 

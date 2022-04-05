@@ -61,7 +61,7 @@ class Highlight < ApplicationRecord
   end
 
   def fetch_page_anchors
-    return unless page_content_fetchable?
+    return [] unless page_content_fetchable?
 
     page_content = PageContent.new(
       book_uuid: scope_id,
