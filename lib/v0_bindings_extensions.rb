@@ -142,7 +142,7 @@ Rails.application.config.to_prepare do
         if (sets.blank? || sets.include?('user:me')) && user_id.present?
           filters[:user].push(user_id)
         end
-        
+
         if (sets.blank? || sets.include?('user:me')) && !user_id.present?
           raise NotAuthorized
         end

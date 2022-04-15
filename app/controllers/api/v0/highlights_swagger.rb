@@ -207,6 +207,16 @@ class Api::V0::HighlightsSwagger
     end
   end
 
+  add_properties(:NewHighlight) do
+    property :content_path do
+      key :type, :array
+      key :description, 'An array containing node and text indexes that point to the content location'
+      items do
+        key :type, :integer
+      end
+    end
+  end
+
   swagger_schema :HighlightUpdate do
     property :color do
       key :type, :string

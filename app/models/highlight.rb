@@ -13,6 +13,7 @@ class Highlight < ApplicationRecord
   belongs_to :user
 
   before_validation :normalize_color, :normalize_ids
+  before_validation :find_neighbors, on: :create
 
   validates_presence_of :user_id,
                         :source_type,
@@ -47,10 +48,119 @@ class Highlight < ApplicationRecord
     end
   end
 
+  def page_content_fetchable?
+    openstax_page? &&
+    source_metadata &&
+    ['bookVersion', 'pipelineVersion'].all? {|k| source_metadata.key?(k) }
+  end
+
   protected
 
   def all_mine_from_scope_and_source
     Highlight.where(user_id: user_id).where(scope_id: scope_id).where(source_id: source_id)
+  end
+
+  def fetch_page_anchors
+    return [] unless page_content_fetchable?
+
+    page_content = PageContent.new(
+      book_uuid: scope_id,
+      book_version: source_metadata['bookVersion'],
+      archive_version: source_metadata['pipelineVersion'],
+      page_uuid: source_id
+    )
+
+    page_content.fetch.anchors
+  end
+
+  def page_anchors
+    @page_anchors ||= fetch_page_anchors
+  end
+
+  def anchor_paths
+    paths = anchor_highlights.pluck(:id, :content_path).select {|h| h[1].present? }
+    paths << [(id || 'new'), content_path] if content_path && !persisted?
+
+    paths.sort_by(&:second)
+  end
+
+  def anchor_highlights
+    all_mine_from_scope_and_source.where(anchor: anchor).order(:order_in_source)
+  end
+
+  def anchor_paths_self_index
+    identifier = id || 'new'
+    anchor_paths.index {|i| i[0] == identifier }
+  end
+
+  def find_prev_content_path_neighbor_id
+    return nil unless anchor_paths_self_index
+    anchor_paths_self_index == 0 ? nil : anchor_paths[anchor_paths_self_index - 1]&.at(0)
+  end
+
+  def find_next_content_path_neighbor_id
+    return nil unless anchor_paths_self_index
+    anchor_paths[anchor_paths_self_index + 1]&.at(0)
+  end
+
+  def has_content_path_neighbor?
+    !!(find_prev_content_path_neighbor_id || find_next_content_path_neighbor_id)
+  end
+
+  def content_paths_comparable?
+    content_path.present? && anchor_paths.many? && has_content_path_neighbor?
+  end
+
+  def page_anchors_comparable?
+    page_anchors.any? && page_anchors.find_index(anchor).present?
+  end
+
+  def find_neighbors
+    return if (prev_highlight_id || next_highlight_id) && neighbors_are_adjacent?
+
+    anchors = all_mine_from_scope_and_source.order(:order_in_source).map(&:anchor)
+    return unless anchors.any?
+
+    # If the highlight is inside an existing anchor, find the neighbors
+    # using content_path, otherwise find it relative to all page anchors
+    if anchors.include?(anchor)
+      set_inside_anchor_neighbors
+    elsif page_anchors_comparable?
+      set_outside_anchor_neighbors
+    else
+      # There are saved neighbors, but placement cannot be determined - put it at the end
+      self.prev_highlight_id = all_mine_from_scope_and_source.order(:order_in_source).last&.id
+      self.next_highlight_id = nil
+    end
+  end
+
+  def set_inside_anchor_neighbors
+    if content_paths_comparable?
+      self.prev_highlight_id = find_prev_content_path_neighbor_id
+      self.next_highlight_id = find_next_content_path_neighbor_id
+    end
+
+    if prev_highlight
+      self.next_highlight_id = prev_highlight.next_highlight_id
+    elsif next_highlight
+      self.prev_highlight_id = next_highlight.prev_highlight_id
+    else
+      self.prev_highlight_id = anchor_highlights.last&.id
+      self.next_highlight_id = nil
+    end
+  end
+
+  def set_outside_anchor_neighbors
+    saved_neighbors = all_mine_from_scope_and_source.order(:order_in_source)
+    index = page_anchors.find_index(anchor)
+    prev_anchors = page_anchors.slice(0, index)
+    next_neighbor = saved_neighbors.find do |highlight|
+      neighbor_index = page_anchors.find_index(highlight.anchor)
+      neighbor_index && neighbor_index > index
+    end
+
+    self.prev_highlight_id = saved_neighbors.select {|h| prev_anchors.include?(h.anchor) }.last&.id
+    self.next_highlight_id = prev_highlight ? prev_highlight&.next_highlight_id : next_neighbor&.id
   end
 
   def valid_uuid?(uuid)
@@ -103,10 +213,18 @@ class Highlight < ApplicationRecord
   end
 
   def neighbors_must_point_to_each_other
-    if (prev_highlight && prev_highlight.next_highlight_id != next_highlight_id) ||
-       (next_highlight && next_highlight.prev_highlight_id != prev_highlight_id)
+    if neighbors_are_not_adjacent?
       errors.add(:base, 'The specified previous and next highlights are not adjacent')
     end
+  end
+
+  def neighbors_are_not_adjacent?
+    (prev_highlight && prev_highlight.next_highlight_id != next_highlight_id) ||
+    (next_highlight && next_highlight.prev_highlight_id != prev_highlight_id)
+  end
+
+  def neighbors_are_adjacent?
+    !neighbors_are_not_adjacent?
   end
 
   def insert_new_highlight_between_neighbors
