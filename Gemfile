@@ -52,6 +52,10 @@ gem "openstax_path_prefixer", github: 'openstax/path_prefixer', ref: '0ed5cdba6b
 
 gem "openstax_auth", github: 'openstax/auth-rails', ref: 'ed2d7da86ca226b93376955b9474c4cf115c611f'
 
+gem 'openstax_content'
+gem 'addressable'
+gem 'nokogiri'
+
 # Exception reporting
 gem 'sentry-raven'
 
@@ -87,10 +91,11 @@ group :development, :test do
 end
 
 group :development do
-  gem 'listen', '>= 3.0.5', '< 3.2'
+  gem 'listen', '>= 3.0.5', '< 4.0'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
-  gem 'spring-watcher-listen', '~> 2.0.0'
+  gem 'spring-watcher-listen'
+  gem 'spring-commands-rspec'
 
   gem 'rack-mini-profiler'
 end
