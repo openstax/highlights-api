@@ -55,7 +55,9 @@ task :install_secrets, [] do
       password: database_secrets[:password],
       adapter: "postgresql",
       encoding: "unicode",
-      pool: '<%= ENV.fetch("RAILS_MAX_THREADS") { 10 } %>'
+      pool: '<%= ENV.fetch("RAILS_MAX_THREADS") { 10 } %>',
+      sslmode: "verify-full",
+      sslrootcert: "/etc/ssl/certs/rds-bundle.pem"
     }
   })
 
