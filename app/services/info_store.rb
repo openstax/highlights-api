@@ -61,8 +61,8 @@ class InfoStore
   def median_highlights_per_user
     query = <<-SQL
         SELECT
-          percentile_disc(0.5) 
-          WITHIN group (order by highlights_count)         
+          percentile_disc(0.5)
+          WITHIN group (order by highlights_count)
           FROM
             ( SELECT
                 COUNT(*) AS highlights_count
@@ -126,7 +126,7 @@ class InfoStore
         ( SELECT
             COUNT(*)
           FROM highlights
-          GROUP BY user_id 
+          GROUP BY user_id
             HAVING COUNT(*) > #{than}) temp_table
     SQL
 
@@ -152,15 +152,15 @@ class InfoStore
     query = <<-SQL
       SELECT
         percentile_disc(0.5)
-        WITHIN group (order by note_size)
+        WITHIN group (order by note_size.column_size)
         FROM
           (SELECT
-             pg_column_size(annotation) 
+             pg_column_size(annotation) as column_size
              FROM highlights
              WHERE annotation IS NOT NULL) as note_size
     SQL
 
-    ActiveRecord::Base.connection.select_value(query)&.gsub(/[()]/, "").to_i
+    ActiveRecord::Base.connection.select_value(query).to_i
   end
 
   def max_note_length

@@ -303,7 +303,7 @@ RSpec.describe ServiceLimits, type: :service do
       end
 
       it 'does not make changes when there is no annotation' do
-        highlight.update_attributes(annotation: nil)
+        highlight.update(annotation: nil)
 
         expect{
           service_limits.with_delete_tracking do
