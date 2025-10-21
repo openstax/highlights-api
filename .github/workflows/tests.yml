@@ -1,5 +1,8 @@
 name: Tests
 
+env:
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
 on:
   pull_request:
   push:
