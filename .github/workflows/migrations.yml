@@ -36,12 +36,12 @@ jobs:
           bundler-cache: true
           ruby-version: 3.1
 
-
       - name: Create database and data to be migrated
         env:
           RAILS_ENV: test
           TEST_DB_PASS: postgres
         run: |
+          cp -n config/secrets.yml.example config/secrets.yml
           bundle exec rails db:create db:schema:load db:seed --trace
           bundle exec rails runner '10.times { FactoryBot.create :highlight }'
           git checkout --force -
