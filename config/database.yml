@@ -29,6 +29,7 @@ default: &default
 development:
   <<: *default
   database: <%= ENV['DB_NAME'] || 'highlights_development' %>
+  <% if RUBY_PLATFORM =~ /darwin/ %>gssencmode: disable<% end %> # Prevent OS X OBJC crash
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -66,5 +67,6 @@ test:
   database: <%= ENV['TEST_DB_NAME'] || 'highlights_test' %>
   username: <%= ENV['TEST_DB_USER'] || 'postgres' %>
   password: <%= ENV['TEST_DB_PASS'] || '' %>
+  <% if RUBY_PLATFORM =~ /darwin/ %>gssencmode: disable<% end %> # Prevent OS X OBJC crash
 
 # production secrets are set during deployment

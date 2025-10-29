@@ -11,10 +11,10 @@ on:
 jobs:
   migrations:
     timeout-minutes: 30
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     services:
       postgres:
-        image: postgres:11
+        image: postgres:13
         ports:
           - 5432:5432
         options: >-
@@ -24,7 +24,7 @@ jobs:
 
     steps:
       # Clone repo and checkout merge commit parent (PR base/target commit)
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 2
 
@@ -33,14 +33,15 @@ jobs:
       # Install ruby for the PR's base/target commit
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6.5
           bundler-cache: true
+          ruby-version: 3.1
 
       - name: Create database and data to be migrated
         env:
           RAILS_ENV: test
           TEST_DB_PASS: postgres
         run: |
+          cp -n config/secrets.yml.example config/secrets.yml
           bundle exec rails db:create db:schema:load db:seed --trace
           bundle exec rails runner '10.times { FactoryBot.create :highlight }'
           git checkout --force -
@@ -48,8 +49,8 @@ jobs:
       # Install ruby for the PR's head commit
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6.5
           bundler-cache: true
+          ruby-version: 3.1
 
       - name: Migrate and ensure no files changed
         env:

@@ -1,20 +1,21 @@
 name: Tests
 
+env:
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
 on:
   pull_request:
   push:
     branches:
       - main
-  schedule:
-    - cron: '0 0 * * 0' # weekly
 
 jobs:
   tests:
     timeout-minutes: 30
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     services:
       postgres:
-        image: postgres:11
+        image: postgres:13
         ports:
         - 5432:5432
         options: >-
@@ -23,15 +24,16 @@ jobs:
           POSTGRES_PASSWORD: postgres
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6.5
           bundler-cache: true
+          ruby-version: 3.1
       - name: Create test database and run tests
         env:
           RAILS_ENV: test
           TEST_DB_PASS: postgres
         run: |
+          cp -n config/secrets.yml.example config/secrets.yml
           bundle exec rails db:create db:schema:load db:seed --trace
           bundle exec rspec

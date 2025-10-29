@@ -1,14 +1,16 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '2.6.5'
-
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.2.3'
+gem 'rails', '6.1.7.10'
+
+# Remove this entry after Rails is updated further
+gem 'concurrent-ruby', '1.3.4'
+
 # Use postgresql as the database for Active Record
-gem 'pg', '>= 0.18', '< 2.0'
+gem 'pg'
 # Use Puma as the app server
-gem 'puma', '~> 4.3'
+gem 'puma'
 
 # Versioned API tools
 gem 'versionist'
@@ -17,20 +19,20 @@ gem 'versionist'
 gem 'lograge'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-# gem 'jbuilder', '~> 2.5'
+# gem 'jbuilder'
 # Use Redis adapter to run Action Cable in production
-# gem 'redis', '~> 4.0'
+# gem 'redis'
 # Use ActiveModel has_secure_password
-# gem 'bcrypt', '~> 3.1.7'
+# gem 'bcrypt'
 
 # Use ActiveStorage variant
-# gem 'mini_magick', '~> 4.8'
+# gem 'mini_magick'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
 # Reduces boot times through caching; required in config/boot.rb
-gem 'bootsnap', '>= 1.1.0', require: false
+gem 'bootsnap', require: false
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 # gem 'rack-cors'
@@ -43,12 +45,12 @@ gem "aws-sdk-ssm"
 
 gem 'dotenv-rails'
 
-gem 'will_paginate', '~> 3.1.7'
+gem 'will_paginate'
 
-gem "openstax_swagger", github: 'openstax/swagger-rails', ref: '9bff4962b31e142debbc62390f1fd3adab3af055'
+gem "openstax_swagger", github: 'openstax/swagger-rails'
 
 # Allow requests with a 'highlights' prefix to support use via CloudFront
-gem "openstax_path_prefixer", github: 'openstax/path_prefixer', ref: '0ed5cdba6be65dbf1d07fd7580e2311a2f42cdfd'
+gem "openstax_path_prefixer", github: 'openstax/path_prefixer'
 
 gem "openstax_auth"
 
@@ -60,14 +62,14 @@ gem 'nokogiri'
 gem 'sentry-raven'
 
 # Profiling
-gem 'scout_apm', '~> 3.0.x'
+gem 'scout_apm'
 
 # CORS
 gem 'rack-cors'
 
 gem 'with_advisory_lock'
 
-gem 'sucker_punch', '~> 2.0'
+gem 'sucker_punch'
 
 group :test do
   # Code Climate integration
@@ -85,15 +87,15 @@ group :development, :test do
   gem 'pry-rails'
 
   gem 'rspec-json_expectations'
-  gem 'rspec-rails', '~> 3.8'
+  gem 'rspec-rails'
 
   gem 'rubocop'
 end
 
 group :development do
-  gem 'listen', '>= 3.0.5', '< 4.0'
+  gem 'listen'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
-  gem 'spring'
+  gem 'spring', '< 4.3'
   gem 'spring-watcher-listen'
   gem 'spring-commands-rspec'
 

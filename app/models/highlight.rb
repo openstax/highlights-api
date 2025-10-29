@@ -253,12 +253,12 @@ class Highlight < ApplicationRecord
   end
 
   def point_neighbors_to_self
-    prev_highlight&.update_attributes(next_highlight_id: id)
-    next_highlight&.update_attributes(prev_highlight_id: id)
+    prev_highlight&.update(next_highlight_id: id)
+    next_highlight&.update(prev_highlight_id: id)
   end
 
   def reconnect_neighbors_around_destroyed_highlight
-    prev_highlight&.update_attributes(next_highlight_id: next_highlight_id)
-    next_highlight&.update_attributes(prev_highlight_id: prev_highlight_id)
+    prev_highlight&.update(next_highlight_id: next_highlight_id)
+    next_highlight&.update(prev_highlight_id: prev_highlight_id)
   end
 end
