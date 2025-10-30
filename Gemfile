@@ -43,7 +43,7 @@ gem 'openstax_healthcheck'
 # For installing secrets on deploy
 gem "aws-sdk-ssm"
 
-gem 'dotenv-rails'
+gem 'dotenv-rails', '3.1.4'
 
 gem 'will_paginate'
 
