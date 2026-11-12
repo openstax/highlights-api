@@ -4,50 +4,59 @@
 
 require 'will_paginate/array'
 
+# Binds and checks the location strategies sent when a highlight is created or updated
+module LocationStrategyBindings
+  module_function
+
+  # An item with an unknown type becomes nil, which `invalid_properties` reports.
+  def bind(items)
+    items.map do |item|
+      case item[:type]
+      when 'TextPositionSelector'
+        Api::V0::Bindings::TextPositionSelector.new(item)
+      # XpathRangeSelectorV2 has the same fields as XpathRangeSelector. Only the way clients count text offsets differs.
+      when 'XpathRangeSelector', 'XpathRangeSelectorV2'
+        Api::V0::Bindings::XpathRangeSelector.new(item)
+      end
+    end
+  end
+
+  def valid?(strategies)
+    strategies.present? && strategies.none?(&:nil?) && strategies.all?(&:valid?)
+  end
+
+  def invalid_properties(strategies)
+    return ['invalid value for "location_strategies", location_strategies cannot be empty.'] if strategies.blank?
+
+    invalid_properties = []
+    invalid_properties.push('Empty or invalid strategy detected') if strategies.any?(&:nil?)
+
+    strategies.each do |strategy|
+      next if strategy.nil?
+      strategy.list_invalid_properties.each do |strategy_invalid_property|
+        invalid_properties.push("invalid value for location strategy #{strategy.type}: #{strategy_invalid_property}")
+      end
+    end
+
+    invalid_properties
+  end
+end
+
 Rails.application.config.to_prepare do
 
   Api::V0::Bindings::NewHighlight.class_exec do
-    def valid_location_strategies?
-      location_strategies.present? &&
-        location_strategies.none?(&:nil?) &&
-        location_strategies.all?(&:valid?)
-    end
-
     def location_strategies=(array)
-      @location_strategies = array.map do |item|
-        case item[:type]
-        when 'TextPositionSelector'
-          Api::V0::Bindings::TextPositionSelector.new(item)
-        when 'XpathRangeSelector'
-          Api::V0::Bindings::XpathRangeSelector.new(item)
-        end
-      end
+      @location_strategies = LocationStrategyBindings.bind(array)
     end
 
     alias_method :old_valid?, :valid?
     def valid?
-      old_valid? && valid_location_strategies?
+      old_valid? && LocationStrategyBindings.valid?(location_strategies)
     end
 
     alias_method :old_list_invalid_properties, :list_invalid_properties
     def list_invalid_properties
-      invalid_properties = old_list_invalid_properties
-
-      if location_strategies.blank?
-        invalid_properties.push('invalid value for "location_strategies", location_strategies cannot be empty.')
-        return invalid_properties
-      end
-
-      invalid_properties.push('Empty or invalid strategy detected') if location_strategies.any?(&:nil?)
-
-      location_strategies.each do |strategy|
-        next if strategy.nil?
-        strategy.list_invalid_properties.each do |strategy_invalid_property|
-          invalid_properties.push("invalid value for location strategy #{strategy.type}: #{strategy_invalid_property}")
-        end
-      end
-
-      invalid_properties
+      old_list_invalid_properties + LocationStrategyBindings.invalid_properties(location_strategies)
     end
   end
 
@@ -111,9 +120,27 @@ Rails.application.config.to_prepare do
   end
 
   Api::V0::Bindings::HighlightUpdate.class_exec do
+    # Location strategies are optional in an update, but when sent they replace all the existing ones.
+    def location_strategies=(array)
+      @location_strategies = LocationStrategyBindings.bind(array)
+    end
+
+    alias_method :old_valid?, :valid?
+    def valid?
+      old_valid? && (location_strategies.nil? || LocationStrategyBindings.valid?(location_strategies))
+    end
+
+    alias_method :old_list_invalid_properties, :list_invalid_properties
+    def list_invalid_properties
+      return old_list_invalid_properties if location_strategies.nil?
+
+      old_list_invalid_properties + LocationStrategyBindings.invalid_properties(location_strategies)
+    end
+
     def update_model!(model)
       model.color = color if color.present?
       model.annotation = annotation if annotation.is_a?(String)
+      model.location_strategies = location_strategies.map(&:to_hash) unless location_strategies.nil?
       model.tap(&:save!)
     end
   end

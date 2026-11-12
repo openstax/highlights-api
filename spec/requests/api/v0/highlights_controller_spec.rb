@@ -257,6 +257,47 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
     context 'user known' do
       before(:each) { stub_current_user_uuid(user_id) }
 
+      context 'with an XpathRangeSelectorV2 location' do
+        let(:v2_location) do
+          { type: 'XpathRangeSelectorV2', start_container: './text()[1]', start_offset: 5,
+            end_container: './text()[1]', end_offset: 9 }
+        end
+
+        it 'creates the highlight and keeps the location type' do
+          post highlights_path,
+               params: valid_attributes.deep_merge(highlight: { location_strategies: [v2_location] }),
+               as: :json
+
+          expect(response).to have_http_status(:created)
+          expect(json_response[:location_strategies]).to eq [v2_location]
+          expect(Highlight.first.location_strategies.first['type']).to eq 'XpathRangeSelectorV2'
+        end
+
+        it 'rejects it when a required field is missing' do
+          expect do
+            post highlights_path,
+                 params: valid_attributes.deep_merge(
+                   highlight: { location_strategies: [v2_location.except(:end_offset)] }
+                 ),
+                 as: :json
+          end.not_to change { Highlight.count }
+
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+
+      it 'rejects a location with an unknown type' do
+        expect do
+          post highlights_path,
+               params: valid_attributes.deep_merge(
+                 highlight: { location_strategies: [{ type: 'SomethingElse', start: 1, end: 2 }] }
+               ),
+               as: :json
+        end.not_to change { Highlight.count }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
       context 'when the request is valid' do
         before do
           post highlights_path, params: valid_attributes
@@ -518,6 +559,59 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
           put highlights_path(id: highlight.id), params: { highlight: { annotation: '' } }
           expect(highlight.reload.annotation).to eq ''
           expect(response).to have_http_status :ok
+        end
+      end
+
+      context 'when updating location strategies' do
+        let(:v2_location) do
+          { type: 'XpathRangeSelectorV2', start_container: './text()[1]', start_offset: 5,
+            end_container: './text()[1]', end_offset: 9 }
+        end
+
+        it 'replaces the existing ones' do
+          put highlights_path(id: highlight.id),
+              params: { highlight: { location_strategies: [v2_location] } },
+              as: :json
+
+          expect(response).to have_http_status :ok
+          expect(json_response[:location_strategies]).to eq [v2_location]
+          expect(highlight.reload.location_strategies).to eq [v2_location.stringify_keys]
+        end
+
+        it 'leaves them alone when only the color is updated' do
+          expect do
+            put highlights_path(id: highlight.id), params: { highlight: { color: 'pink' } }, as: :json
+          end.not_to change { highlight.reload.location_strategies }
+
+          expect(response).to have_http_status :ok
+        end
+
+        it 'rejects an empty list' do
+          expect do
+            put highlights_path(id: highlight.id), params: { highlight: { location_strategies: [] } }, as: :json
+          end.not_to change { highlight.reload.location_strategies }
+
+          expect(response).to have_http_status :unprocessable_entity
+        end
+
+        it 'rejects an unknown type' do
+          expect do
+            put highlights_path(id: highlight.id),
+                params: { highlight: { location_strategies: [{ type: 'SomethingElse' }] } },
+                as: :json
+          end.not_to change { highlight.reload.location_strategies }
+
+          expect(response).to have_http_status :unprocessable_entity
+        end
+
+        it 'rejects a location missing a required field' do
+          expect do
+            put highlights_path(id: highlight.id),
+                params: { highlight: { location_strategies: [v2_location.except(:start_container)] } },
+                as: :json
+          end.not_to change { highlight.reload.location_strategies }
+
+          expect(response).to have_http_status :unprocessable_entity
         end
       end
 
