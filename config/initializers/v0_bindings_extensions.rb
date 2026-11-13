@@ -8,9 +8,11 @@ require 'will_paginate/array'
 module LocationStrategyBindings
   module_function
 
-  # An item with an unknown type becomes nil, which `invalid_properties` reports.
+  # An item that is not an object or has an unknown type becomes nil, which `invalid_properties` reports.
   def bind(items)
     items.map do |item|
+      next unless item.is_a?(Hash)
+
       case item[:type]
       when 'TextPositionSelector'
         Api::V0::Bindings::TextPositionSelector.new(item)

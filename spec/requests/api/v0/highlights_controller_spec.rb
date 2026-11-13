@@ -298,6 +298,16 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
+      it 'rejects a location that is not an object' do
+        expect do
+          post highlights_path,
+               params: valid_attributes.deep_merge(highlight: { location_strategies: [nil, 1] }),
+               as: :json
+        end.not_to change { Highlight.count }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
       context 'when the request is valid' do
         before do
           post highlights_path, params: valid_attributes
@@ -610,6 +620,26 @@ RSpec.describe Api::V0::HighlightsController, type: :request do
                 params: { highlight: { location_strategies: [v2_location.except(:start_container)] } },
                 as: :json
           end.not_to change { highlight.reload.location_strategies }
+
+          expect(response).to have_http_status :unprocessable_entity
+        end
+
+        it 'rejects a location that is not an object' do
+          expect do
+            put highlights_path(id: highlight.id),
+                params: { highlight: { location_strategies: [nil, 1] } },
+                as: :json
+          end.not_to change { highlight.reload.location_strategies }
+
+          expect(response).to have_http_status :unprocessable_entity
+        end
+
+        it 'rejects location strategies that are not a list' do
+          expect do
+            put highlights_path(id: highlight.id),
+                params: { highlight: { color: 'pink', location_strategies: v2_location } },
+                as: :json
+          end.not_to change { highlight.reload.attributes }
 
           expect(response).to have_http_status :unprocessable_entity
         end
