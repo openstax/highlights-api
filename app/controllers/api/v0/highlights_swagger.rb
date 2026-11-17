@@ -45,7 +45,9 @@ class Api::V0::HighlightsSwagger
     end
     property :type do
       key :type, :string
-      key :description, 'The type for the xpath range selector.'
+      key :description, 'The type for the xpath range selector: `XpathRangeSelector`, or ' \
+                        '`XpathRangeSelectorV2` when the text offsets leave out the hidden screen ' \
+                        'reader text inside other highlights.'
     end
   end
 
@@ -191,7 +193,7 @@ class Api::V0::HighlightsSwagger
       key :type, :array
       key :description, "Location strategies for the highlight. Items should have a schema " \
                         "matching the strategy schemas that have been defined. (" \
-                        "`XpathRangeSelector` or `TextPositionSelector`)."
+                        "`XpathRangeSelector`, `XpathRangeSelectorV2` or `TextPositionSelector`)."
       items do
         key :type, :object
       end
@@ -228,6 +230,15 @@ class Api::V0::HighlightsSwagger
     property :annotation do
       key :type, :string
       key :description, 'The new note for the highlight (replaces existing note).'
+    end
+    property :location_strategies do
+      key :type, :array
+      key :description, "New location strategies for the highlight (replace the existing ones). Items should " \
+                        "have a schema matching the strategy schemas that have been defined. (" \
+                        "`XpathRangeSelector`, `XpathRangeSelectorV2` or `TextPositionSelector`)."
+      items do
+        key :type, :object
+      end
     end
   end
 
